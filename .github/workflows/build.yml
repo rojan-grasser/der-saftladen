@@ -1,0 +1,83 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+      - build-actions-pipeline
+  pull_request:
+    branches:
+      - master
+      - build-actions-pipeline
+jobs:
+  build-vue:
+    name: build app
+    runs-on: ubuntu-latest
+    container:
+      image: node:22
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install --frozen-lockfile
+      - name: Build app
+        run: npm run build
+      - name: Upload Vue build
+        uses: actions/upload-artifact@v3
+        with:
+          name: vue-dist
+          path: dist
+
+  install-composer-deps:
+    name: Install composer deps
+    runs-on: ubuntu-latest
+    container:
+      image: php:8.2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, pdo_mysql
+      - name: Install composer deps
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      - name: Upload composer vendor
+        uses: actions/upload-artifact@v3
+        with:
+          name: composer-vendor
+          path: vendor
+
+  build-docker-image:
+    name: Build docker image
+    runs-on: ubuntu-latest
+    container:
+      image: gcr.io/kaniko-project/executor:debug
+    env:
+      DOCKER_CONFIG: /kaniko/.docker/
+      REGISTRY: ghcr.io
+      REGISTRY_USER: ${{ secrets.REGISTRY_USER }}
+      REGISTRY_PASS: ${{ secrets.REGISTRY_PASS }}
+      DOCKER_IMAGE_URL: ${{ env.REGISTRY }}/${{ github.repository }}:${{ github.sha }}
+    steps:
+      - name: Download Vue build
+        uses: actions/download-artifact@v3
+        with:
+          name: vue-dist
+          path: ./dist
+
+      - name: Download composer vendor
+        uses: actions/download-artifact@v3
+        with:
+          name: composer-vendor
+          path: ./vendor
+      - name: Prepare Docker auth
+        run: |
+          echo "{\"auths\":{\"${REGISTRY}\":{\"username\":\"${REGISTRY_USER}\",\"password\":\"${REGISTRY_PASS}\"}}}" > /kaniko/.docker/config.json
+
+      - name: Build and push Docker image
+        run: |
+          /kaniko/executor \
+            --context $GITHUB_WORKSPACE \
+            --dockerfile $GITHUB_WORKSPACE/Dockerfile \
+            --destination $DOCKER_IMAGE_URL
