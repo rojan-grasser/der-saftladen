@@ -10,19 +10,20 @@ on:
       - build-actions-pipeline
 jobs:
   build-vue:
-    name: build app
+    name: build vue
     runs-on: ubuntu-latest
-    container:
-      image: node:22
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Install dependencies
         run: npm install --frozen-lockfile
       - name: Build app
         run: npm run build
       - name: Upload Vue build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: vue-dist
           path: dist
@@ -34,7 +35,7 @@ jobs:
       image: php:8.2
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -57,13 +58,13 @@ jobs:
       DOCKER_CONFIG: /kaniko/.docker/
     steps:
       - name: Download Vue build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: vue-dist
           path: ./dist
 
       - name: Download composer vendor
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: composer-vendor
           path: ./vendor
