@@ -56,16 +56,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function isAdmin(): bool
+    public function hasRole(UserRole $role): bool
     {
-        return $this->role === UserRole::ADMIN;
-    }
-    public function isInstructor(): bool
-    {
-        return $this->role === UserRole::INSTRUCTOR;
-    }
-    public function isTeacher(): bool
-    {
-        return $this->role === UserRole::TEACHER;
+        return $this->role === $role;
     }
 }
