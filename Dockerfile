@@ -3,16 +3,15 @@ FROM php:8.4-fpm-alpine
 WORKDIR /var/www/html
 
 RUN apk add --no-cache bash libpng libpng-dev oniguruma-dev icu-dev libxml2-dev libpq-dev \
-    && docker-php-ext-install pdo_mysql mbstring intl xml opcache pdo_pgsql \
-    && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-    && pecl install swoole \
-    && docker-php-ext-enable swoole \
-    && apk del .build-deps
+    && docker-php-ext-install pdo_mysql mbstring intl xml opcache pdo_pgsql pcntl
 
 COPY . .
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
+
+RUN curl -Lo /usr/local/bin/rr https://github.com/roadrunner-server/roadrunner/releases/download/v2.12.4/roadrunner_linux_amd64 \
+    && chmod +x /usr/local/bin/rr
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
