@@ -20,6 +20,7 @@ jobs:
         with:
           php-version: '8.4'
           extensions: mbstring, bcmath, pdo_mysql
+          tools: composer:v2
       - name: Install composer deps
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
       - name: Upload composer vendor
@@ -35,11 +36,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Download composer vendor
-        uses: actions/download-artifact@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          name: composer-vendor
-          path: ./vendor
+          php-version: '8.4'
+          extensions: mbstring, bcmath, pdo_mysql
+          tools: composer:v2
+#      - name: Download composer vendor
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: composer-vendor
+#          path: ./vendor
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -62,6 +69,8 @@ jobs:
     env:
       DOCKER_CONFIG: /kaniko/.docker/
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Download Vue build
         uses: actions/download-artifact@v4
         with:
