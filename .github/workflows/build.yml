@@ -12,8 +12,6 @@ jobs:
   install-composer-deps:
     name: Install composer deps
     runs-on: ubuntu-latest
-    container:
-      image: php:8.2
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,7 +23,7 @@ jobs:
       - name: Install composer deps
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
       - name: Upload composer vendor
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: composer-vendor
           path: vendor
