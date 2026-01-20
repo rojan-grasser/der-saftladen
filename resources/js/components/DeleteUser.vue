@@ -2,7 +2,6 @@
 import { Form } from '@inertiajs/vue3';
 import { useTemplateRef } from 'vue';
 
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -18,6 +17,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
+import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 
 const passwordInput = useTemplateRef('passwordInput');
 </script>

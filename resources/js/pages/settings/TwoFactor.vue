@@ -11,8 +11,9 @@ import { Button } from '@/components/ui/button';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
-import { disable, enable, show } from '@/routes/two-factor';
 import { BreadcrumbItem } from '@/types';
+
+import { disable, enable, show } from '@/routes/two-factor';
 
 interface Props {
     requiresConfirmation?: boolean;

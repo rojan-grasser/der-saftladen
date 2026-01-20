@@ -22,6 +22,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { useAppearance } from '@/composables/useAppearance';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
+
 import { confirm } from '@/routes/two-factor';
 
 interface Props {
