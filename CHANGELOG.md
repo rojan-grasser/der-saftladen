@@ -1,3 +1,16 @@
+# [1.2.0](https://github.com/rojan-grasser/der-saftladen/compare/v1.1.0...v1.2.0) (2026-01-20)
+
+
+### Bug Fixes
+
+* Add role to registration test ([ee8c382](https://github.com/rojan-grasser/der-saftladen/commit/ee8c382f4c449a93e1ea8b9efa87fc9fedc855c5))
+* Create database.sqlite in setup script ([0f63a5f](https://github.com/rojan-grasser/der-saftladen/commit/0f63a5f42b145c4b50562522c563cb766da588c8))
+
+
+### Features
+
+* Added new route to query users from the admin panel ([85603e7](https://github.com/rojan-grasser/der-saftladen/commit/85603e72f0ed5759320320b59b9defc5afa5f8ad))
+
 # [1.1.0](https://github.com/rojan-grasser/der-saftladen/compare/v1.0.5...v1.1.0) (2026-01-20)
 
 
