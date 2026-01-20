@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
 
 import NavFooter from '@/components/NavFooter.vue';
@@ -15,9 +15,13 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import admin from '@/routes/admin';
 import { type NavItem } from '@/types';
 
 import AppLogo from './AppLogo.vue';
+
+const page = usePage();
+const user = page.props.auth.user;
 
 const mainNavItems: NavItem[] = [
     {
@@ -26,6 +30,13 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
 ];
+if (user.role === 'admin') {
+    mainNavItems.push({
+        title: 'Admin Dashboard',
+        href: admin.dashboard(),
+        icon: LayoutGrid,
+    });
+}
 
 const footerNavItems: NavItem[] = [
     {
