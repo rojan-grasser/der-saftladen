@@ -10,8 +10,9 @@ COPY . .
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-RUN curl -Lo /usr/local/bin/rr https://github.com/roadrunner-server/roadrunner/releases/download/v2.12.4/roadrunner_linux_amd64 \
-    && chmod +x /usr/local/bin/rr
+RUN curl -Lo /usr/local/bin/rr \
+  https://github.com/roadrunner-server/roadrunner/releases/download/v2.12.4/roadrunner_linux_amd64_musl \
+  && chmod +x /usr/local/bin/rr
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
