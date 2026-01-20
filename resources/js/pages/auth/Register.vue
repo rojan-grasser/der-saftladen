@@ -10,6 +10,13 @@ import { Spinner } from '@/components/ui/spinner';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 </script>
 
 <template>
@@ -34,7 +41,6 @@ import { store } from '@/routes/register';
                         required
                         autofocus
                         :tabindex="1"
-                        autocomplete="name"
                         name="name"
                         placeholder="Full name"
                     />
@@ -48,11 +54,28 @@ import { store } from '@/routes/register';
                         type="email"
                         required
                         :tabindex="2"
-                        autocomplete="email"
                         name="email"
                         placeholder="email@example.com"
                     />
                     <InputError :message="errors.email" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="role">Role</Label>
+                    <Select name="role">
+                        <SelectTrigger id="role" :tabindex="3">
+                            <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="user"> User </SelectItem>
+                            <SelectItem value="teacher"> Teacher </SelectItem>
+                            <SelectItem value="instructor"
+                                >Instructor
+                            </SelectItem>
+                            <SelectItem value="admin"> Admin </SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <InputError :message="errors.role" />
                 </div>
 
                 <div class="grid gap-2">
@@ -62,7 +85,6 @@ import { store } from '@/routes/register';
                         type="password"
                         required
                         :tabindex="3"
-                        autocomplete="new-password"
                         name="password"
                         placeholder="Password"
                     />
@@ -76,7 +98,6 @@ import { store } from '@/routes/register';
                         type="password"
                         required
                         :tabindex="4"
-                        autocomplete="new-password"
                         name="password_confirmation"
                         placeholder="Confirm password"
                     />
