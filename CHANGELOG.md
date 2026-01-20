@@ -1,3 +1,15 @@
+## [1.0.2](https://github.com/rojan-grasser/der-saftladen/compare/v1.0.1...v1.0.2) (2026-01-20)
+
+
+### Bug Fixes
+
+* Added .dockerignore ([5502dfb](https://github.com/rojan-grasser/der-saftladen/commit/5502dfbf77ac536c951a2e295304cee9a36cdbe2))
+* Added condition to tag docker image step ([be8f22a](https://github.com/rojan-grasser/der-saftladen/commit/be8f22ad67538a14e0b05c97646f8585dc148498))
+* Changed dockerfile ([f24dac9](https://github.com/rojan-grasser/der-saftladen/commit/f24dac9d72df7f7eac20022ff53f45439a5f5e64))
+* Dockerfile finally working, added roadrunner as server ([024e226](https://github.com/rojan-grasser/der-saftladen/commit/024e226a7e1e4021a09a86a6032f20266067d4c0))
+* Installing sloole in the dockerfile ([55070da](https://github.com/rojan-grasser/der-saftladen/commit/55070da228e7150787410a4c02c6b878924a0d66))
+* Made a last adjustment of the dockerfile ([1cc3121](https://github.com/rojan-grasser/der-saftladen/commit/1cc31216d30f16c34996adf0f0d3f0e1294a090c))
+
 ## [1.0.1](https://github.com/rojan-grasser/der-saftladen/compare/v1.0.0...v1.0.1) (2026-01-19)
 
 
