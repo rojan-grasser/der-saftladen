@@ -18,7 +18,7 @@ class EnsureUserIsActive
     public function handle(Request $request, Closure $next): Response
     {
         if (!$request->user()->hasStatus(UserStatus::ACTIVE)) {
-            return Inertia::render('Inactive')->toResponse($request);
+            return Inertia::render('Inactive')->toResponse($request)->setStatusCode(Response::HTTP_FORBIDDEN);
         }
         return $next($request);
     }
