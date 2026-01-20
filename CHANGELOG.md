@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/rojan-grasser/der-saftladen/compare/v1.0.4...v1.0.5) (2026-01-20)
+
+
+### Bug Fixes
+
+* Added enforceScheme for https if the app is in production ([4d1daaf](https://github.com/rojan-grasser/der-saftladen/commit/4d1daaf5fc0930fd78bff4863ce0be5c4a45cfbe))
+
 ## [1.0.4](https://github.com/rojan-grasser/der-saftladen/compare/v1.0.3...v1.0.4) (2026-01-20)
 
 
