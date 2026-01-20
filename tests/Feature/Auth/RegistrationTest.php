@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\UserRole;
+
 test('registration screen can be rendered', function () {
     $response = $this->get(route('register'));
 
@@ -12,6 +14,7 @@ test('new users can register', function () {
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
+        'role' => UserRole::USER->value,
     ]);
 
     $this->assertAuthenticated();
