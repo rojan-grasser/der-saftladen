@@ -10,9 +10,15 @@ COPY . .
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-RUN curl -Lo /usr/local/bin/rr \
-  https://github.com/roadrunner-server/roadrunner/releases/download/v2.12.4/roadrunner_linux_amd64_musl \
-  && chmod +x /usr/local/bin/rr
+RUN apk add --no-cache ca-certificates tar \
+    && curl -fL \
+       https://github.com/roadrunner-server/roadrunner/releases/download/v2025.1.6/roadrunner-2025.1.6-unknown-musl-amd64.tar.gz \
+       -o /tmp/rr.tar.gz \
+    && tar -xzf /tmp/rr.tar.gz -C /tmp \
+    && mv /tmp/roadrunner-2025.1.6-unknown-musl-amd64/rr /usr/local/bin/rr \
+    && chmod +x /usr/local/bin/rr \
+    && rm -rf /tmp/rr.tar.gz /tmp/roadrunner-2025.1.6-unknown-musl-amd64 \
+    && /usr/local/bin/rr --version
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
