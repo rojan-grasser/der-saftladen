@@ -16,8 +16,20 @@ class EnsureUserIsActive
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->user() || !$request->user()->hasStatus(UserStatus::ACTIVE)) {
-            abort(403);
+        $user = $request->user();
+
+        if ($user && $user->hasStatus(UserStatus::ACTIVE)) {
+            if ($request->routeIs('inactive')) {
+                return redirect()->route('dashboard');
+            }
+            return $next($request);
+        }
+
+        if (!$user || !$user->hasStatus(UserStatus::ACTIVE)) {
+            if ($request->routeIs('inactive')) {
+                return $next($request);
+            }
+            return redirect()->route('inactive');
         }
         return $next($request);
     }

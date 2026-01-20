@@ -1,7 +1,5 @@
 <?php
 
-use App\Http\Middleware\EnsureUserIsActive;
-use App\Http\Middleware\EnsureUserIsAdmin;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -12,11 +10,15 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('inactive', function () {
+    return Inertia::render('Inactive');
+})->middleware(['auth', 'active'])->name('inactive');
+
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', 'active'])->name('dashboard');
 
-Route::middleware(['auth', 'verified', EnsureUserIsAdmin::class, EnsureUserIsActive::class])
+Route::middleware(['auth', 'verified', 'active', 'admin'])
     ->prefix('admin')
     ->group(function () {
         Route::get('/dashboard', function () {
