@@ -32,7 +32,7 @@ defineProps<{
                     <div class="flex items-center justify-center size-10 rounded-lg bg-sidebar-accent/50 border border-sidebar-border text-primary">
                         <span class="material-symbols-outlined" style="font-size: 24px;">school</span>
                     </div>
-                    <span class="text-xl font-bold tracking-tight text-foreground">IFA 12</span>
+                    <span class="text-xl font-bold tracking-tight text-foreground">Ausbilderportal</span>
                 </div>
                 <div class="flex items-center gap-4">
                     <template v-if="$page.props.auth.user">
@@ -120,7 +120,7 @@ defineProps<{
         <!-- Footer -->
         <footer class="relative z-10 w-full border-t border-border bg-background py-8">
             <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p class="text-xs text-muted-foreground">© 2023 IFA 12. All rights reserved.</p>
+                <p class="text-xs text-muted-foreground">© 2026 IFA 12. All rights reserved.</p>
                 <div class="flex items-center gap-6">
                     <div class="flex items-center gap-2 text-muted-foreground text-xs">
                         <span class="material-symbols-outlined text-[16px]">code</span>
