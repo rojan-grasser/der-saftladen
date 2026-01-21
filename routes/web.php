@@ -16,7 +16,7 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified', 'active'])->name('dashboard');
 
-Route::middleware([])
+Route::middleware(['auth', 'verified', 'active', 'admin'])
     ->prefix('admin')
     ->group(function () {
         Route::get('/dashboard', function () {
