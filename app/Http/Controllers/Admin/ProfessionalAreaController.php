@@ -34,7 +34,7 @@ class ProfessionalAreaController extends Controller
 
             return ['success' => true];
         } catch (Exception $exception) {
-            // Error code 23000 -> Unique violation beim name
+            // Error code 23000 -> Unique violation on the name
             if ($exception instanceof QueryException && $exception->errorInfo[0] === '23000') {
                 return [
                     'success' => false,
