@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ProfessionalAreaController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -15,7 +16,7 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified', 'active'])->name('dashboard');
 
-Route::middleware(['auth', 'verified', 'active', 'admin'])
+Route::middleware([])
     ->prefix('admin')
     ->group(function () {
         Route::get('/dashboard', function () {
@@ -24,8 +25,9 @@ Route::middleware(['auth', 'verified', 'active', 'admin'])
 
         Route::get('/users', [UserController::class, 'index'])->name('admin.users');
         Route::put('/users/{id}', [UserController::class, 'edit'])->name('admin.users.edit');
+        Route::post('/professional-area', [ProfessionalAreaController::class, 'index'])->name('admin.professional-area.create');
 
         // Add any other admin routes here
     });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';
