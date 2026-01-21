@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -59,12 +60,18 @@ class UserController extends Controller
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'role' => ['sometimes', new Enum(UserRole::class)],
+            'status' => ['sometimes', new Enum(UserStatus::class)],
+            'name' => ['sometimes'],
+            'email' => ['sometimes', 'email'],
+        ]);
+
+        DB::table('users')->where('id', '=', $id)->update($validated);
+
+        return ['success' => true];
     }
 
     /**

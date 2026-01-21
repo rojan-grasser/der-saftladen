@@ -23,6 +23,7 @@ Route::middleware(['auth', 'verified', 'active', 'admin'])
         })->name('admin.dashboard');
 
         Route::get('/users', [UserController::class, 'index'])->name('admin.users');
+        Route::put('/users/{id}', [UserController::class, 'edit'])->name('admin.users.edit');
 
         // Add any other admin routes here
     });
