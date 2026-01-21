@@ -134,8 +134,8 @@ defineProps<{
 
 <style>
 .bg-dot-pattern {
-    background-image: radial-gradient(hsl(var(--foreground)) 1px, transparent 1px);
-    background-size: 24px 24px;
+    background-image: radial-gradient(var(--primary) 1.5px, transparent 1.5px);
+    background-size: 40px 40px;
 }
 .mask-corners {
     mask-image: radial-gradient(circle at center, transparent 30%, black 100%);
