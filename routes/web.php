@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ProfessionalAreaController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -24,6 +25,7 @@ Route::middleware(['auth', 'verified', 'active', 'admin'])
 
         Route::get('/users', [UserController::class, 'index'])->name('admin.users');
         Route::put('/users/{id}', [UserController::class, 'edit'])->name('admin.users.edit');
+        Route::post('/professional-area', [ProfessionalAreaController::class, 'index'])->name('admin.professional-area.create');
 
         // Add any other admin routes here
     });
