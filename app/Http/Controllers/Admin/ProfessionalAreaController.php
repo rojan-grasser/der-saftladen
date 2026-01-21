@@ -13,6 +13,7 @@ class ProfessionalAreaController extends Controller
     /**
      * Takes name and description as parameters, returns success (always) and message (sometimes).
      *
+     * @param Request $request
      * @return array|false[]|true[]
      */
     public function index(Request $request)
