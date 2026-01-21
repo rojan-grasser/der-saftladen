@@ -26,6 +26,9 @@ export type AppPageProps<
     [key: string]: unknown;
 };
 
+export type UserRole = 'user' | 'admin' | 'instructor' | 'teacher';
+export type UserStatus = 'active' | 'inactive' | 'pending';
+
 export interface User {
     id: number;
     name: string;
@@ -34,7 +37,14 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
+    status: UserStatus;
+    role: UserRole;
     [key: string]: unknown; // This allows for additional properties...
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;
+
+export interface PaginatedResponse<T> {
+    data: T[];
+    links: any[];
+}

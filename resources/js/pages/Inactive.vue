@@ -7,7 +7,6 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
 const page = usePage();
 const user = page.props.auth.user;
 
-// Assuming your UserStatus enum values are 'pending' and 'inactive'
 const isPending = user.status === 'pending';
 </script>
 
