@@ -44,7 +44,7 @@ von Rojan Grasser, Justin Taube, Lukas Bauer  und Louis Dittmar
 
 - **Backend:** PHP 8.2+ (Laravel)
 - **Frontend:** Vue.js (via Inertia.js)
-- **Datenbank:** SQLite (Standard) / Relationale DB
+- **Datenbank:** PostgreSQL  (Standard) / SQLite (Local)
 - **Tools:** Composer, Node.js, Git/GitHub
 
 ---
