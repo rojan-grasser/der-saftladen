@@ -10,6 +10,12 @@ use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
+    public function index()
+    {
+        return Inertia::render('Calender/Index', [
+            'appointments' => Appointment::all(),
+        ]);
+    }
 
     public function store(Request $request)
     {
@@ -25,8 +31,6 @@ class AppointmentController extends Controller
             ...$validated,
             'user_id' => Auth::id(),
         ]);
-
-        return redirect()->back();
     }
 
     public function update(Request $request, Appointment $appointment)
@@ -37,18 +41,13 @@ class AppointmentController extends Controller
             'location' => 'nullable|string|max:255',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
-            'all_day' => 'boolean',
         ]);
 
         $appointment->update($validated);
-
-        return redirect()->back();
     }
 
     public function destroy(Appointment $appointment)
     {
         $appointment->delete();
-
-        return redirect()->back();
     }
 }
