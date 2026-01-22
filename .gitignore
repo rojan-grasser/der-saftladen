@@ -1,4 +1,3 @@
-/.phpunit.cache
 /bootstrap/ssr
 /node_modules
 /public/build
@@ -15,7 +14,6 @@
 .env.backup
 .env.production
 .phpactor.json
-.phpunit.result.cache
 Homestead.json
 Homestead.yaml
 npm-debug.log

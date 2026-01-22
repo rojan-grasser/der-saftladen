@@ -50,7 +50,6 @@ defineProps<{
                         required
                         autofocus
                         :tabindex="1"
-                        autocomplete="email"
                         placeholder="email@example.com"
                     />
                     <InputError :message="errors.email" />
@@ -74,7 +73,6 @@ defineProps<{
                         name="password"
                         required
                         :tabindex="2"
-                        autocomplete="current-password"
                         placeholder="Password"
                     />
                     <InputError :message="errors.password" />
@@ -92,7 +90,6 @@ defineProps<{
                     class="mt-4 w-full"
                     :tabindex="4"
                     :disabled="processing"
-                    data-test="login-button"
                 >
                     <Spinner v-if="processing" />
                     Log in

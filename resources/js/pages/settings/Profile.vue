@@ -58,7 +58,6 @@ const user = page.props.auth.user;
                             name="name"
                             :default-value="user.name"
                             required
-                            autocomplete="name"
                             placeholder="Full name"
                         />
                         <InputError class="mt-2" :message="errors.name" />
@@ -73,7 +72,6 @@ const user = page.props.auth.user;
                             name="email"
                             :default-value="user.email"
                             required
-                            autocomplete="username"
                             placeholder="Email address"
                         />
                         <InputError class="mt-2" :message="errors.email" />
@@ -101,11 +99,7 @@ const user = page.props.auth.user;
                     </div>
 
                     <div class="flex items-center gap-4">
-                        <Button
-                            :disabled="processing"
-                            data-test="update-profile-button"
-                            >Save</Button
-                        >
+                        <Button :disabled="processing">Save</Button>
 
                         <Transition
                             enter-active-class="transition ease-in-out"

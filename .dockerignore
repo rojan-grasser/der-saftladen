@@ -3,7 +3,6 @@
 .github
 .idea
 .vscode
-tests
 .editorconfig
 .gitattributes
 .gitignore
@@ -15,6 +14,5 @@ components.json
 Dockerfile
 eslint.config.js
 package*.json
-phpunit.xml
 README.md
 tsconfig.json

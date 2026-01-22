@@ -38,7 +38,6 @@ defineProps<{
                         id="email"
                         type="email"
                         name="email"
-                        autocomplete="off"
                         autofocus
                         placeholder="email@example.com"
                     />
@@ -46,11 +45,7 @@ defineProps<{
                 </div>
 
                 <div class="my-6 flex items-center justify-start">
-                    <Button
-                        class="w-full"
-                        :disabled="processing"
-                        data-test="email-password-reset-link-button"
-                    >
+                    <Button :disabled="processing" class="w-full">
                         <Spinner v-if="processing" />
                         Email password reset link
                     </Button>

@@ -38,7 +38,6 @@ const inputEmail = ref(props.email);
                         id="email"
                         type="email"
                         name="email"
-                        autocomplete="email"
                         v-model="inputEmail"
                         class="mt-1 block w-full"
                         readonly
@@ -52,7 +51,6 @@ const inputEmail = ref(props.email);
                         id="password"
                         type="password"
                         name="password"
-                        autocomplete="new-password"
                         class="mt-1 block w-full"
                         autofocus
                         placeholder="Password"
@@ -68,7 +66,6 @@ const inputEmail = ref(props.email);
                         id="password_confirmation"
                         type="password"
                         name="password_confirmation"
-                        autocomplete="new-password"
                         class="mt-1 block w-full"
                         placeholder="Confirm password"
                     />
@@ -79,7 +76,6 @@ const inputEmail = ref(props.email);
                     type="submit"
                     class="mt-4 w-full"
                     :disabled="processing"
-                    data-test="reset-password-button"
                 >
                     <Spinner v-if="processing" />
                     Reset password

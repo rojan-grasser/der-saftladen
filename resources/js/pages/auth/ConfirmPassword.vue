@@ -31,7 +31,6 @@ import { store } from '@/routes/password/confirm';
                         name="password"
                         class="mt-1 block w-full"
                         required
-                        autocomplete="current-password"
                         autofocus
                     />
 
@@ -39,11 +38,7 @@ import { store } from '@/routes/password/confirm';
                 </div>
 
                 <div class="flex items-center">
-                    <Button
-                        class="w-full"
-                        :disabled="processing"
-                        data-test="confirm-password-button"
-                    >
+                    <Button :disabled="processing" class="w-full">
                         <Spinner v-if="processing" />
                         Confirm Password
                     </Button>

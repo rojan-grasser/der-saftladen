@@ -34,7 +34,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <Card
                     class="relative aspect-video items-center justify-center gap-2 overflow-hidden p-0 transition-colors hover:bg-muted/50"
                 >
-                    <span class="font-medium">Test Text</span>
+                    <span class="font-medium">Demo Text</span>
                 </Card>
             </div>
         </div>
