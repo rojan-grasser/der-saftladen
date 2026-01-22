@@ -32,7 +32,12 @@ class UserController extends Controller
             $query->where('status', $validated['status']);
         }
 
-        return Inertia::render('admin/Users', ['users' => $query->select('id', 'name', 'email', 'role', 'status')->paginate(20)->withQueryString()]);
+        return Inertia::render('admin/Users', [
+            'users' => $query->select('id', 'name', 'email', 'role', 'status')
+                ->paginate(20)
+                ->withQueryString(),
+            'filters' => $request->only(['role', 'status']),
+        ]);
     }
 
     /**
