@@ -90,7 +90,7 @@ class ProfessionalAreaController extends Controller
             ProfessionalArea::destroy($id);
 
             return ['success' => true];
-        } catch (\Mockery\Exception $exception) {
+        } catch (Exception $exception) {
             Log::error($exception);
 
             return [
