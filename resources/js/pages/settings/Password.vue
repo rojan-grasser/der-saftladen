@@ -54,7 +54,6 @@ const breadcrumbItems: BreadcrumbItem[] = [
                             name="current_password"
                             type="password"
                             class="mt-1 block w-full"
-                            autocomplete="current-password"
                             placeholder="Current password"
                         />
                         <InputError :message="errors.current_password" />
@@ -67,7 +66,6 @@ const breadcrumbItems: BreadcrumbItem[] = [
                             name="password"
                             type="password"
                             class="mt-1 block w-full"
-                            autocomplete="new-password"
                             placeholder="New password"
                         />
                         <InputError :message="errors.password" />
@@ -82,18 +80,13 @@ const breadcrumbItems: BreadcrumbItem[] = [
                             name="password_confirmation"
                             type="password"
                             class="mt-1 block w-full"
-                            autocomplete="new-password"
                             placeholder="Confirm password"
                         />
                         <InputError :message="errors.password_confirmation" />
                     </div>
 
                     <div class="flex items-center gap-4">
-                        <Button
-                            :disabled="processing"
-                            data-test="update-password-button"
-                            >Save password</Button
-                        >
+                        <Button :disabled="processing">Save password</Button>
 
                         <Transition
                             enter-active-class="transition ease-in-out"
