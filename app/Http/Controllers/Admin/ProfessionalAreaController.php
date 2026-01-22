@@ -7,6 +7,7 @@ use App\Models\ProfessionalArea;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProfessionalAreaController extends Controller
@@ -38,7 +39,7 @@ class ProfessionalAreaController extends Controller
             if ($exception instanceof QueryException && $exception->errorInfo[0] === '23000') {
                 return [
                     'success' => false,
-                    'message' => 'The professional area "'.$name.'" already exists',
+                    'message' => 'The professional area "' . $name . '" already exists',
                 ];
             }
 
@@ -71,7 +72,7 @@ class ProfessionalAreaController extends Controller
             if ($exception instanceof QueryException && $exception->errorInfo[0] === '23000') {
                 return [
                     'success' => false,
-                    'message' => 'The professional area "'.$updateData['name'].'" already exists',
+                    'message' => 'The professional area "' . $updateData['name'] . '" already exists',
                 ];
             }
 
@@ -98,5 +99,20 @@ class ProfessionalAreaController extends Controller
                 'message' => 'There was a unexpected error while deleting the professional area, please try again later',
             ];
         }
+    }
+
+    public function get(Request $request)
+    {
+        $validated = $request->validate([
+            'query' => ['sometimes', 'string', 'max:255'],
+        ]);
+
+        $query = DB::table('professional_areas');
+
+        if (isset($validated['query'])) {
+            $query->where('name', 'like', '%' . $validated['query'] . '%');
+        }
+
+        return $query->paginate(20, ['id', 'name', 'description'])->withQueryString();
     }
 }
