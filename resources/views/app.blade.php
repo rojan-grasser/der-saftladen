@@ -30,7 +30,7 @@
             }
         </style>
 
-        <title inertia></title>
+        <title inertia>{{ config('app.name', 'Der-Saftladen') }}</title>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">

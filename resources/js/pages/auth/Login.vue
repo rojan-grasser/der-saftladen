@@ -42,7 +42,7 @@ defineProps<{
         >
             <div class="grid gap-6">
                 <div class="grid gap-2">
-                    <Label for="email">Email-addresse</Label>
+                    <Label for="email">Email-Addresse</Label>
                     <Input
                         id="email"
                         type="email"
@@ -81,7 +81,7 @@ defineProps<{
                 <div class="flex items-center justify-between">
                     <Label for="remember" class="flex items-center space-x-3">
                         <Checkbox id="remember" name="remember" :tabindex="3" />
-                        <span>Erinnere dich an mich</span>
+                        <span>Anmeldung Speichern</span>
                     </Label>
                 </div>
 
