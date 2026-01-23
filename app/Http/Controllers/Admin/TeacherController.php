@@ -18,14 +18,15 @@ class TeacherController extends Controller
         $queryString = trim($request->validate(['query' => ['nullable', 'string', 'max:255']])['query'] ?? '');
 
         $query = DB::table('users')
-            ->select('id', 'email', 'name');
+            ->select('id', 'email', 'name')
+            ->where('role', '=', UserRole::TEACHER);
 
         if ($queryString !== '') {
-            $query->where('name', 'like', '%' . $queryString . '%')
-                ->orWhere('email', 'like', '%' . $queryString . '%');
+            $query->where(function ($q) use ($queryString) {
+                $q->where('name', 'like', '%' . $queryString . '%')
+                    ->orWhere('email', 'like', '%' . $queryString . '%');
+            });
         }
-
-        $query->where('role', '=', UserRole::TEACHER);
 
         return response()->json($query->get());
     }
