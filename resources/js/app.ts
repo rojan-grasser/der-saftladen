@@ -7,7 +7,7 @@ import { createApp, h } from 'vue';
 
 import { initializeTheme } from './composables/useAppearance';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Der-Saftladen';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
