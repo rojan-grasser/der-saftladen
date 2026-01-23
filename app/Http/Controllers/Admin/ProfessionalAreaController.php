@@ -115,8 +115,8 @@ class ProfessionalAreaController extends Controller
         ]);
     }
 
-    public function getTeachers(Request $request, string $id)
+    public function getInstructors(Request $request, string $id)
     {
-        return ProfessionalArea::findOrFail($id)->teachers;
+        return ProfessionalArea::findOrFail($id)->instructors;
     }
 }

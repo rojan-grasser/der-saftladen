@@ -4,14 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 
-class Teacher extends User
+class Instructor extends User
 {
     protected $table = 'users';
 
     protected static function booted()
     {
-        static::addGlobalScope('teacher', function (Builder $query) {
-            $query->where('role', 'teacher');
+        static::addGlobalScope('instructor', function (Builder $query) {
+            $query->where('role', 'instructor');
         });
     }
 

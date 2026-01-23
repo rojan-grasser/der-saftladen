@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Models\Teacher;
+use App\Models\Instructor;
 use DB;
 use Illuminate\Http\Request;
 
-class TeacherController extends Controller
+class InstructorController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -18,14 +18,15 @@ class TeacherController extends Controller
         $queryString = trim($request->validate(['query' => ['nullable', 'string', 'max:255']])['query'] ?? '');
 
         $query = DB::table('users')
-            ->select('id', 'email', 'name');
+            ->select('id', 'email', 'name')
+            ->where('role', '=', UserRole::INSTRUCTOR);
 
         if ($queryString !== '') {
-            $query->where('name', 'like', '%' . $queryString . '%')
-                ->orWhere('email', 'like', '%' . $queryString . '%');
+            $query->where(function ($q) use ($queryString) {
+                $q->where('name', 'like', '%' . $queryString . '%')
+                    ->orWhere('email', 'like', '%' . $queryString . '%');
+            });
         }
-
-        $query->where('role', '=', UserRole::TEACHER);
 
         return response()->json($query->get());
     }
