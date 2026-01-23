@@ -17,6 +17,8 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        return $request->user()->topics[0]->posts[0]->creator;
+
         $validated = $request->validate([
             'role' => ['sometimes', new Enum(UserRole::class)],
             'status' => ['sometimes', new Enum(UserStatus::class)],
