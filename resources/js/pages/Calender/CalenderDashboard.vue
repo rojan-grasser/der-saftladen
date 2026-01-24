@@ -160,17 +160,35 @@ const startOfWeek = (value: Date) => {
     start.setHours(0, 0, 0, 0);
     return start;
 };
+const toDayStart = (value: Date) => {
+    const date = new Date(value);
+    date.setHours(0, 0, 0, 0);
+    return date;
+};
+
+const getDayKeysBetween = (start: Date, end: Date) => {
+    const keys: string[] = [];
+    let cursor = toDayStart(start);
+    const last = toDayStart(end);
+    while (cursor <= last) {
+        keys.push(toDateKey(cursor));
+        cursor.setDate(cursor.getDate() + 1);
+    }
+    return keys;
+};
 const filteredAppointments = computed(() => {
     const query = searchQuery.value.trim().toLowerCase();
     const now = new Date();
 
     return props.appointments.filter((appointment) => {
         const start = parseDate(appointment.start_time);
+        const end = parseDate(appointment.end_time) ?? start;
         if (!start) {
             return false;
         }
 
-        if (!includePast.value && start < now) {
+        const rangeEnd = end && end >= start ? end : start;
+        if (!includePast.value && rangeEnd < now) {
             return false;
         }
 
@@ -204,14 +222,17 @@ const appointmentsByDate = computed(() => {
     const map = new Map<string, Appointment[]>();
     for (const appointment of sortedAppointments.value) {
         const date = parseDate(appointment.start_time);
+        const end = parseDate(appointment.end_time) ?? date;
         if (!date) {
             continue;
         }
-        const key = toDateKey(date);
-        if (!map.has(key)) {
-            map.set(key, []);
+        const rangeEnd = end && end >= date ? end : date;
+        for (const key of getDayKeysBetween(date, rangeEnd)) {
+            if (!map.has(key)) {
+                map.set(key, []);
+            }
+            map.get(key)!.push(appointment);
         }
-        map.get(key)!.push(appointment);
     }
     return map;
 });
@@ -518,73 +539,90 @@ const handleDialogOpen = (value: boolean) => {
                     </Card>
 
                     <Card>
-                        <CardHeader class="flex items-center gap-2">
-                            <CardTitle class="text-sm font-medium">
+                        <CardHeader class="pb-2">
+                            <CardTitle
+                                class="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                            >
                                 Filters
                             </CardTitle>
                         </CardHeader>
-                        <CardContent class="space-y-4">
-                            <div class="flex items-start gap-3">
-                                <Checkbox
-                                    id="filter-mine"
-                                    :checked="showMine"
-                                    @update:checked="
-                                        (value) => (showMine = value)
-                                    "
-                                />
-                                <Label for="filter-mine" class="leading-5">
+                        <CardContent class="space-y-3 text-xs">
+                            <div class="flex items-center justify-between gap-2">
+                                <Label
+                                    for="filter-mine"
+                                    class="text-xs font-medium"
+                                >
+                                    <Checkbox
+                                        id="filter-mine"
+                                        class="h-3 w-3"
+                                        :checked="showMine"
+                                        @update:checked="
+                                            (value) => (showMine = value)
+                                        "
+                                    />
                                     My appointments
-                                    <span
-                                        class="block text-xs text-muted-foreground"
-                                    >
-                                        Only appointments created by you.
-                                    </span>
                                 </Label>
+                                <Badge
+                                    variant="outline"
+                                    class="text-[10px]"
+                                >
+                                    Mine
+                                </Badge>
                             </div>
-                            <div class="flex items-start gap-3">
-                                <Checkbox
-                                    id="filter-team"
-                                    :checked="showTeam"
-                                    @update:checked="
-                                        (value) => (showTeam = value)
-                                    "
-                                />
-                                <Label for="filter-team" class="leading-5">
-                                    Team appointments
-                                    <span
-                                        class="block text-xs text-muted-foreground"
-                                    >
-                                        All other shared calendars.
-                                    </span>
+                            <div class="flex items-center justify-between gap-2">
+                                <Label
+                                    for="filter-team"
+                                    class="text-xs font-medium"
+                                >
+                                    <Checkbox
+                                        id="filter-team"
+                                        class="h-3 w-3"
+                                        :checked="showTeam"
+                                        @update:checked="
+                                            (value) => (showTeam = value)
+                                        "
+                                    />
+                                    Team
                                 </Label>
+                                <Badge
+                                    variant="outline"
+                                    class="text-[10px]"
+                                >
+                                    Shared
+                                </Badge>
                             </div>
-                            <div class="flex items-start gap-3">
-                                <Checkbox
-                                    id="filter-past"
-                                    :checked="includePast"
-                                    @update:checked="
-                                        (value) => (includePast = value)
-                                    "
-                                />
-                                <Label for="filter-past" class="leading-5">
-                                    Include past
-                                    <span
-                                        class="block text-xs text-muted-foreground"
-                                    >
-                                        Show finished appointments.
-                                    </span>
+                            <div class="flex items-center justify-between gap-2">
+                                <Label
+                                    for="filter-past"
+                                    class="text-xs font-medium"
+                                >
+                                    <Checkbox
+                                        id="filter-past"
+                                        class="h-3 w-3"
+                                        :checked="includePast"
+                                        @update:checked="
+                                            (value) => (includePast = value)
+                                        "
+                                    />
+                                    Past
                                 </Label>
+                                <Badge
+                                    variant="outline"
+                                    class="text-[10px]"
+                                >
+                                    History
+                                </Badge>
                             </div>
-                            <Separator />
+                            <Separator class="my-1" />
                             <div class="space-y-2">
                                 <div
-                                    class="flex items-center justify-between text-xs text-muted-foreground"
+                                    class="flex items-center justify-between text-[11px] text-muted-foreground"
                                 >
                                     <span>Calendars</span>
-                                    <Filter class="h-4 w-4" />
+                                    <Filter class="h-3.5 w-3.5" />
                                 </div>
                                 <div
-                                    class="flex items-center justify-between text-sm"
+                                    class="flex items-center justify-between text-xs"
                                 >
                                     <div class="flex items-center gap-2">
                                         <span
@@ -594,13 +632,13 @@ const handleDialogOpen = (value: boolean) => {
                                     </div>
                                     <Badge
                                         variant="outline"
-                                        class="bg-sky-500/10 text-sky-700 border-sky-200"
+                                        class="text-[10px] bg-sky-500/10 text-sky-700 border-sky-200"
                                     >
                                         Active
                                     </Badge>
                                 </div>
                                 <div
-                                    class="flex items-center justify-between text-sm"
+                                    class="flex items-center justify-between text-xs"
                                 >
                                     <div class="flex items-center gap-2">
                                         <span
@@ -610,13 +648,13 @@ const handleDialogOpen = (value: boolean) => {
                                     </div>
                                     <Badge
                                         variant="outline"
-                                        class="bg-emerald-500/10 text-emerald-700 border-emerald-200"
+                                        class="text-[10px] bg-emerald-500/10 text-emerald-700 border-emerald-200"
                                     >
                                         Active
                                     </Badge>
                                 </div>
                                 <div
-                                    class="flex items-center justify-between text-sm"
+                                    class="flex items-center justify-between text-xs"
                                 >
                                     <div class="flex items-center gap-2">
                                         <span
@@ -624,7 +662,9 @@ const handleDialogOpen = (value: boolean) => {
                                         ></span>
                                         Resources
                                     </div>
-                                    <Badge variant="outline">Hidden</Badge>
+                                    <Badge variant="outline" class="text-[10px]">
+                                        Hidden
+                                    </Badge>
                                 </div>
                             </div>
                         </CardContent>
