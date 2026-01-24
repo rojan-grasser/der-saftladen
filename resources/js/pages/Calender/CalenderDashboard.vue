@@ -335,14 +335,14 @@ const formatTime = (value: string) => {
     if (!date) {
         return '';
     }
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('de-DE', {
         hour: '2-digit',
         minute: '2-digit',
     }).format(date);
 };
 
 const formatDate = (value: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
+    return new Intl.DateTimeFormat('de-DE', {
         weekday: 'short',
         month: 'short',
         day: 'numeric',
