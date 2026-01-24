@@ -163,6 +163,18 @@ const addMinutes = (value: Date, minutes: number) => {
     return next;
 };
 
+const truncateWords = (value: string, maxWords = 30) => {
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return '';
+    }
+    const words = trimmed.split(/\s+/);
+    if (words.length <= maxWords) {
+        return trimmed;
+    }
+    return `${words.slice(0, maxWords).join(' ')}...`;
+};
+
 const openEdit = (appointment: Appointment) => {
     isEditMode.value = true;
     editingAppointmentId.value = appointment.id;
@@ -947,8 +959,12 @@ const handleDialogOpen = (value: boolean) => {
                                     </div>
                                     <div class="text-xs text-muted-foreground">
                                         {{
-                                            selectedAppointment.description ||
-                                            'Noch keine Beschreibung.'
+                                            selectedAppointment.description
+                                                ? truncateWords(
+                                                      selectedAppointment.description,
+                                                      30,
+                                                  )
+                                                : 'Noch keine Beschreibung.'
                                         }}
                                     </div>
                                     <div
