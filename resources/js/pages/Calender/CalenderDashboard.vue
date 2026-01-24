@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
     DialogContent,
@@ -63,6 +64,9 @@ const form = useForm({
     start_time: '',
     end_time: '',
 });
+const isAllDay = ref(false);
+const allDayStart = ref('');
+const allDayEnd = ref('');
 
 const openCreate = () => {
     isEditMode.value = false;
@@ -70,9 +74,12 @@ const openCreate = () => {
     isCreateOpen.value = true;
     form.reset();
     form.clearErrors();
+    isAllDay.value = false;
     const now = new Date();
     form.start_time = toInputDateTime(now);
     form.end_time = toInputDateTime(addMinutes(now, 60));
+    allDayStart.value = toInputDate(now);
+    allDayEnd.value = toInputDate(now);
 };
 
 const closeCreate = () => {
@@ -80,9 +87,13 @@ const closeCreate = () => {
     isEditMode.value = false;
     editingAppointmentId.value = null;
     form.clearErrors();
+    isAllDay.value = false;
 };
 
 const submit = () => {
+    if (isAllDay.value) {
+        applyAllDayTimes();
+    }
     if (isEditMode.value && editingAppointmentId.value != null) {
         form.put(appointments.update(editingAppointmentId.value).url, {
             preserveScroll: true,
@@ -135,6 +146,23 @@ const toInputDateTime = (value: Date) => {
     ).padStart(2, '0')}:${String(value.getMinutes()).padStart(2, '0')}`;
 };
 
+const toInputDate = (value: Date) => {
+    return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(
+        2,
+        '0',
+    )}-${String(value.getDate()).padStart(2, '0')}`;
+};
+
+const toDateString = (value: string) => {
+    if (!value) {
+        return '';
+    }
+    if (value.includes('T')) {
+        return value.split('T')[0];
+    }
+    return value.split(' ')[0] ?? '';
+};
+
 const addMinutes = (value: Date, minutes: number) => {
     const next = new Date(value);
     next.setMinutes(next.getMinutes() + minutes);
@@ -157,6 +185,32 @@ const truncateWords = (value: string, maxWords = 100) => {
     return `${words.slice(0, maxWords).join(' ')}...`;
 };
 
+const isAllDayRange = (start: Date | null, end: Date | null) => {
+    if (!start || !end) {
+        return false;
+    }
+    return (
+        start.getHours() === 0 &&
+        start.getMinutes() === 0 &&
+        end.getHours() === 23 &&
+        end.getMinutes() === 59
+    );
+};
+
+const applyAllDayTimes = () => {
+    const startDate = allDayStart.value || toInputDate(new Date());
+    let endDate = allDayEnd.value || startDate;
+
+    if (endDate < startDate) {
+        endDate = startDate;
+    }
+
+    allDayStart.value = startDate;
+    allDayEnd.value = endDate;
+    form.start_time = `${startDate}T00:00`;
+    form.end_time = `${endDate}T23:59`;
+};
+
 const openEdit = (appointment: Appointment) => {
     isEditMode.value = true;
     editingAppointmentId.value = appointment.id;
@@ -168,6 +222,9 @@ const openEdit = (appointment: Appointment) => {
     const end = parseDate(appointment.end_time) ?? start;
     form.start_time = start ? toInputDateTime(start) : '';
     form.end_time = end ? toInputDateTime(end) : '';
+    allDayStart.value = start ? toInputDate(start) : '';
+    allDayEnd.value = end ? toInputDate(end) : allDayStart.value;
+    isAllDay.value = isAllDayRange(start, end);
     isCreateOpen.value = true;
 };
 
@@ -449,6 +506,30 @@ const handleDialogOpen = (value: boolean) => {
     }
     isCreateOpen.value = true;
 };
+
+watch(isAllDay, (value) => {
+    if (!value) {
+        return;
+    }
+    if (!allDayStart.value) {
+        allDayStart.value = form.start_time
+            ? toDateString(form.start_time)
+            : toInputDate(new Date());
+    }
+    if (!allDayEnd.value) {
+        allDayEnd.value = form.end_time
+            ? toDateString(form.end_time)
+            : allDayStart.value;
+    }
+    applyAllDayTimes();
+});
+
+watch([allDayStart, allDayEnd], () => {
+    if (!isAllDay.value) {
+        return;
+    }
+    applyAllDayTimes();
+});
 </script>
 
 <template>
@@ -565,10 +646,23 @@ const handleDialogOpen = (value: boolean) => {
                         />
                         <InputError :message="form.errors.location" />
                     </div>
+                    <div class="flex items-center gap-3">
+                        <Checkbox id="all_day" v-model="isAllDay" />
+                        <Label for="all_day">Ganztägig</Label>
+                    </div>
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div class="grid gap-2">
-                            <Label for="start_time">Beginn</Label>
+                            <Label :for="isAllDay ? 'start_date' : 'start_time'">
+                                Beginn
+                            </Label>
                             <Input
+                                v-if="isAllDay"
+                                id="start_date"
+                                v-model="allDayStart"
+                                type="date"
+                            />
+                            <Input
+                                v-else
                                 id="start_time"
                                 v-model="form.start_time"
                                 type="datetime-local"
@@ -576,8 +670,17 @@ const handleDialogOpen = (value: boolean) => {
                             <InputError :message="form.errors.start_time" />
                         </div>
                         <div class="grid gap-2">
-                            <Label for="end_time">Ende</Label>
+                            <Label :for="isAllDay ? 'end_date' : 'end_time'">
+                                Ende
+                            </Label>
                             <Input
+                                v-if="isAllDay"
+                                id="end_date"
+                                v-model="allDayEnd"
+                                type="date"
+                            />
+                            <Input
+                                v-else
                                 id="end_time"
                                 v-model="form.end_time"
                                 type="datetime-local"
