@@ -30,7 +30,7 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
-        title: 'Calendar',
+        title: 'Kalender',
         href: '/appointments',
         icon: Calendar,
     },

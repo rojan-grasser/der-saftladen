@@ -60,7 +60,7 @@ const userId = computed(() => page.props.auth?.user?.id);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Calendar',
+        title: 'Kalender',
         href: '/appointments',
     },
 ];
@@ -473,7 +473,7 @@ const handleDialogOpen = (value: boolean) => {
                             class="flex flex-row items-center justify-between space-y-0 pb-2"
                         >
                             <CardTitle class="text-sm font-medium">
-                                Mini calendar
+                                Datum Auswählen
                             </CardTitle>
                             <div class="flex items-center gap-1">
                                 <Button
