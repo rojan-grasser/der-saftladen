@@ -411,17 +411,7 @@ const handleDialogOpen = (value: boolean) => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-6">
-            <div class="flex flex-wrap items-center justify-between gap-4">
-                <div class="space-y-1">
-                    <div class="flex items-center gap-2">
-                        <Calendar class="h-5 w-5 text-muted-foreground" />
-                        <h2 class="text-2xl font-semibold">Calendar</h2>
-                    </div>
-                    <p class="text-sm text-muted-foreground">
-                        Plan and track appointments and team availability.
-                    </p>
-                </div>
-
+            <div class="flex flex-wrap items-center justify-end gap-4">
                 <div class="flex flex-wrap items-center gap-3">
                     <div class="relative">
                         <Search
