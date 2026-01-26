@@ -29,13 +29,13 @@ class InstructorController extends Controller
 
         if ($queryString !== '') {
             $query->where(function ($q) use ($queryString) {
-                $q->where('name', 'like', '%' . $queryString . '%')
-                    ->orWhere('email', 'like', '%' . $queryString . '%');
+                $q->where('name', 'like', $queryString . '%')
+                    ->orWhere('email', 'like', $queryString . '%');
             });
         }
 
         $paginator = $query
-            ->orderBy('id') // important: deterministic order for cursor pagination
+            ->orderBy('name') // important: deterministic order for cursor pagination
             ->cursorPaginate($limit)
             ->withQueryString();
 

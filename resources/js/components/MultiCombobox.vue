@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ChevronDown, ChevronUp, X } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 
 import { Badge } from '@/components/ui/badge';
@@ -91,10 +92,15 @@ function onListScroll(e: Event) {
                             {{ selectedItems.length }} ausgewählt
                         </template>
                         <template v-else>
-                            {{ placeholder ?? 'Ausbilder auswählen…' }}
+                            {{ placeholder ?? 'Ausbilder auswählen...' }}
                         </template>
                     </span>
-                    <span class="text-muted-foreground">⌄</span>
+                    <div v-if="open">
+                        <ChevronUp class="size-4" />
+                    </div>
+                    <div v-else>
+                        <ChevronDown class="size-4" />
+                    </div>
                 </Button>
             </PopoverTrigger>
 
@@ -170,15 +176,16 @@ function onListScroll(e: Event) {
                 class="gap-2"
                 variant="secondary"
             >
-                <span class="max-w-[18rem] truncate">{{ item.label }}</span>
-                <button
+                <span>{{ item.label }}</span>
+                <Button
                     aria-label="Remove"
-                    class="text-muted-foreground hover:text-foreground"
+                    class="size-6 rounded-full"
+                    variant="destructive"
                     type="button"
                     @click="remove(item.id)"
                 >
-                    ×
-                </button>
+                    <X />
+                </Button>
             </Badge>
         </div>
     </div>
