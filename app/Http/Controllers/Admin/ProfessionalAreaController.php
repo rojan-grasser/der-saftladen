@@ -9,6 +9,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use \Illuminate\Http\Response;
 
 class ProfessionalAreaController extends Controller
 {
@@ -16,7 +17,7 @@ class ProfessionalAreaController extends Controller
      * Takes name and description as parameters, returns success (always) and message (sometimes).
      *
      * @param Request $request
-     * @return array|false[]|true[]
+     * @return Response
      */
     public function index(Request $request)
     {
@@ -33,19 +34,14 @@ class ProfessionalAreaController extends Controller
                 'description' => trim($validated['description']),
             ]);
 
-            return ['success' => true];
+            return response()->setStatusCode(200);
         } catch (Exception $exception) {
             // Error code 23000 -> Unique violation on the name
             if ($exception instanceof QueryException && $exception->errorInfo[0] === '23000') {
-                return [
-                    'success' => false,
-                    'message' => 'The professional area "' . $name . '" already exists',
-                ];
+                return response()->setStatusCode(409);
             }
 
-            return [
-                'success' => false,
-            ];
+            return response()->setStatusCode(500);
         }
     }
 
@@ -66,19 +62,14 @@ class ProfessionalAreaController extends Controller
         try {
             $professionalArea->update($updateData);
 
-            return ['success' => true];
+            return response()->setStatusCode(200);
         } catch (Exception $exception) {
             // Error code 23000 -> Unique violation on the name
             if ($exception instanceof QueryException && $exception->errorInfo[0] === '23000') {
-                return [
-                    'success' => false,
-                    'message' => 'The professional area "' . $updateData['name'] . '" already exists',
-                ];
+                return response()->setStatusCode(409);
             }
 
-            return [
-                'success' => false,
-            ];
+            return response()->setStatusCode(500);
         }
     }
 

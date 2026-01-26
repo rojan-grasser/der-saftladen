@@ -11,16 +11,13 @@ use Illuminate\Support\Facades\Log;
 
 class InstructorToProfessionalAreaController extends Controller
 {
-    public function index(Request $request, string $instructorId, string $areaId)
+    public function store(Request $request, string $instructorId, string $areaId)
     {
         $instructor = Instructor::findOrFail($instructorId);
 
         // Instructor already allowed to see professional area
         if ($instructor->professionalAreas()->where('professional_areas.id', $areaId)->exists()) {
-            return [
-                'success' => false,
-                'message' => 'The Instructor already is allowed to see this professional area',
-            ];
+            return response()->setStatusCode(200);
         }
 
         DB::table('user_to_professional_area')->insert([
@@ -28,7 +25,7 @@ class InstructorToProfessionalAreaController extends Controller
             'user_id' => $instructorId,
         ]);
 
-        return ['success' => true];
+        return response()->setStatusCode(200);
     }
 
     public function destroy(Request $request, string $instructorId, string $areaId)
@@ -39,14 +36,11 @@ class InstructorToProfessionalAreaController extends Controller
                 ->where('professional_area_id', '=', $areaId)
                 ->delete();
 
-            return ['success' => true];
+            return response()->setStatusCode(200);
         } catch (Exception $exception) {
             Log::error($exception);
 
-            return [
-                'success' => false,
-                'message' => 'An unexpected error occurred while removing the instructor',
-            ];
+            return response()->setStatusCode(500);
         }
     }
 }

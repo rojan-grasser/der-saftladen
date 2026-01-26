@@ -34,7 +34,7 @@ Route::middleware(['auth', 'verified', 'active', 'admin'])
         Route::delete('/professional-area/{id}', [ProfessionalAreaController::class, 'destroy'])->name('admin.professional-area.destroy');
         Route::get('/professional-area/{id}/instructors', [ProfessionalAreaController::class, 'getInstructors'])->name('admin.professional-area.instructors');
 
-        Route::post('/instructors-to-area/{instructorId}/{areaId}', [InstructorToProfessionalAreaController::class, 'index'])->name('admin.instructors-to-area.add');
+        Route::post('/instructors-to-area/{instructorId}/{areaId}', [InstructorToProfessionalAreaController::class, 'store'])->name('admin.instructors-to-area.add');
         Route::delete('/instructors-to-area/{instructorId}/{areaId}', [InstructorToProfessionalAreaController::class, 'destroy'])->name('admin.instructors-to-area.destroy');
 
         // Add any other admin routes here
