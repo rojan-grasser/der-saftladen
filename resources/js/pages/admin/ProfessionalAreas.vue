@@ -11,7 +11,7 @@ import {
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogHeader,
-    AlertDialogTitle
+    AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,15 +23,31 @@ import {
     PaginationItem,
     PaginationLast,
     PaginationNext,
-    PaginationPrevious
+    PaginationPrevious,
 } from '@/components/ui/pagination';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
 import ProfessionalAreaCreate from '@/pages/admin/ProfessionalAreaCreate.vue';
 import ProfessionalAreaEdit from '@/pages/admin/ProfessionalAreaEdit.vue';
 import admin from '@/routes/admin';
-import type { BreadcrumbItem, PaginatedResponse, ProfessionalArea } from '@/types';
+import type {
+    BreadcrumbItem,
+    PaginatedResponse,
+    ProfessionalArea,
+} from '@/types';
 
 defineProps<{
     professionalAreas: PaginatedResponse<ProfessionalArea>;
@@ -108,7 +124,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             v-for="professionalArea in professionalAreas.data"
                             :key="professionalArea.id"
                         >
-                            <TableCell>
+                            <TableCell class="whitespace-normal">
                                 {{ professionalArea.name }}
                             </TableCell>
                             <TableCell class="break-all whitespace-normal">
@@ -249,13 +265,25 @@ const breadcrumbs: BreadcrumbItem[] = [
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Berufsbereich löschen?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        Dieser Vorgang kann nicht rückgängig gemacht werden.
-                        Möchten Sie
-                        <span class="font-medium">
-                            {{ deleteCandidate?.name }}
-                        </span>
-                        wirklich löschen?
+                    <AlertDialogDescription class="space-y-1">
+                        <p>
+                            Dieser Vorgang kann nicht rückgängig gemacht werden.
+                        </p>
+
+                        <div
+                            class="flex flex-wrap items-baseline gap-x-1 gap-y-1"
+                        >
+                            <span class="shrink-0">Möchten Sie</span>
+
+                            <span
+                                class="font-medium break-all"
+                                :title="deleteCandidate?.name ?? ''"
+                            >
+                                {{ deleteCandidate?.name }}
+                            </span>
+
+                            <span class="shrink-0">wirklich löschen?</span>
+                        </div>
                     </AlertDialogDescription>
                 </AlertDialogHeader>
 

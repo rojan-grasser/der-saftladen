@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useForm } from '@inertiajs/vue3';
-import { computed, onMounted, ref, watch } from 'vue';
+import debounce from 'debounce';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import MultiCombobox from '@/components/MultiCombobox.vue';
 import { Button } from '@/components/ui/button';
@@ -27,15 +28,14 @@ const instructorOptions = ref<InstructorOption[]>([]);
 const loadingInstructors = ref(false);
 
 const loadingMoreInstructors = ref(false);
-const nextInstructorCursor = ref<number | null>(null);
+const nextInstructorCursor = ref<string | null>(null);
 const hasMoreInstructors = computed(() => nextInstructorCursor.value !== null);
 
 const currentQuery = ref('');
-let searchTimer: number | null = null;
 
 type InstructorResponse = {
     items: InstructorOption[];
-    next_cursor: number | null;
+    next_cursor: string | null;
 };
 
 const instructorCache = ref<Map<number, InstructorOption>>(new Map());
@@ -47,7 +47,7 @@ function cacheInstructors(items: InstructorOption[]) {
 
 async function fetchInstructors(params: {
     query: string;
-    after?: number;
+    cursor?: string | null;
     append: boolean;
 }) {
     const isLoadMore = params.append;
@@ -60,8 +60,9 @@ async function fetchInstructors(params: {
         if (params.query.trim() !== '')
             url.searchParams.set('query', params.query.trim());
         url.searchParams.set('limit', '25');
-        if (typeof params.after === 'number' && params.after > 0) {
-            url.searchParams.set('after', String(params.after));
+
+        if (params.cursor) {
+            url.searchParams.set('cursor', params.cursor);
         }
 
         const res = await fetch(url.toString());
@@ -100,16 +101,17 @@ function loadMore() {
 
     fetchInstructors({
         query: currentQuery.value,
-        after: nextInstructorCursor.value ?? 0,
+        cursor: nextInstructorCursor.value,
         append: true,
     });
 }
 
+const debouncedLoadFirstPage = debounce((q: string) => {
+    loadFirstPage(q);
+}, 250);
+
 function onInstructorSearch(q: string) {
-    if (searchTimer) window.clearTimeout(searchTimer);
-    searchTimer = window.setTimeout(() => {
-        loadFirstPage(q);
-    }, 250);
+    debouncedLoadFirstPage(q);
 }
 
 const selectedFromArea = computed<InstructorOption[]>(() =>
@@ -170,11 +172,17 @@ onMounted(() => {
     loadFirstPage('');
 });
 
+onBeforeUnmount(() => {
+    debouncedLoadFirstPage.clear();
+});
+
 function close() {
     open.value = false;
 
     form.reset();
     form.clearErrors();
+
+    debouncedLoadFirstPage.clear();
 }
 
 const submit = () => {
@@ -190,7 +198,7 @@ const submit = () => {
 
 <template>
     <Dialog :open="open" @update:open="(v) => (v ? (open = true) : close())">
-        <DialogContent class="w-full sm:max-w-lg">
+        <DialogContent class="max-h-[90%] w-full overflow-y-auto sm:max-w-2xl">
             <DialogHeader>
                 <DialogTitle>Berufsbereich bearbeiten</DialogTitle>
                 <DialogDescription>
