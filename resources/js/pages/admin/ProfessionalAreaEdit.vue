@@ -166,7 +166,7 @@ watch(
 );
 
 onMounted(() => {
-    cacheInstructors(selectedFromArea.value)
+    cacheInstructors(selectedFromArea.value);
     loadFirstPage('');
 });
 
