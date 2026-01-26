@@ -53,8 +53,8 @@ class ProfessionalAreaController extends Controller
     public function update(Request $request, string $id)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['required', 'string', 'max:255'],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'description' => ['sometimes', 'string', 'max:255'],
             'instructor_ids' => ['sometimes', 'array'],
             'instructor_ids.*' => ['integer', 'distinct', 'exists:users,id'],
         ]);
@@ -62,8 +62,8 @@ class ProfessionalAreaController extends Controller
         $professionalArea = ProfessionalArea::query()->findOrFail($id);
 
         $updateData = [
-            'name' => trim($validated['name']),
-            'description' => trim($validated['description']),
+            'name' => array_key_exists('name', $validated) ? trim($validated['name']) : $professionalArea->name,
+            'description' => array_key_exists('description', $validated) ? trim($validated['description']) : $professionalArea->description,
         ];
 
         $instructorIds = $validated['instructor_ids'] ?? null;
