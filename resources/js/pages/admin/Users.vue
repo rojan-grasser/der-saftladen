@@ -3,18 +3,9 @@ import { Head, router } from '@inertiajs/vue3';
 import { Pencil } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
+import PaginationBar from '@/components/PaginationBar.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationFirst,
-    PaginationItem,
-    PaginationLast,
-    PaginationNext,
-    PaginationPrevious
-} from '@/components/ui/pagination';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -188,54 +179,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </TableBody>
                 </Table>
             </div>
-            <div
-                v-if="users.total > users.per_page"
-                class="flex items-center justify-end px-2"
-            >
-                <Pagination
-                    v-slot="{ page }"
-                    :default-page="users.current_page"
-                    :items-per-page="users.per_page"
-                    :total="users.total"
-                    @update:page="handlePageChange"
-                >
-                    <PaginationContent
-                        v-slot="{ items }"
-                        class="flex items-center gap-1"
-                    >
-                        <PaginationFirst />
-                        <PaginationPrevious />
-
-                        <template v-for="(item, index) in items">
-                            <PaginationItem
-                                v-if="item.type === 'page'"
-                                :key="index"
-                                :value="item.value"
-                                as-child
-                            >
-                                <Button
-                                    :variant="
-                                        item.value === page
-                                            ? 'default'
-                                            : 'outline'
-                                    "
-                                    class="h-10 w-10 p-0"
-                                >
-                                    {{ item.value }}
-                                </Button>
-                            </PaginationItem>
-                            <PaginationEllipsis
-                                v-else
-                                :key="item.type"
-                                :index="index"
-                            />
-                        </template>
-
-                        <PaginationNext />
-                        <PaginationLast />
-                    </PaginationContent>
-                </Pagination>
-            </div>
+            <PaginationBar
+            :current-page="users.current_page"
+            :per-page="users.per_page"
+            :total="users.total"
+            @page-change="handlePageChange" />
         </div>
         <UserEdit
             v-if="editingUser"

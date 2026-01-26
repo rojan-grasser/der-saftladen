@@ -3,18 +3,9 @@ import { Head, router } from '@inertiajs/vue3';
 import { Pencil, Trash2 } from 'lucide-vue-next';
 import { ref } from 'vue';
 
+import PaginationBar from '@/components/PaginationBar.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationFirst,
-    PaginationItem,
-    PaginationLast,
-    PaginationNext,
-    PaginationPrevious,
-} from '@/components/ui/pagination';
 import {
     Table,
     TableBody,
@@ -102,7 +93,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <TableCell class="whitespace-normal">
                                 {{ professionalArea.name }}
                             </TableCell>
-                            <TableCell class="break-all whitespace-normal">
+                            <TableCell class="whitespace-normal">
                                 {{ professionalArea.description }}
                             </TableCell>
                             <TableCell class="break-all whitespace-normal">
@@ -115,7 +106,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     <Badge
                                         v-for="teacher in professionalArea.instructors"
                                         :key="teacher.id"
-                                        class="mr-3 mb-2"
+                                        class="mr-3 mb-1 mt-1"
                                         >{{ teacher.name }}
                                     </Badge>
                                 </div>
@@ -176,53 +167,12 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </TableBody>
                 </Table>
             </div>
-            <div
-                v-if="professionalAreas.total > professionalAreas.per_page"
-                class="flex items-center justify-end px-2"
-            >
-                <Pagination
-                    v-slot="{ page }"
-                    :default-page="professionalAreas.current_page"
-                    :items-per-page="professionalAreas.per_page"
-                    :total="professionalAreas.total"
-                    @update:page="handlePageChange"
-                >
-                    <PaginationContent
-                        v-slot="{ items }"
-                        class="flex items-center gap-1"
-                    >
-                        <PaginationFirst />
-                        <PaginationPrevious />
-
-                        <template v-for="(item, index) in items">
-                            <PaginationItem
-                                v-if="item.type === 'page'"
-                                :key="index"
-                                :value="item.value"
-                                as-child
-                            >
-                                <Button
-                                    :variant="
-                                        item.value === page
-                                            ? 'default'
-                                            : 'outline'
-                                    "
-                                >
-                                    {{ item.value }}
-                                </Button>
-                            </PaginationItem>
-                            <PaginationEllipsis
-                                v-else
-                                :key="item.type"
-                                :index="index"
-                            />
-                        </template>
-
-                        <PaginationNext />
-                        <PaginationLast />
-                    </PaginationContent>
-                </Pagination>
-            </div>
+            <PaginationBar
+                :current-page="professionalAreas.current_page"
+                :per-page="professionalAreas.per_page"
+                :total="professionalAreas.total"
+                @page-change="handlePageChange"
+            />
         </div>
         <ProfessionalAreaCreate v-model:open="isCreateOpen" />
         <ProfessionalAreaEdit
