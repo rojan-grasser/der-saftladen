@@ -46,7 +46,7 @@ const viewMode = ref<ViewMode>('agenda');
 const searchQuery = ref('');
 const showMine = ref(true);
 const showTeam = ref(true);
-const includePast = ref(false);
+const includePast = ref(true);
 
 const currentMonth = ref(new Date());
 const selectedDate = ref(new Date());
@@ -439,9 +439,20 @@ const deleteSelectedAppointment = () => {
     });
 };
 
-const upcomingAppointments = computed(() =>
-    sortedAppointments.value.slice(0, 6),
-);
+const upcomingAppointments = computed(() => {
+    const now = new Date();
+    return sortedAppointments.value
+        .filter((appointment) => {
+            const start = parseDate(appointment.start_time);
+            const end = parseDate(appointment.end_time) ?? start;
+            if (!start) {
+                return false;
+            }
+            const rangeEnd = end && end >= start ? end : start;
+            return rangeEnd >= now;
+        })
+        .slice(0, 6);
+});
 
 const agendaGroups = computed(() => {
     const groups: {
