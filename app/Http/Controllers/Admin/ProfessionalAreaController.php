@@ -55,6 +55,8 @@ class ProfessionalAreaController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:255'],
+            'instructor_ids' => ['sometimes', 'array'],
+            'instructor_ids.*' => ['integer', 'distinct', 'exists:users,id'],
         ]);
 
         $professionalArea = ProfessionalArea::query()->findOrFail($id);
@@ -64,8 +66,16 @@ class ProfessionalAreaController extends Controller
             'description' => trim($validated['description']),
         ];
 
+        $instructorIds = $validated['instructor_ids'] ?? null;
+
         try {
-            $professionalArea->update($updateData);
+            DB::transaction(function () use ($professionalArea, $updateData, $instructorIds) {
+                $professionalArea->update($updateData);
+
+                if (is_array($instructorIds)) {
+                    $professionalArea->instructors()->sync($instructorIds);
+                }
+            });
 
             return back()->with('success', 'Professional area updated successfully.');
         } catch (Exception $exception) {
@@ -104,14 +114,18 @@ class ProfessionalAreaController extends Controller
             'query' => ['sometimes', 'string', 'max:255'],
         ]);
 
-        $query = DB::table('professional_areas');
+        $query = ProfessionalArea::query()
+            ->select('id', 'name', 'description')
+            ->with([
+                'instructors',
+            ]);
 
         if (isset($validated['query'])) {
             $query->where('name', 'like', '%' . $validated['query'] . '%');
         }
 
         return Inertia::render('admin/ProfessionalAreas', [
-            'professionalAreas' => $query->select('id', 'name', 'description')->paginate(20)->withQueryString(),
+            'professionalAreas' => $query->paginate(20)->withQueryString(),
         ]);
     }
 
