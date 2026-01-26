@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Models\Instructor;
 use DB;
 use Illuminate\Http\Request;
 
@@ -15,11 +14,23 @@ class InstructorController extends Controller
      */
     public function index(Request $request)
     {
-        $queryString = trim($request->validate(['query' => ['nullable', 'string', 'max:255']])['query'] ?? '');
+        $validated = $request->validate([
+            'query' => ['nullable', 'string', 'max:255'],
+            'after' => ['nullable', 'integer', 'min:0'],
+            'limit' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        $queryString = trim(($validated['query'] ?? ''));
+
+        $after = (int)($validated['after'] ?? 0);
+        $limit = (int)($validated['limit'] ?? 25);
 
         $query = DB::table('users')
             ->select('id', 'email', 'name')
-            ->where('role', '=', UserRole::INSTRUCTOR);
+            ->where('role', '=', UserRole::INSTRUCTOR)
+            ->where('id', '>', $after)
+            ->orderBy('id')
+            ->limit($limit + 1);
 
         if ($queryString !== '') {
             $query->where(function ($q) use ($queryString) {
@@ -28,6 +39,19 @@ class InstructorController extends Controller
             });
         }
 
-        return response()->json($query->get());
+        $rows = $query->get();
+
+        $hasMore = $rows->count() > $limit;
+        $items = $hasMore ? $rows->take($limit)->values() : $rows->values();
+
+        $nextCursor = null;
+        if ($hasMore && $items->count() > 0) {
+            $nextCursor = (int)$items->last()->id;
+        }
+
+        return response()->json([
+            'items' => $items,
+            'next_cursor' => $nextCursor,
+        ]);
     }
 }
