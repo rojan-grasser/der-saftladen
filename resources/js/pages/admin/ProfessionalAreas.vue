@@ -1,8 +1,19 @@
 <script lang="ts" setup>
-import { Head, router } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { Pencil, Trash2 } from 'lucide-vue-next';
 import { ref } from 'vue';
 
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle
+} from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Pagination,
@@ -12,31 +23,15 @@ import {
     PaginationItem,
     PaginationLast,
     PaginationNext,
-    PaginationPrevious,
+    PaginationPrevious
 } from '@/components/ui/pagination';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
 import ProfessionalAreaCreate from '@/pages/admin/ProfessionalAreaCreate.vue';
 import ProfessionalAreaEdit from '@/pages/admin/ProfessionalAreaEdit.vue';
 import admin from '@/routes/admin';
-import type {
-    BreadcrumbItem,
-    PaginatedResponse,
-    ProfessionalArea,
-} from '@/types';
+import type { BreadcrumbItem, PaginatedResponse, ProfessionalArea } from '@/types';
 
 defineProps<{
     professionalAreas: PaginatedResponse<ProfessionalArea>;
@@ -60,8 +55,28 @@ const editProfessionalArea = (professionalArea: ProfessionalArea) => {
     isEditOpen.value = true;
 };
 
-const deleteProfessionalArea = (professionalArea: ProfessionalArea) => {
-    router.delete(admin.professionalArea.destroy(professionalArea.id));
+const deleteForm = useForm({});
+const isDeleteOpen = ref(false);
+const deleteCandidate = ref<ProfessionalArea | null>(null);
+
+const askDeleteProfessionalArea = (professionalArea: ProfessionalArea) => {
+    deleteCandidate.value = professionalArea;
+    isDeleteOpen.value = true;
+};
+
+const confirmDeleteProfessionalArea = () => {
+    if (!deleteCandidate.value) return;
+
+    deleteForm.delete(
+        admin.professionalArea.destroy(deleteCandidate.value.id).url,
+        {
+            preserveScroll: true,
+            onFinish: () => {
+                isDeleteOpen.value = false;
+                deleteCandidate.value = null;
+            },
+        },
+    );
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -84,6 +99,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <TableRow>
                             <TableHead>Name</TableHead>
                             <TableHead>Beschreibung</TableHead>
+                            <TableHead>Ausbilder</TableHead>
                             <TableHead>Aktionen</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -97,6 +113,21 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </TableCell>
                             <TableCell class="break-all whitespace-normal">
                                 {{ professionalArea.description }}
+                            </TableCell>
+                            <TableCell class="break-all whitespace-normal">
+                                <div
+                                    v-if="
+                                        professionalArea.instructors &&
+                                        professionalArea.instructors.length > 0
+                                    "
+                                >
+                                    <Badge
+                                        v-for="teacher in professionalArea.instructors"
+                                        :key="teacher.id"
+                                        class="mr-3 mb-2"
+                                        >{{ teacher.name }}
+                                    </Badge>
+                                </div>
                             </TableCell>
                             <TableCell>
                                 <TooltipProvider>
@@ -127,8 +158,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                                                 aria-label="Löschen"
                                                 size="icon-sm"
                                                 variant="destructive"
+                                                :disabled="
+                                                    deleteForm.processing
+                                                "
                                                 @click="
-                                                    deleteProfessionalArea(
+                                                    askDeleteProfessionalArea(
                                                         professionalArea,
                                                     )
                                                 "
@@ -162,7 +196,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                     v-slot="{ page }"
                     :default-page="professionalAreas.current_page"
                     :items-per-page="professionalAreas.per_page"
-                    :sibling-count="1"
                     :total="professionalAreas.total"
                     @update:page="handlePageChange"
                 >
@@ -186,7 +219,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                                             ? 'default'
                                             : 'outline'
                                     "
-                                    class="h-10 w-10 p-0"
                                 >
                                     {{ item.value }}
                                 </Button>
@@ -210,5 +242,35 @@ const breadcrumbs: BreadcrumbItem[] = [
             v-model:open="isEditOpen"
             :professionalArea="editingProfessionalArea"
         />
+        <AlertDialog
+            :open="isDeleteOpen"
+            @update:open="(v: boolean) => (isDeleteOpen = v)"
+        >
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Berufsbereich löschen?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Dieser Vorgang kann nicht rückgängig gemacht werden.
+                        Möchten Sie
+                        <span class="font-medium">
+                            {{ deleteCandidate?.name }}
+                        </span>
+                        wirklich löschen?
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <AlertDialogFooter>
+                    <AlertDialogCancel :disabled="deleteForm.processing">
+                        Abbrechen
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                        :disabled="deleteForm.processing"
+                        @click="confirmDeleteProfessionalArea"
+                    >
+                        Löschen
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </AppLayout>
 </template>
