@@ -24,5 +24,3 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
-rr
-.rr.yaml
