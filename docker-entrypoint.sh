@@ -5,4 +5,4 @@ set -e
 php artisan migrate --force
 
 # Start Octane
-rr serve -c /.rr.yaml
+rr serve -c /var/www/html/.rr.yaml
