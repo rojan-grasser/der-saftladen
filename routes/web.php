@@ -4,7 +4,6 @@ use App\Http\Controllers\Admin\InstructorToProfessionalAreaController;
 use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\ProfessionalAreaController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Forum\TopicController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -13,13 +12,13 @@ Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
     ]);
-})->name('home');
+})->name('home')->middleware('request-logging');
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'active'])->name('dashboard');
+})->middleware(['request-logging', 'auth', 'verified', 'active'])->name('dashboard');
 
-Route::middleware(['auth', 'verified', 'active', 'admin'])
+Route::middleware(['request-logging', 'auth', 'verified', 'active', 'admin'])
     ->prefix('admin')
     ->group(function () {
         Route::get('/dashboard', function () {
