@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class TopicController extends Controller
 {
-    private function getManyForInstructor(string $instructorId)
+    private function getQueryForInstructor(string $instructorId)
     {
         return Topic::join('user_to_professional_area as utpa', function ($join) use ($instructorId) {
             $join->on('utpa.professional_area_id', '=', 'topics.professional_area_id')
@@ -21,7 +21,7 @@ class TopicController extends Controller
             ->orderBy('topics.id', 'desc');
     }
 
-    private function getManyForTeacher()
+    private function getQueryForTeacher()
     {
         return Topic::query()
             ->orderBy('topics.created_at', 'desc')
