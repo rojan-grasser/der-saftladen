@@ -8,14 +8,14 @@ class Instructor extends User
 {
     protected $table = 'users';
 
-    protected static function booted()
+    protected static function booted(): void
     {
         static::addGlobalScope('instructor', function (Builder $query) {
             $query->where('role', 'instructor');
         });
     }
 
-    public function professionalAreas()
+    public function professionalAreas(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(
             ProfessionalArea::class,

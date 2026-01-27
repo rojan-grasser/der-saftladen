@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Instructor;
 use Illuminate\Http\Request;
 
 class InstructorController extends Controller
@@ -22,9 +21,8 @@ class InstructorController extends Controller
         $queryString = trim(($validated['query'] ?? ''));
         $limit = (int)($validated['limit'] ?? 25);
 
-        $query = User::query()
-            ->select('id', 'email', 'name')
-            ->where('role', '=', UserRole::INSTRUCTOR);
+        $query = Instructor::query()
+            ->select('id', 'email', 'name');
 
 
         if ($queryString !== '') {
@@ -39,11 +37,6 @@ class InstructorController extends Controller
             ->cursorPaginate($limit)
             ->withQueryString();
 
-        $nextCursor = $paginator->nextCursor();
-
-        return response()->json([
-            'items' => $paginator->items(),
-            'next_cursor' => $nextCursor?->encode(),
-        ]);
+        return response()->json($paginator);
     }
 }

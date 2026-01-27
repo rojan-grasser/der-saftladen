@@ -58,6 +58,7 @@ export interface ProfessionalArea {
 export type BreadcrumbItemType = BreadcrumbItem;
 
 export interface PaginatedResponse<T> {
+    data: T[];
     total: number;
     per_page: number;
     current_page: number;
@@ -70,5 +71,14 @@ export interface PaginatedResponse<T> {
     path: string;
     from: number | null;
     to: number | null;
+}
+
+export interface PaginatedCursorResponse<T> {
     data: T[];
+    path: string;
+    per_page: number;
+    next_cursor: string | null;
+    next_page_url: string | null;
+    prev_cursor: string | null;
+    prev_page_url: string | null;
 }

@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import admin from '@/routes/admin';
-import { type ProfessionalArea, User } from '@/types';
+import { Instructor, PaginatedCursorResponse, type ProfessionalArea } from '@/types';
 
 const open = defineModel<boolean>('open', { required: true });
 
@@ -22,9 +22,7 @@ const emit = defineEmits<{
     (e: 'updated'): void;
 }>();
 
-type InstructorOption = Pick<User, 'id' | 'name' | 'email'>;
-
-const instructorOptions = ref<InstructorOption[]>([]);
+const instructorOptions = ref<Instructor[]>([]);
 const loadingInstructors = ref(false);
 
 const loadingMoreInstructors = ref(false);
@@ -33,16 +31,11 @@ const hasMoreInstructors = computed(() => nextInstructorCursor.value !== null);
 
 const currentQuery = ref('');
 
-type InstructorResponse = {
-    items: InstructorOption[];
-    next_cursor: string | null;
-};
+const instructorCache = ref<Map<number, Instructor>>(new Map());
 
-const instructorCache = ref<Map<number, InstructorOption>>(new Map());
-
-function cacheInstructors(items: InstructorOption[]) {
+function cacheInstructors(instructors: Instructor[]) {
     const map = instructorCache.value;
-    for (const o of items) map.set(o.id, o);
+    for (const o of instructors) map.set(o.id, o);
 }
 
 async function fetchInstructors(params: {
@@ -69,19 +62,20 @@ async function fetchInstructors(params: {
 
         if (!res.ok) throw new Error('Failed to load instructors');
 
-        const data = (await res.json()) as InstructorResponse;
+        const instructors =
+            (await res.json()) as PaginatedCursorResponse<Instructor>;
 
-        nextInstructorCursor.value = data.next_cursor;
+        nextInstructorCursor.value = instructors.next_cursor;
 
-        cacheInstructors(data.items);
+        cacheInstructors(instructors.data);
 
-        if (params.append) {
-            const map = new Map<number, InstructorOption>();
+        if (isLoadMore) {
+            const map = new Map<number, Instructor>();
             for (const o of instructorOptions.value) map.set(o.id, o);
-            for (const o of data.items) map.set(o.id, o);
+            for (const o of instructors.data) map.set(o.id, o);
             instructorOptions.value = Array.from(map.values());
         } else {
-            instructorOptions.value = data.items;
+            instructorOptions.value = instructors.data;
         }
     } finally {
         loadingInstructors.value = false;
@@ -114,7 +108,7 @@ function onInstructorSearch(q: string) {
     debouncedLoadFirstPage(q);
 }
 
-const selectedFromArea = computed<InstructorOption[]>(() =>
+const selectedFromArea = computed<Instructor[]>(() =>
     (props.professionalArea.instructors ?? []).map((u) => ({
         id: u.id,
         name: u.name,
@@ -122,8 +116,8 @@ const selectedFromArea = computed<InstructorOption[]>(() =>
     })),
 );
 
-const mergedInstructorOptions = computed<InstructorOption[]>(() => {
-    const map = new Map<number, InstructorOption>();
+const mergedInstructorOptions = computed<Instructor[]>(() => {
+    const map = new Map<number, Instructor>();
     for (const id of form.instructor_ids) {
         const cached = instructorCache.value.get(id);
         if (cached) map.set(id, cached);
