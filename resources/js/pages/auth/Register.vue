@@ -21,10 +21,10 @@ import { store } from '@/routes/register';
 
 <template>
     <AuthBase
-        title="Create an account"
-        description="Enter your details below to create your account"
+        title="Ein Konto erstellen"
+        description="Geben Sie unten Ihre Daten ein, um Ihr Konto zu erstellen."
     >
-        <Head title="Register" />
+        <Head title="Registrieren" />
 
         <Form
             v-bind="store.form()"
@@ -42,13 +42,13 @@ import { store } from '@/routes/register';
                         autofocus
                         :tabindex="1"
                         name="name"
-                        placeholder="Full name"
+                        placeholder="Voller Name"
                     />
                     <InputError :message="errors.name" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
+                    <Label for="email">Email-Addresse</Label>
                     <Input
                         id="email"
                         type="email"
@@ -64,13 +64,12 @@ import { store } from '@/routes/register';
                     <Label for="role">Role</Label>
                     <Select name="role">
                         <SelectTrigger id="role" :tabindex="3" class="w-full">
-                            <SelectValue placeholder="Select a role" />
+                            <SelectValue placeholder="Wählen Sie eine Rolle aus" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="user"> User </SelectItem>
-                            <SelectItem value="teacher"> Teacher </SelectItem>
+                            <SelectItem value="teacher"> Lehrer </SelectItem>
                             <SelectItem value="instructor"
-                                >Instructor
+                                >Ausbilder
                             </SelectItem>
                             <SelectItem value="admin"> Admin </SelectItem>
                         </SelectContent>
@@ -79,27 +78,27 @@ import { store } from '@/routes/register';
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">Password</Label>
+                    <Label for="password">Passwort</Label>
                     <Input
                         id="password"
                         type="password"
                         required
                         :tabindex="3"
                         name="password"
-                        placeholder="Password"
+                        placeholder="Passwort"
                     />
                     <InputError :message="errors.password" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password_confirmation">Confirm password</Label>
+                    <Label for="password_confirmation">Passwort bestätigen</Label>
                     <Input
                         id="password_confirmation"
                         type="password"
                         required
                         :tabindex="4"
                         name="password_confirmation"
-                        placeholder="Confirm password"
+                        placeholder="Passwort bestätigen"
                     />
                     <InputError :message="errors.password_confirmation" />
                 </div>
@@ -111,17 +110,17 @@ import { store } from '@/routes/register';
                     :disabled="processing"
                 >
                     <Spinner v-if="processing" />
-                    Create account
+                    Account erstellen
                 </Button>
             </div>
 
             <div class="text-center text-sm text-muted-foreground">
-                Already have an account?
+                Sie haben bereits ein Konto?
                 <TextLink
                     :href="login()"
                     class="underline underline-offset-4"
                     :tabindex="6"
-                    >Log in</TextLink
+                    >Anmelden</TextLink
                 >
             </div>
         </Form>

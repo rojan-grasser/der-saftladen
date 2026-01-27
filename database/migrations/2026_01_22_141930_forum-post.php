@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('professional_areas', function (Blueprint $table) {
+        Schema::create('forum_posts', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->string('description');
+            $table->string('content');
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('topic_id')->constrained();
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('professional_areas');
+        Schema::drop('forum_posts');
     }
 };

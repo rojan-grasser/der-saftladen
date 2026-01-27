@@ -20,10 +20,10 @@ const inputEmail = ref(props.email);
 
 <template>
     <AuthLayout
-        title="Reset password"
-        description="Please enter your new password below"
+        title="Passwort zurücksetzen"
+        description="Bitte geben Sie unten Ihr neues Passwort ein."
     >
-        <Head title="Reset password" />
+        <Head title="Passwort zurücksetzen" />
 
         <Form
             v-bind="update.form()"
@@ -46,28 +46,28 @@ const inputEmail = ref(props.email);
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="password">Password</Label>
+                    <Label for="password">Passwort</Label>
                     <Input
                         id="password"
                         type="password"
                         name="password"
                         class="mt-1 block w-full"
                         autofocus
-                        placeholder="Password"
+                        placeholder="Passwort"
                     />
                     <InputError :message="errors.password" />
                 </div>
 
                 <div class="grid gap-2">
                     <Label for="password_confirmation">
-                        Confirm Password
+                        Passwort bestätigen
                     </Label>
                     <Input
                         id="password_confirmation"
                         type="password"
                         name="password_confirmation"
                         class="mt-1 block w-full"
-                        placeholder="Confirm password"
+                        placeholder="Passwort bestätigen"
                     />
                     <InputError :message="errors.password_confirmation" />
                 </div>
@@ -77,8 +77,8 @@ const inputEmail = ref(props.email);
                     class="mt-4 w-full"
                     :disabled="processing"
                 >
-                    <Spinner v-if="processing" />
-                    Reset password
+                    <Spinner v-if="processing" />                   
+                    Passwort zurücksetzen
                 </Button>
             </div>
         </Form>

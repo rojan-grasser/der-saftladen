@@ -56,10 +56,10 @@ onMounted(() => {
                     </template>
                     <template v-else>
                         <Link :href="login()" class="hidden md:inline-block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                            Log in
+                            Anmelden
                         </Link>
                         <Link v-if="canRegister" :href="register()" class="inline-flex h-9 items-center justify-center rounded-lg bg-secondary hover:bg-secondary/80 px-4 text-sm font-semibold text-secondary-foreground transition-colors border border-border">
-                            Register
+                            Registrieren
                         </Link>
                     </template>
                 </div>

@@ -6,8 +6,8 @@ import { useAppearance } from '@/composables/useAppearance';
 const { appearance, updateAppearance } = useAppearance();
 
 const tabs = [
-    { value: 'light', Icon: Sun, label: 'Light' },
-    { value: 'dark', Icon: Moon, label: 'Dark' },
+    { value: 'light', Icon: Sun, label: 'Hell' },
+    { value: 'dark', Icon: Moon, label: 'Dunkel' },
     { value: 'system', Icon: Monitor, label: 'System' },
 ] as const;
 </script>

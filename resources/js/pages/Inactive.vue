@@ -14,8 +14,8 @@ const isPending = user.status === 'pending';
     <AuthLayout
         :description="
             isPending
-                ? 'Your account is currently under review. Please wait for an administrator to activate it.'
-                : 'Your account has been deactivated. You no longer have access to this platform.'
+                ? 'Ihr Konto wird derzeit überprüft. Bitte warten Sie, bis ein Administrator es aktiviert.'
+                : 'Ihr Konto wurde deaktiviert. Sie haben keinen Zugriff mehr auf diese Plattform.'
         "
         :title="isPending ? 'Account Pending' : 'Account Deactivated'"
     >
@@ -23,12 +23,12 @@ const isPending = user.status === 'pending';
 
         <div class="space-y-6 text-center">
             <p v-if="isPending" class="text-sm text-muted-foreground">
-                We'll notify you via email once your account is ready. If you
-                believe this is taking too long, please contact support.
+                Bitte schauen Sie sporadisch nach, ob Ihr Zugang genehmigt worden ist. 
+                Sollten Sie der Meinung sein, dass dies zu lange dauert, kontaktieren Sie bitte unseren Support.
             </p>
             <p v-else class="text-sm text-destructive">
-                Access to this account has been restricted. Please contact an
-                administrator if you believe this is an error.
+                Der Zugriff auf dieses Konto wurde eingeschränkt. 
+                Bitte kontaktieren Sie einen Administrator, falls Sie der Meinung sind, dass dies ein Fehler ist.
             </p>
 
             <div class="flex flex-col gap-4">
@@ -39,7 +39,7 @@ const isPending = user.status === 'pending';
                         href="/logout"
                         method="post"
                     >
-                        Log out
+                        Abmelden
                     </Link>
                 </Button>
             </div>
