@@ -79,7 +79,7 @@ class AppointmentController extends Controller
                 ];
             });
 
-        return Inertia::render('Calender/CalenderDashboard', [
+        return Inertia::render('calender/CalenderDashboard', [
             'appointments' => $appointments,
         ]);
     }
