@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Forum;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use App\Models\Instructor;
 use App\Models\Topic;
 use Illuminate\Http\Request;
 
@@ -64,6 +65,13 @@ class TopicController extends Controller
             'professional_area_id' => ['required', 'integer', 'exists:professional_areas,id'],
         ]);
 
+        if (
+            $request->user()->hasRole(UserRole::INSTRUCTOR) &&
+            !Instructor::find($request->user()->id)->hasAccess($validated['professional_area_id'])
+        ) {
+            return back()->with('error', 'Du hast keinen zugriff auf das ausgewählte professionelle Fachgebiet.');
+        }
+
         $topic = Topic::create([
             ...$validated,
             'user_id' => auth()->id(),
@@ -75,18 +83,19 @@ class TopicController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $topic = Topic::findOrFail($id);
 
         if (
-            $topic->user->hasRole(UserRole::INSTRUCTOR) &&
-            !$topic->instructor->hasAccess($topic->professional_area_id)
+            $request->user()->hasRole(UserRole::INSTRUCTOR) &&
+            !Instructor::find($request->user()->id)->hasAccess($topic->professional_area_id)
         ) {
             return back()->with('error', 'Du hast keinen zugriff auf dieses Thema');
         }
 
         // Rendering of single topic on /forum/topics/{id}
+        // Todo: Filter out data which is not necessary for the single topic view
         return $topic;
     }
 

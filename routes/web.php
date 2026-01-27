@@ -44,7 +44,7 @@ Route::middleware(['auth', 'verified', 'active', 'admin'])
 Route::middleware(['auth', 'verified', 'active'])
     ->prefix('forum')
     ->group(function () {
-        Route::resource('topics', TopicController::class)->except('show');
+        Route::resource('topics', TopicController::class);
     });
 
 require __DIR__ . '/settings.php';
