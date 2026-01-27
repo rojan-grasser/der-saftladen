@@ -423,9 +423,7 @@ const deleteSelectedAppointment = () => {
         return;
     }
 
-    if (!confirm('Termin wirklich löschen?')) {
-        return;
-    }
+    //TODO Confirm Einbauen fürs Löschen!
 
     deleteForm.delete(appointments.destroy(appointment.id).url, {
         preserveScroll: true,
