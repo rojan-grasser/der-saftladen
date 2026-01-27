@@ -43,11 +43,11 @@ onMounted(async () => {
     <Card class="w-full">
         <CardHeader>
             <CardTitle class="flex gap-3">
-                <LockKeyhole class="size-4" />2FA Recovery Codes
+                <LockKeyhole class="size-4" />2FA-Wiederherstellungscodes
             </CardTitle>
             <CardDescription>
-                Recovery codes let you regain access if you lose your 2FA
-                device. Store them in a secure password manager.
+                Wiederherstellungscodes ermöglichen Ihnen den Zugriff zurück, falls Sie Ihr 2FA-Gerät verlieren.
+                Bewahren Sie diese in einem sicheren Passwort-Manager auf.
             </CardDescription>
         </CardHeader>
         <CardContent>
@@ -59,8 +59,7 @@ onMounted(async () => {
                         :is="isRecoveryCodesVisible ? EyeOff : Eye"
                         class="size-4"
                     />
-                    {{ isRecoveryCodesVisible ? 'Hide' : 'View' }} Recovery
-                    Codes
+                    {{ isRecoveryCodesVisible ? 'Hide' : 'View' }} Wiederherstellungscodes
                 </Button>
 
                 <Form
@@ -76,7 +75,7 @@ onMounted(async () => {
                         type="submit"
                         :disabled="processing"
                     >
-                        <RefreshCw /> Regenerate Codes
+                        <RefreshCw /> Codes neu generieren
                     </Button>
                 </Form>
             </div>
@@ -112,10 +111,10 @@ onMounted(async () => {
                         </div>
                     </div>
                     <p class="text-xs text-muted-foreground select-none">
-                        Each recovery code can be used once to access your
-                        account and will be removed after use. If you need more,
-                        click
-                        <span class="font-bold">Regenerate Codes</span> above.
+                        Jeder Wiederherstellungscode kann nur einmal für den Zugriff auf Ihr Konto verwendet werden.
+                        Er wird nach der Verwendung gelöscht. Falls Sie weitere Codes benötigen,
+                        klicken Sie hier.
+                        <span class="font-bold">Codes neu generieren</span> über.
                     </p>
                 </div>
             </div>

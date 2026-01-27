@@ -50,26 +50,26 @@ const modalConfig = computed<{
 }>(() => {
     if (props.twoFactorEnabled) {
         return {
-            title: 'Two-Factor Authentication Enabled',
+            title: 'Zwei-Faktor-Authentifizierung aktiviert',
             description:
-                'Two-factor authentication is now enabled. Scan the QR code or enter the setup key in your authenticator app.',
-            buttonText: 'Close',
+                'Die Zwei-Faktor-Authentifizierung ist jetzt aktiviert. Scannen Sie den QR-Code oder geben Sie den Einrichtungsschlüssel in Ihrer Authentifizierungs-App ein.',
+            buttonText: 'Schließen',
         };
     }
 
     if (showVerificationStep.value) {
         return {
-            title: 'Verify Authentication Code',
-            description: 'Enter the 6-digit code from your authenticator app',
-            buttonText: 'Continue',
+            title: 'Authentifizierungscode überprüfen',
+            description: 'Geben Sie den 6-stelligen Code aus Ihrer Authentifizierungs-App ein.',
+            buttonText: 'Fortsetzen',
         };
     }
 
     return {
-        title: 'Enable Two-Factor Authentication',
+        title: 'Zwei-Faktor-Authentifizierung aktivieren',
         description:
-            'To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app',
-        buttonText: 'Continue',
+            'Um die Zwei-Faktor-Authentifizierung abzuschließen, scannen Sie den QR-Code oder geben Sie den Einrichtungsschlüssel in Ihrer Authentifizierungs-App ein.',
+        buttonText: 'Fortsetzen',
     };
 });
 
@@ -200,7 +200,7 @@ watch(
                                 class="absolute inset-0 top-1/2 h-px w-full bg-border"
                             />
                             <span class="relative bg-card px-2 py-1"
-                                >or, enter the code manually</span
+                                >Oder geben Sie den Code manuell ein</span
                             >
                         </div>
 
@@ -292,7 +292,7 @@ watch(
                                     class="w-auto flex-1"
                                     :disabled="processing || code.length < 6"
                                 >
-                                    Confirm
+                                    Bestätigen
                                 </Button>
                             </div>
                         </div>
