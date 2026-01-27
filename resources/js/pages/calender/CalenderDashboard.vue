@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
 
@@ -417,24 +417,11 @@ const selectedAppointment = computed(() => {
     return selectedAppointments.value[0] ?? null;
 });
 
-const deleteSelectedAppointment = () => {
-    const appointment = selectedAppointment.value;
-    if (!appointment || deleteForm.processing) {
-        return;
+const handleAppointmentDeleted = () => {
+    if (selectedAppointmentId.value) {
+        selectedAppointmentId.value = null;
     }
-
-    //TODO Confirm Einbauen fürs Löschen!
-
-    deleteForm.delete(appointments.destroy(appointment.id).url, {
-        preserveScroll: true,
-        onSuccess: () => {
-            if (selectedAppointmentId.value === appointment.id) {
-                selectedAppointmentId.value = null;
-            }
-            isDetailsOpen.value = false;
-            router.reload({ only: ['appointments'] });
-        },
-    });
+    isDetailsOpen.value = false;
 };
 
 const upcomingAppointments = computed(() => {
@@ -668,7 +655,7 @@ watch([allDayStart, allDayEnd], () => {
             :get-owner-name="getOwnerName"
             @update:open="isDetailsOpen = $event"
             @edit="openEditFromDetails"
-            @delete="deleteSelectedAppointment"
+            @deleted="handleAppointmentDeleted"
         />
         <Dialog :open="isCreateOpen" @update:open="handleDialogOpen">
             <DialogContent class="sm:max-w-2xl">

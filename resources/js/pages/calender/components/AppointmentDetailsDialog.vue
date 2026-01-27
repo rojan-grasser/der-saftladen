@@ -27,10 +27,16 @@ defineProps<{
 const emit = defineEmits<{
     (e: 'update:open', value: boolean): void;
     (e: 'edit'): void;
-    (e: 'delete'): void;
+    (e: 'deleted'): void;
 }>();
 
 const showDeleteAlert = ref(false);
+
+const handleDeleted = () => {
+    showDeleteAlert.value = false;
+    emit('update:open', false);
+    emit('deleted');
+};
 </script>
 
 <template>
@@ -136,13 +142,13 @@ const showDeleteAlert = ref(false);
                     Bearbeiten
                 </Button>
             </DialogFooter>
-
-            <AppoitmentDeleteAlert
-                v-if="appointment"
-                v-model:open="showDeleteAlert"
-                :appointment="appointment"
-                @deleted="emit('update:open', false)"
-            />
         </DialogContent>
     </Dialog>
+
+    <AppoitmentDeleteAlert
+        v-if="appointment"
+        v-model:open="showDeleteAlert"
+        :appointment="appointment"
+        @deleted="handleDeleted"
+    />
 </template>

@@ -29,7 +29,7 @@ const deleteForm = useForm({});
 const submit = () => {
     deleteForm.delete(appointments.destroy(props.appointment.id).url, {
         preserveScroll: true,
-        onSuccess: async () => {
+        onSuccess: () => {
             emit('deleted');
             close();
             router.reload({ only: ['appointments'] });
