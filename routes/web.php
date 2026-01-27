@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\ProfessionalAreaController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Calender\AppointmentController;
+use App\Http\Controllers\Forum\TopicController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -13,11 +14,13 @@ Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
     ]);
-})->name('home');
+})->name('home')->middleware('request-logging');
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'active'])->name('dashboard');
+})->middleware(['request-logging', 'auth', 'verified', 'active'])->name('dashboard');
+
+Route::middleware(['request-logging', 'auth', 'verified', 'active', 'admin'])
 
 Route::middleware(['auth', 'verified', 'active'])->group(function () {
     Route::resource('appointments', AppointmentController::class)->except(['create', 'edit', 'show']);
@@ -33,8 +36,8 @@ Route::middleware(['auth', 'verified', 'active', 'admin'])
         Route::get('/users', [UserController::class, 'index'])->name('admin.users');
         Route::put('/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
         Route::get('/instructors', [InstructorController::class, 'index'])->name('admin.instructors');
-        Route::get('/professional-areas', [ProfessionalAreaController::class, 'get'])->name('admin.professional-area.get');
-        Route::post('/professional-area', [ProfessionalAreaController::class, 'index'])->name('admin.professional-area.create');
+        Route::get('/professional-areas', [ProfessionalAreaController::class, 'index'])->name('admin.professional-area');
+        Route::post('/professional-area', [ProfessionalAreaController::class, 'store'])->name('admin.professional-area.store');
         Route::put('/professional-area/{id}', [ProfessionalAreaController::class, 'update'])->name('admin.professional-area.update');
         Route::delete('/professional-area/{id}', [ProfessionalAreaController::class, 'destroy'])->name('admin.professional-area.destroy');
         Route::get('/professional-area/{id}/instructors', [ProfessionalAreaController::class, 'getInstructors'])->name('admin.professional-area.instructors');
@@ -43,6 +46,12 @@ Route::middleware(['auth', 'verified', 'active', 'admin'])
         Route::delete('/instructors-to-area/{instructorId}/{areaId}', [InstructorToProfessionalAreaController::class, 'destroy'])->name('admin.instructors-to-area.destroy');
 
         // Add any other admin routes here
+    });
+
+Route::middleware(['auth', 'verified', 'active'])
+    ->prefix('forum')
+    ->group(function () {
+        Route::resource('topics', TopicController::class);
     });
 
 require __DIR__ . '/settings.php';

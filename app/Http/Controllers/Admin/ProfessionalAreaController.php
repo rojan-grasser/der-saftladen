@@ -9,6 +9,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class ProfessionalAreaController extends Controller
 {
@@ -16,13 +18,13 @@ class ProfessionalAreaController extends Controller
      * Takes name and description as parameters, returns success (always) and message (sometimes).
      *
      * @param Request $request
-     * @return array|false[]|true[]
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function index(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => ['required'],
-            'description' => ['required'],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string', 'max:255'],
         ]);
 
         $name = trim($validated['name']);
@@ -33,52 +35,60 @@ class ProfessionalAreaController extends Controller
                 'description' => trim($validated['description']),
             ]);
 
-            return ['success' => true];
+            return back()->with('success', 'Professional area created successfully.');
         } catch (Exception $exception) {
             // Error code 23000 -> Unique violation on the name
             if ($exception instanceof QueryException && $exception->errorInfo[0] === '23000') {
-                return [
-                    'success' => false,
-                    'message' => 'The professional area "' . $name . '" already exists',
-                ];
+                throw ValidationException::withMessages([
+                    'name' => 'The professional area "' . $name . '" already exists.',
+                ]);
             }
 
-            return [
-                'success' => false,
-            ];
+            Log::error($exception);
+
+            return back()->with('error', 'There was an unexpected error while creating the professional area. Please try again later.');
         }
     }
 
     public function update(Request $request, string $id)
     {
         $validated = $request->validate([
-            'name' => ['sometimes', 'string'],
-            'description' => ['sometimes', 'string'],
+            'name' => ['sometimes', 'string', 'max:255'],
+            'description' => ['sometimes', 'string', 'max:255'],
+            'instructor_ids' => ['sometimes', 'array'],
+            'instructor_ids.*' => ['integer', 'distinct', 'exists:users,id'],
         ]);
 
-        $professionalArea = ProfessionalArea::find($id);
+        $professionalArea = ProfessionalArea::query()->findOrFail($id);
 
         $updateData = [
             'name' => array_key_exists('name', $validated) ? trim($validated['name']) : $professionalArea->name,
             'description' => array_key_exists('description', $validated) ? trim($validated['description']) : $professionalArea->description,
         ];
 
-        try {
-            $professionalArea->update($updateData);
+        $instructorIds = $validated['instructor_ids'] ?? null;
 
-            return ['success' => true];
+        try {
+            DB::transaction(function () use ($professionalArea, $updateData, $instructorIds) {
+                $professionalArea->update($updateData);
+
+                if (is_array($instructorIds)) {
+                    $professionalArea->instructors()->sync($instructorIds);
+                }
+            });
+
+            return back()->with('success', 'Professional area updated successfully.');
         } catch (Exception $exception) {
-            // Error code 23000 -> Unique violation on the name
-            if ($exception instanceof QueryException && $exception->errorInfo[0] === '23000') {
-                return [
-                    'success' => false,
-                    'message' => 'The professional area "' . $updateData['name'] . '" already exists',
-                ];
+            // Error code 23000 -> Unique violation on the name (SQLite/MySQL etc.)
+            if ($exception instanceof QueryException && ($exception->errorInfo[0] ?? null) === '23000') {
+                throw ValidationException::withMessages([
+                    'name' => 'The professional area "' . $updateData['name'] . '" already exists.',
+                ]);
             }
 
-            return [
-                'success' => false,
-            ];
+            Log::error($exception);
+
+            return back()->with('error', 'There was an unexpected error while updating the professional area. Please try again later.');
         }
     }
 
@@ -90,30 +100,33 @@ class ProfessionalAreaController extends Controller
         try {
             ProfessionalArea::destroy($id);
 
-            return ['success' => true];
+            return back()->with('success', 'Professional area deleted successfully.');
         } catch (Exception $exception) {
             Log::error($exception);
 
-            return [
-                'success' => false,
-                'message' => 'There was a unexpected error while deleting the professional area, please try again later',
-            ];
+            return back()->with('error', 'There was a unexpected error while deleting the professional area, please try again later');
         }
     }
 
-    public function get(Request $request)
+    public function index(Request $request)
     {
         $validated = $request->validate([
             'query' => ['sometimes', 'string', 'max:255'],
         ]);
 
-        $query = DB::table('professional_areas');
+        $query = ProfessionalArea::query()
+            ->select('id', 'name', 'description')
+            ->with([
+                'instructors',
+            ]);
 
         if (isset($validated['query'])) {
             $query->where('name', 'like', '%' . $validated['query'] . '%');
         }
 
-        return $query->paginate(20, ['id', 'name', 'description'])->withQueryString();
+        return Inertia::render('admin/ProfessionalAreas', [
+            'professionalAreas' => $query->paginate(20)->withQueryString(),
+        ]);
     }
 
     public function getInstructors(Request $request, string $id)

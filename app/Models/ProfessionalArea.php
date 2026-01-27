@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ProfessionalArea extends Model
 {
+    /** @use HasFactory<\Database\Factories\ProfessionalAreaFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'description',
@@ -13,7 +17,7 @@ class ProfessionalArea extends Model
 
     protected $guarded = ['id'];
 
-    public function instructors()
+    public function instructors(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(
             Instructor::class,

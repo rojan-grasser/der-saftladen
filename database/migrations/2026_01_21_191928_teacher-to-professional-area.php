@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('user_to_professional_area', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('professional_area_id')->constrained();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('professional_area_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

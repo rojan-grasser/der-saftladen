@@ -6,6 +6,8 @@ namespace App\Models;
 use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -25,7 +27,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'status'
+        'status',
     ];
 
     /**
@@ -52,7 +54,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'role' => UserRole::class,
-            'status' => UserStatus::class
+            'status' => UserStatus::class,
         ];
     }
 
@@ -64,5 +66,15 @@ class User extends Authenticatable
     public function hasStatus(UserStatus $status): bool
     {
         return $this->status === $status;
+    }
+
+    public function topics(): HasMany
+    {
+        return $this->hasMany(Topic::class);
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(ForumPost::class);
     }
 }
