@@ -24,4 +24,11 @@ class Instructor extends User
             'professional_area_id'
         )->withTimestamps();
     }
+
+    public function hasAccess(int $professionalAreaId): bool
+    {
+        return $this->professionalAreas()
+            ->where('professional_area_id', $professionalAreaId)
+            ->exists();
+    }
 }

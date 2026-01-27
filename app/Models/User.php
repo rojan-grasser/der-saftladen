@@ -27,7 +27,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'status'
+        'status',
     ];
 
     /**
@@ -54,7 +54,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'role' => UserRole::class,
-            'status' => UserStatus::class
+            'status' => UserStatus::class,
         ];
     }
 

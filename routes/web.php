@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\InstructorToProfessionalAreaController;
 use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\ProfessionalAreaController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Forum\TopicController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -38,6 +39,12 @@ Route::middleware(['request-logging', 'auth', 'verified', 'active', 'admin'])
         Route::delete('/instructors-to-area/{instructorId}/{areaId}', [InstructorToProfessionalAreaController::class, 'destroy'])->name('admin.instructors-to-area.destroy');
 
         // Add any other admin routes here
+    });
+
+Route::middleware(['auth', 'verified', 'active'])
+    ->prefix('forum')
+    ->group(function () {
+        Route::resource('topics', TopicController::class);
     });
 
 require __DIR__ . '/settings.php';
