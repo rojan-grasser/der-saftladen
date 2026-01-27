@@ -12,13 +12,13 @@ Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canRegister' => Features::enabled(Features::registration()),
     ]);
-})->name('home')->middleware('request-logging');
+})->name('home');
 
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['request-logging', 'auth', 'verified', 'active'])->name('dashboard');
+})->middleware(['auth', 'verified', 'active'])->name('dashboard');
 
-Route::middleware(['request-logging', 'auth', 'verified', 'active', 'admin'])
+Route::middleware(['auth', 'verified', 'active', 'admin'])
     ->prefix('admin')
     ->group(function () {
         Route::get('/dashboard', function () {
