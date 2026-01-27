@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ForumPost extends Model
 {
+    protected $guarded = ['id'];
+
     public function topic(): BelongsTo
     {
         return $this->belongsTo(Topic::class);

@@ -4,7 +4,9 @@ use App\Http\Controllers\Admin\InstructorToProfessionalAreaController;
 use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\ProfessionalAreaController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Forum\PostController;
 use App\Http\Controllers\Forum\TopicController;
+use App\Http\Middleware\EnsureInstructorHasAccess;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -44,6 +46,15 @@ Route::middleware(['request-logging', 'auth', 'verified', 'active', 'admin'])
 Route::middleware(['auth', 'verified', 'active'])
     ->prefix('forum')
     ->group(function () {
+        Route::middleware([EnsureInstructorHasAccess::class])
+            ->prefix('topics/{topicId}')
+            ->group(function () {
+                Route::get('test', [PostController::class, 'store']);
+
+                Route::resource('posts', PostController::class);
+            });
+
+        Route::get('test', [TopicController::class, 'store']);
         Route::resource('topics', TopicController::class);
     });
 
