@@ -19,7 +19,12 @@ class EnsureInstructorHasAccess
     {
         $topicId = $request->route('topicId');
 
-        if (!Instructor::findOrFail($request->user()->id)->hasAccess(Topic::findOrFail($topicId)->professional_area_id)) {
+        $instructor = Instructor::find($request->user()->id);
+
+        if (
+            $instructor &&
+            !$instructor->hasAccess(Topic::findOrFail($topicId)->professional_area_id)
+        ) {
             return back()->with('error', 'Du hast keinen zugriff auf dieses Thema');
         }
 
