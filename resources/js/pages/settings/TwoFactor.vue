@@ -26,7 +26,7 @@ withDefaults(defineProps<Props>(), {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Zwei-Faktor-Authentifizierung',
+        title: '2-Faktor-Authentifizierung',
         href: show.url(),
     },
 ];
@@ -41,15 +41,15 @@ onUnmounted(() => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <Head title="Zwei-Faktor-Authentifizierung" />
+        <Head title="2-Faktor-Authentifizierung" />
 
-        <h1 class="sr-only">Einstellungen für die Zwei-Faktor-Authentifizierung</h1>
+        <h1 class="sr-only">Einstellungen für die 2-Faktor-Authentifizierung</h1>
 
         <SettingsLayout>
             <div class="space-y-6">
                 <HeadingSmall
-                    title="Zwei-Faktor-Authentifizierung"
-                    description="Verwalten Sie Ihre Einstellungen für die Zwei-Faktor-Authentifizierung."
+                    title="2-Faktor-Authentifizierung"
+                    description="Verwalten Sie Ihre Einstellungen für die 2-Faktor-Authentifizierung."
                 />
 
                 <div
@@ -59,7 +59,7 @@ onUnmounted(() => {
                     <Badge variant="destructive">Deaktiviert</Badge>
 
                     <p class="text-muted-foreground">
-                        Wenn Sie die Zwei-Faktor-Authentifizierung aktivieren, werden Sie
+                        Wenn Sie die 2-Faktor-Authentifizierung aktivieren, werden Sie
                         beim Anmelden zur Eingabe einer sicheren PIN aufgefordert. Diese PIN kann
                         über eine TOTP-fähige Anwendung auf Ihrem
                         Telefon abgerufen werden.
@@ -92,7 +92,7 @@ onUnmounted(() => {
                     <Badge variant="default">Enabled</Badge>
 
                     <p class="text-muted-foreground">
-                        Bei aktivierter Zwei-Faktor-Authentifizierung werden Sie
+                        Bei aktivierter 2-Faktor-Authentifizierung werden Sie
                         bei der Anmeldung zur Eingabe einer sicheren, zufällig generierten PIN aufgefordert, die Sie
                         über die TOTP-fähige Anwendung auf Ihrem Telefon abrufen können.
                     </p>

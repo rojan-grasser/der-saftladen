@@ -50,9 +50,9 @@ const modalConfig = computed<{
 }>(() => {
     if (props.twoFactorEnabled) {
         return {
-            title: 'Zwei-Faktor-Authentifizierung aktiviert',
+            title: '2-Faktor-Authentifizierung aktiviert',
             description:
-                'Die Zwei-Faktor-Authentifizierung ist jetzt aktiviert. Scannen Sie den QR-Code oder geben Sie den Einrichtungsschlüssel in Ihrer Authentifizierungs-App ein.',
+                'Die 2-Faktor-Authentifizierung ist jetzt aktiviert. Scannen Sie den QR-Code oder geben Sie den Einrichtungsschlüssel in Ihrer Authentifizierungs-App ein.',
             buttonText: 'Schließen',
         };
     }
@@ -66,9 +66,9 @@ const modalConfig = computed<{
     }
 
     return {
-        title: 'Zwei-Faktor-Authentifizierung aktivieren',
+        title: '2-Faktor-Authentifizierung aktivieren',
         description:
-            'Um die Zwei-Faktor-Authentifizierung abzuschließen, scannen Sie den QR-Code oder geben Sie den Einrichtungsschlüssel in Ihrer Authentifizierungs-App ein.',
+            'Um die 2-Faktor-Authentifizierung abzuschließen, scannen Sie den QR-Code oder geben Sie den Einrichtungsschlüssel in Ihrer Authentifizierungs-App ein.',
         buttonText: 'Fortsetzen',
     };
 });
