@@ -6,6 +6,7 @@ import { computed, ref, watch } from 'vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DatePicker } from '@/components/ui/date-picker';
 import {
     Dialog,
     DialogContent,
@@ -16,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { TimePicker } from '@/components/ui/time-picker';
 import AppLayout from '@/layouts/AppLayout.vue';
 // eslint-disable-next-line vue/no-dupe-keys
 import appointments from '@/routes/appointments';
@@ -68,6 +70,10 @@ const deleteForm = useForm({});
 const isAllDay = ref(false);
 const allDayStart = ref('');
 const allDayEnd = ref('');
+const startDate = ref('');
+const startTime = ref('');
+const endDate = ref('');
+const endTime = ref('');
 
 const openCreate = () => {
     isEditMode.value = false;
@@ -81,6 +87,7 @@ const openCreate = () => {
     form.end_time = toInputDateTime(addMinutes(now, 60));
     allDayStart.value = toInputDate(now);
     allDayEnd.value = toInputDate(now);
+    syncDateTimeFields();
 };
 
 const closeCreate = () => {
@@ -189,12 +196,26 @@ const toInputDate = (value: Date) => {
     )}-${String(value.getDate()).padStart(2, '0')}`;
 };
 
+const toInputTime = (value: Date) => {
+    return `${String(value.getHours()).padStart(2, '0')}:${String(
+        value.getMinutes(),
+    ).padStart(2, '0')}`;
+};
+
 const toDateString = (value: string | number) => {
     if (value === null || value === undefined || value === '') {
         return '';
     }
     const parsed = parseDate(value);
     return parsed ? toInputDate(parsed) : '';
+};
+
+const toTimeString = (value: string | number) => {
+    if (value === null || value === undefined || value === '') {
+        return '';
+    }
+    const parsed = parseDate(value);
+    return parsed ? toInputTime(parsed) : '';
 };
 
 const addMinutes = (value: Date, minutes: number) => {
@@ -245,6 +266,46 @@ const applyAllDayTimes = () => {
     form.end_time = `${endDate}T23:59`;
 };
 
+const syncDateTimeFields = () => {
+    startDate.value = toDateString(form.start_time);
+    startTime.value = toTimeString(form.start_time);
+    endDate.value = toDateString(form.end_time) || startDate.value;
+    endTime.value = toTimeString(form.end_time) || startTime.value;
+};
+
+const updateStartDateTime = () => {
+    const date =
+        startDate.value ||
+        toDateString(form.start_time) ||
+        toInputDate(new Date());
+    const time = startTime.value || toTimeString(form.start_time) || '00:00';
+    if (!startTime.value && time) {
+        startTime.value = time;
+    }
+    form.start_time = `${date}T${time}`;
+};
+
+const updateEndDateTime = () => {
+    const date =
+        endDate.value ||
+        startDate.value ||
+        toDateString(form.end_time) ||
+        toDateString(form.start_time) ||
+        toInputDate(new Date());
+    const time =
+        endTime.value ||
+        toTimeString(form.end_time) ||
+        toTimeString(form.start_time) ||
+        '00:00';
+    if (!endDate.value && date) {
+        endDate.value = date;
+    }
+    if (!endTime.value && time) {
+        endTime.value = time;
+    }
+    form.end_time = `${date}T${time}`;
+};
+
 const openEdit = (appointment: Appointment) => {
     isEditMode.value = true;
     editingAppointmentId.value = appointment.id;
@@ -260,6 +321,7 @@ const openEdit = (appointment: Appointment) => {
     allDayEnd.value = end ? toInputDate(end) : allDayStart.value;
     isAllDay.value = isAllDayRange(start, end);
     isCreateOpen.value = true;
+    syncDateTimeFields();
 };
 
 const isSameDay = (a: Date, b: Date) => {
@@ -559,8 +621,32 @@ const handleDialogOpen = (value: boolean) => {
     isCreateOpen.value = true;
 };
 
+watch(startDate, (value) => {
+    if (isAllDay.value || !value) {
+        return;
+    }
+    if (!endDate.value) {
+        endDate.value = value;
+    }
+});
+
+watch([startDate, startTime], () => {
+    if (isAllDay.value) {
+        return;
+    }
+    updateStartDateTime();
+});
+
+watch([endDate, endTime], () => {
+    if (isAllDay.value) {
+        return;
+    }
+    updateEndDateTime();
+});
+
 watch(isAllDay, (value) => {
     if (!value) {
+        syncDateTimeFields();
         return;
     }
     if (!allDayStart.value) {
@@ -709,36 +795,50 @@ watch([allDayStart, allDayEnd], () => {
                             <Label :for="isAllDay ? 'start_date' : 'start_time'">
                                 Beginn
                             </Label>
-                            <Input
-                                v-if="isAllDay"
-                                id="start_date"
-                                v-model="allDayStart"
-                                type="date"
-                            />
-                            <Input
-                                v-else
-                                id="start_time"
-                                v-model="form.start_time"
-                                type="datetime-local"
-                            />
+                            <div v-if="isAllDay" class="grid gap-2">
+                                <DatePicker
+                                    id="start_date"
+                                    v-model="allDayStart"
+                                    placeholder="Datum auswählen"
+                                />
+                            </div>
+                            <div v-else class="grid gap-2">
+                                <DatePicker
+                                    id="start_time"
+                                    v-model="startDate"
+                                    placeholder="Datum auswählen"
+                                />
+                                <TimePicker
+                                    v-model="startTime"
+                                    placeholder="Zeit auswählen"
+                                    class="h-10"
+                                />
+                            </div>
                             <InputError :message="form.errors.start_time" />
                         </div>
                         <div class="grid gap-2">
                             <Label :for="isAllDay ? 'end_date' : 'end_time'">
                                 Ende
                             </Label>
-                            <Input
-                                v-if="isAllDay"
-                                id="end_date"
-                                v-model="allDayEnd"
-                                type="date"
-                            />
-                            <Input
-                                v-else
-                                id="end_time"
-                                v-model="form.end_time"
-                                type="datetime-local"
-                            />
+                            <div v-if="isAllDay" class="grid gap-2">
+                                <DatePicker
+                                    id="end_date"
+                                    v-model="allDayEnd"
+                                    placeholder="Datum auswählen"
+                                />
+                            </div>
+                            <div v-else class="grid gap-2">
+                                <DatePicker
+                                    id="end_time"
+                                    v-model="endDate"
+                                    placeholder="Datum auswählen"
+                                />
+                                <TimePicker
+                                    v-model="endTime"
+                                    placeholder="Zeit auswählen"
+                                    class="h-10"
+                                />
+                            </div>
                             <InputError :message="form.errors.end_time" />
                         </div>
                     </div>
