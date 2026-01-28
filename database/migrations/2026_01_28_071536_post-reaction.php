@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->enum('type', [PostReaction::DISLIKE, PostReaction::LIKE]);
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('forum_post_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
