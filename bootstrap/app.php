@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureInstructorHasAccess;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\HandleAppearance;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => EnsureUserIsActive::class,
             'admin' => EnsureUserIsAdmin::class,
             'request-logging' => HandleRequestLogging::class,
+            'instructor-has-access' => EnsureInstructorHasAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

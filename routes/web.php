@@ -4,8 +4,10 @@ use App\Http\Controllers\Admin\InstructorToProfessionalAreaController;
 use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\ProfessionalAreaController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Forum\PostController;
 use App\Http\Controllers\Calender\AppointmentController;
 use App\Http\Controllers\Forum\TopicController;
+use App\Http\Middleware\EnsureInstructorHasAccess;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -51,6 +53,12 @@ Route::middleware(['request-logging', 'auth', 'verified', 'active', 'admin'])
 Route::middleware(['auth', 'verified', 'active'])
     ->prefix('forum')
     ->group(function () {
+        Route::middleware(['instructor-has-access'])
+            ->prefix('topics/{topicId}')
+            ->group(function () {
+                Route::resource('posts', PostController::class);
+            });
+
         Route::resource('topics', TopicController::class);
     });
 

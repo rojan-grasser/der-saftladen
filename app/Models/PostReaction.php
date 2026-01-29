@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ForumPost extends Model
+class PostReaction extends Model
 {
     protected $guarded = ['id'];
 
-    public function topic(): BelongsTo
+    public function post(): BelongsTo
     {
-        return $this->belongsTo(Topic::class);
+        return $this->belongsTo(ForumPost::class);
     }
 
-    public function creator(): BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
