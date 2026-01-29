@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TimePicker } from '@/components/ui/time-picker';
+import { InputGroupTimePicker } from '@/components/ui/time-picker';
 
 const props = defineProps<{
     open: boolean;
@@ -153,10 +153,9 @@ const endTimeValue = computed({
                                 v-model="startDateValue"
                                 placeholder="Datum auswählen"
                             />
-                            <TimePicker
+                            <InputGroupTimePicker
                                 v-model="startTimeValue"
                                 placeholder="Zeit auswählen"
-                                class="h-10"
                             />
                         </div>
                         <InputError :message="form.errors.start_time" />
@@ -178,10 +177,9 @@ const endTimeValue = computed({
                                 v-model="endDateValue"
                                 placeholder="Datum auswählen"
                             />
-                            <TimePicker
+                            <InputGroupTimePicker
                                 v-model="endTimeValue"
                                 placeholder="Zeit auswählen"
-                                class="h-10"
                             />
                         </div>
                         <InputError :message="form.errors.end_time" />
