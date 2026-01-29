@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid } from 'lucide-vue-next';
+import { LayoutGrid, ShieldCheck } from 'lucide-vue-next';
 
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -33,7 +33,17 @@ if (user.role === 'admin') {
     mainNavItems.push({
         title: 'Admin Dashboard',
         href: admin.dashboard(),
-        icon: LayoutGrid,
+        icon: ShieldCheck,
+        children: [
+            {
+                title: 'Benutzerverwaltung',
+                href: admin.users(),
+            },
+            {
+                title: 'Berufsbereiche',
+                href: admin.professionalArea(),
+            },
+        ],
     });
 }
 </script>
