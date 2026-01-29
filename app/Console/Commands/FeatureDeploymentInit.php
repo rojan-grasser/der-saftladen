@@ -23,7 +23,7 @@ class FeatureDeploymentInit extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Creates a initial user with admin role';
 
     /**
      * Execute the console command.
