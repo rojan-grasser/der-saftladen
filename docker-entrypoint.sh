@@ -6,7 +6,9 @@ php artisan migrate --force
 
 # Run feature deployment initialization if FEATURE env var is set
 if [ -n "$FEATURE" ]; then
-  php artisan app:feature-deployment-init
+    echo "Creating init user with email 'test-admin@example.com' and password 'password'"
+
+    php artisan app:feature-deployment-init
 fi
 
 # Start Octane
