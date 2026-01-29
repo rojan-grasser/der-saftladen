@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Instructor;
 use App\Models\Topic;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class TopicController extends Controller
 {
@@ -44,7 +45,12 @@ class TopicController extends Controller
 
         $limit = $validated['limit'] ?? 15;
 
-        return $query->cursorPaginate($limit)->withQueryString();
+        return Inertia::render(
+            'forum/Overview',
+            [
+                'topics' => $query->cursorPaginate($limit)->withQueryString(),
+            ]
+        ); // $query->cursorPaginate($limit)->withQueryString();
     }
 
     /**
@@ -61,7 +67,8 @@ class TopicController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
+            'title' => ['required', 'string', 'min:1', 'max:255'],
+            'description' => ['required', 'string'],
             'professional_area_id' => ['required', 'integer', 'exists:professional_areas,id'],
         ]);
 
@@ -85,7 +92,9 @@ class TopicController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $topic = Topic::findOrFail($id);
+        $topic = Topic::with(['posts' => function ($query) {
+            $query->orderBy('created_at', 'desc');
+        }, 'posts.creator'])->findOrFail($id);
 
         if (
             $request->user()->hasRole(UserRole::INSTRUCTOR) &&
@@ -96,7 +105,35 @@ class TopicController extends Controller
 
         // Rendering of single topic on /forum/topics/{id}
         // Todo: Filter out data which is not necessary for the single topic view
-        return $topic;
+        $owner = $topic->user;
+
+        return Inertia::render('forum/Topic', [
+            'id' => $topic->id,
+            'title' => $topic->title,
+            'description' => $topic->description,
+            'isOwnPost' => $topic->user_id === $request->user()->id,
+            'owner' => [
+                'id' => $owner->id,
+                'name' => $owner->name,
+                'email' => $owner->email,
+                'role' => $owner->role,
+            ],
+            'posts' => $topic->posts->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'content' => $post->content,
+                    'created_at' => $post->created_at,
+                    'updated_at' => $post->updated_at,
+                    'user' => [
+                        'id' => $post->creator->id,
+                        'name' => $post->creator->name,
+                        'email' => $post->creator->email,
+                        'role' => $post->creator->role,
+                    ],
+                ];
+            }),
+            'createdAt' => $topic->created_at,
+        ]);
     }
 
     /**
@@ -114,6 +151,7 @@ class TopicController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
         ]);
 
         $topic = Topic::findOrFail($id);
@@ -124,7 +162,7 @@ class TopicController extends Controller
 
         $topic->update($validated);
 
-        return redirect('/forum/topics/' . $id);
+        return back()->with('success', 'Das thema wurde bearbeitet');
     }
 
     /**
