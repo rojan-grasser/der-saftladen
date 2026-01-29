@@ -46,7 +46,7 @@ Route::middleware(['request-logging', 'auth', 'verified', 'active', 'admin'])
 Route::middleware(['auth', 'verified', 'active'])
     ->prefix('forum')
     ->group(function () {
-        Route::middleware([])
+        Route::middleware(['instructor-has-access'])
             ->prefix('topics/{topicId}')
             ->group(function () {
                 Route::resource('posts', PostController::class);
