@@ -4,7 +4,7 @@ namespace App\Actions\Fortify;
 
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;
-use App\Enums\UserRole;
+use App\Enums\Role;
 use App\Enums\UserStatus;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
@@ -25,15 +25,19 @@ class CreateNewUser implements CreatesNewUsers
         Validator::make($input, [
             ...$this->profileRules(),
             'password' => $this->passwordRules(),
-            'role' => ['required', new Enum(UserRole::class)]
+            'roles' => ['required', 'array'],
+            'roles.*' => ['required', new Enum(Role::class)],
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
-            'role' => $input['role'],
             'status' => UserStatus::PENDING
         ]);
+
+        $user->assignRole(array_map(fn($role) => Role::from($role), $input['roles']));
+
+        return $user;
     }
 }

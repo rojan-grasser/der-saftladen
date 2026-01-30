@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\UserRole;
+use App\Enums\Role;
 use App\Enums\UserStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->enum('status', ['active', 'inactive', 'pending'])->default(UserStatus::PENDING);
-            $table->enum('role', ['user', 'teacher', 'instructor', 'admin'])->default(UserRole::USER);
+            $table->enum('role', ['user', 'teacher', 'instructor', 'admin'])->default(Role::USER);
         });
     }
 

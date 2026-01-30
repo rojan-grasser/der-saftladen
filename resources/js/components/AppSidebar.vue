@@ -11,7 +11,7 @@ import {
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
-    SidebarMenuItem
+    SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import admin from '@/routes/admin';
@@ -29,7 +29,7 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
 ];
-if (user.role === 'admin') {
+if (user.roles?.find((u) => u.role === 'admin')) {
     mainNavItems.push({
         title: 'Admin Dashboard',
         href: admin.dashboard(),

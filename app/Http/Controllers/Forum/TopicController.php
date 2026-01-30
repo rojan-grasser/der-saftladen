@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Forum;
 
-use App\Enums\UserRole;
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\Instructor;
 use App\Models\Topic;
@@ -38,7 +38,7 @@ class TopicController extends Controller
             'limit' => ['nullable', 'integer', 'min:1', 'max:100'],
         ]);
 
-        $query = $request->user()->hasRole(UserRole::INSTRUCTOR) ?
+        $query = $request->user()->hasRole(Role::INSTRUCTOR) ?
             $this->getQueryForInstructor(auth()->id()) :
             $this->getQueryForTeacher();
 
@@ -66,7 +66,7 @@ class TopicController extends Controller
         ]);
 
         if (
-            $request->user()->hasRole(UserRole::INSTRUCTOR) &&
+            $request->user()->hasRole(Role::INSTRUCTOR) &&
             !Instructor::find($request->user()->id)->hasAccess($validated['professional_area_id'])
         ) {
             return back()->with('error', 'Du hast keinen zugriff auf das ausgewählte professionelle Fachgebiet.');
@@ -88,7 +88,7 @@ class TopicController extends Controller
         $topic = Topic::findOrFail($id);
 
         if (
-            $request->user()->hasRole(UserRole::INSTRUCTOR) &&
+            $request->user()->hasRole(Role::INSTRUCTOR) &&
             !Instructor::find($request->user()->id)->hasAccess($topic->professional_area_id)
         ) {
             return back()->with('error', 'Du hast keinen zugriff auf dieses Thema');

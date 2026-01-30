@@ -123,7 +123,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <TableRow>
                             <TableHead>Name</TableHead>
                             <TableHead>Email</TableHead>
-                            <TableHead>Rolle</TableHead>
+                            <TableHead>Rollen</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Aktionen</TableHead>
                         </TableRow>
@@ -136,9 +136,14 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <TableCell class="text-muted-foreground">
                                 {{ user.email }}
                             </TableCell>
-                            <TableCell>
-                                <Badge class="capitalize" variant="secondary">
-                                    {{ roleLabels[user.role] }}
+                            <TableCell class="break-all whitespace-normal">
+                                <Badge
+                                    v-for="role in user.roles"
+                                    :key="role.id"
+                                    class="mt-1 mr-1 mb-1 capitalize"
+                                    variant="secondary"
+                                >
+                                    {{ roleLabels[role.role] }}
                                 </Badge>
                             </TableCell>
                             <TableCell>
@@ -180,10 +185,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </Table>
             </div>
             <PaginationBar
-            :current-page="users.current_page"
-            :per-page="users.per_page"
-            :total="users.total"
-            @page-change="handlePageChange" />
+                :current-page="users.current_page"
+                :per-page="users.per_page"
+                :total="users.total"
+                @page-change="handlePageChange"
+            />
         </div>
         <UserEdit
             v-if="editingUser"

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\UserRole;
+use App\Enums\Role;
 use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -18,14 +18,16 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $validated = $request->validate([
-            'role' => ['sometimes', new Enum(UserRole::class)],
+            'role' => ['sometimes', new Enum(Role::class)],
             'status' => ['sometimes', new Enum(UserStatus::class)],
         ]);
 
-        $query = User::query();
+        $query = User::query()->with('roles');
 
         if (isset($validated['role'])) {
-            $query->where('role', $validated['role']);
+            $query->whereHas('roles', function ($q) use ($validated) {
+                $q->where('role', $validated['role']);
+            });
         }
 
         if (isset($validated['status'])) {
@@ -33,7 +35,7 @@ class UserController extends Controller
         }
 
         return Inertia::render('admin/Users', [
-            'users' => $query->select('id', 'name', 'email', 'role', 'status')
+            'users' => $query
                 ->paginate(20)
                 ->withQueryString(),
             'filters' => $request->only(['role', 'status']),
@@ -70,13 +72,24 @@ class UserController extends Controller
     public function update(Request $request, string $id)
     {
         $validated = $request->validate([
-            'role' => ['sometimes', new Enum(UserRole::class)],
-            'status' => ['sometimes', new Enum(UserStatus::class)],
             'name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'email', 'max:255'],
+            'status' => ['sometimes', new Enum(UserStatus::class)],
+            'roles' => ['sometimes', 'array'],
+            'roles.*' => [new Enum(Role::class)],
         ]);
 
-        User::query()->where('id', $id)->update($validated);
+        $user = User::findOrFail($id);
+
+        $user->update(collect($validated)->except('roles')->toArray());
+
+        if (isset($validated['roles'])) {
+            $user->roles()->delete();
+
+            foreach ($validated['roles'] as $role) {
+                $user->assignRole(Role::from($role));
+            }
+        }
 
         return back()->with('success', 'User updated successfully');
     }

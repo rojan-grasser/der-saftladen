@@ -1,4 +1,4 @@
-import { UserRole, UserStatus } from '@/types';
+import { UserRoleString, UserStatus } from '@/types';
 
 export const statusVariants: Record<
     UserStatus,
@@ -15,9 +15,8 @@ export const statusLabels: Record<UserStatus, string> = {
     pending: 'Ausstehend',
 };
 
-export const roleLabels: Record<UserRole, string> = {
+export const roleLabels: Record<UserRoleString, string> = {
     admin: 'Admin',
-    user: 'Benutzer',
     instructor: 'Ausbilder',
     teacher: 'Lehrer',
 };

@@ -3,10 +3,22 @@ import { useForm } from '@inertiajs/vue3';
 import { watch } from 'vue';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import admin from '@/routes/admin';
 import { type User } from '@/types';
 
@@ -23,7 +35,7 @@ const emit = defineEmits<{
 const form = useForm({
     name: props.user.name,
     email: props.user.email,
-    role: props.user.role,
+    roles: props.user.roles?.map((r) => r.role),
     status: props.user.status,
 });
 
@@ -32,7 +44,7 @@ watch(
     (u) => {
         form.name = u.name;
         form.email = u.email;
-        form.role = u.role;
+        form.roles = u.roles?.map((r) => r.role);
         form.status = u.status;
         form.clearErrors();
     },
@@ -86,8 +98,8 @@ const submit = () => {
 
                 <div class="flex gap-4">
                     <div class="grid flex-1 gap-2">
-                        <Label for="role">Rolle</Label>
-                        <Select v-model="form.role">
+                        <Label for="role">Rollen</Label>
+                        <Select v-model="form.roles" multiple>
                             <SelectTrigger class="w-full">
                                 <SelectValue placeholder="Rolle auswählen" />
                             </SelectTrigger>

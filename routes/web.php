@@ -22,7 +22,7 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['request-logging', 'auth', 'verified', 'active'])->name('dashboard');
 
-Route::middleware(['request-logging', 'auth', 'verified', 'active', 'admin'])
+Route::middleware(['request-logging', 'auth', 'verified', 'active', 'role:admin'])
     ->prefix('admin')
     ->group(function () {
         Route::get('/dashboard', function () {
