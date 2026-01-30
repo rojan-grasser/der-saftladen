@@ -16,41 +16,41 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-{
-    $validated = $request->validate([
-        'role' => ['sometimes', new Enum(UserRole::class)],
-        'status' => ['sometimes', new Enum(UserStatus::class)],
-        'search' => ['sometimes', 'string', 'max:255'],
-    ]);
+    {
+        $validated = $request->validate([
+            'role' => ['sometimes', new Enum(UserRole::class)],
+            'status' => ['sometimes', new Enum(UserStatus::class)],
+            'search' => ['sometimes', 'string', 'max:255'],
+        ]);
 
-    $query = User::query();
+        $query = User::query();
 
-    if (isset($validated['role'])) {
-        $query->where('role', $validated['role']);
+        if (isset($validated['role'])) {
+            $query->where('role', $validated['role']);
+        }
+
+        if (isset($validated['status'])) {
+            $query->where('status', $validated['status']);
+        }
+
+        if (!empty($validated['search'])) {
+            $search = $validated['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->select('id', 'name', 'email', 'role', 'status')
+            ->orderBy('name')
+            ->paginate(20)
+            ->withQueryString();
+
+        return Inertia::render('admin/Users', [
+            'users' => $users,
+            'filters' => $request->only(['role', 'status', 'search']),
+        ]);
     }
-
-    if (isset($validated['status'])) {
-        $query->where('status', $validated['status']);
-    }
-
-    if (!empty($validated['search'])) {
-        $search = $validated['search'];
-        $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%");
-        });
-    }
-
-    $users = $query->select('id', 'name', 'email', 'role', 'status')
-        ->orderBy('name')
-        ->paginate(20)
-        ->withQueryString();
-
-    return Inertia::render('admin/Users', [
-        'users' => $users,
-        'filters' => $request->only(['role', 'status', 'search']),
-    ]);
-}
 
 
     /**
