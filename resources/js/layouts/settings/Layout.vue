@@ -22,7 +22,7 @@ const sidebarNavItems: NavItem[] = [
         href: editPassword(),
     },
     {
-        title: '2FA',
+        title: '2 FA',
         href: show(),
     },
     {
