@@ -95,7 +95,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:${{ github.event.pull_request.head.sha }}
+          tags: ghcr.io/${{ github.repository }}:${{ github.event.pull_request.head.sha || github.sha }}
 
   tag-docker-image:
     name: Tag docker image
@@ -112,7 +112,7 @@ jobs:
           registry: ghcr.io
           username: rojan-grasser
           password: ${{ secrets.GITHUB_TOKEN }}
-      - run: echo "FROM ghcr.io/${{ github.repository }}:${{ github.event.pull_request.head.sha }}" > Dockerfile
+      - run: echo "FROM ghcr.io/${{ github.repository }}:${{ github.event.pull_request.head.sha || github.sha }}" > Dockerfile
 
       - name: Semantic Release
         id: release
