@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Calendar, Folder, LayoutGrid, ShieldCheck } from 'lucide-vue-next';
+import {Calendar, LayoutGrid, ShieldCheck } from 'lucide-vue-next';
 
-import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import {
