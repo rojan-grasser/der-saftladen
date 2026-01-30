@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { Head, router } from '@inertiajs/vue3';
+import debounce from 'debounce';
 import { Pencil, Trash2 } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
-import debounce from 'debounce';
 
 import PaginationBar from '@/components/PaginationBar.vue';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +22,6 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-
 import AppLayout from '@/layouts/AppLayout.vue';
 import ProfessionalAreaCreate from '@/pages/admin/ProfessionalAreaCreate.vue';
 import ProfessionalAreaDeleteAlert from '@/pages/admin/ProfessionalAreaDeleteAlert.vue';
@@ -117,20 +116,23 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div class="flex flex-col gap-6 p-6">
             <!-- Actions -->
             <div class="flex flex-wrap items-center gap-3">
-
-                 <Input
+                <Input
                     v-model="search"
                     class="w-64"
                     placeholder="Berufsbereich suchen…"
                 />
-                
+
                 <Button @click="isCreateOpen = true">Neu erstellen</Button>
 
-               
                 <Button
                     v-if="search"
                     variant="ghost"
-                    @click="() => { search = ''; fetchProfessionalAreas(1); }"
+                    @click="
+                        () => {
+                            search = '';
+                            fetchProfessionalAreas(1);
+                        }
+                    "
                 >
                     Leeren
                 </Button>
@@ -181,7 +183,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                                             <Button
                                                 size="icon-sm"
                                                 class="mr-2"
-                                                @click="editProfessionalArea(professionalArea)"
+                                                @click="
+                                                    editProfessionalArea(
+                                                        professionalArea,
+                                                    )
+                                                "
                                             >
                                                 <Pencil />
                                             </Button>
@@ -198,7 +204,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                                             <Button
                                                 size="icon-sm"
                                                 variant="destructive"
-                                                @click="askDeleteProfessionalArea(professionalArea)"
+                                                @click="
+                                                    askDeleteProfessionalArea(
+                                                        professionalArea,
+                                                    )
+                                                "
                                             >
                                                 <Trash2 />
                                             </Button>
