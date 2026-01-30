@@ -46,14 +46,12 @@ class PostReactionController extends Controller
                 'type' => $validated['type'],
             ]);
 
-            return response(null, 201);
+            return;
         }
 
         $postReaction->update([
             'type' => $validated['type'],
         ]);
-
-        return response(null, 200);
     }
 
     /**

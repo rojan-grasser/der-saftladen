@@ -5,14 +5,16 @@ namespace App\Http\Controllers\Forum;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Instructor;
+use App\Models\PostReaction;
 use App\Models\Topic;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class TopicController extends Controller
 {
     private function getQueryForInstructor(string $instructorId)
     {
-        return Topic::join('user_to_professional_area as utpa', function ($join) use ($instructorId) {
+        return Topic::with(['user'])->join('user_to_professional_area as utpa', function ($join) use ($instructorId) {
             $join->on('utpa.professional_area_id', '=', 'topics.professional_area_id')
                 ->where('utpa.user_id', $instructorId);
         })
@@ -23,7 +25,7 @@ class TopicController extends Controller
 
     private function getQueryForTeacher()
     {
-        return Topic::query()
+        return Topic::with(['user'])
             ->orderBy('topics.created_at', 'desc')
             ->orderBy('topics.id', 'desc');
     }
@@ -44,7 +46,25 @@ class TopicController extends Controller
 
         $limit = $validated['limit'] ?? 15;
 
-        return $query->cursorPaginate($limit)->withQueryString();
+        return Inertia::render(
+            'forum/Overview',
+            [
+                'topics' => $query->cursorPaginate($limit)->withQueryString()->through(function ($topic) {
+                    return [
+                        'id' => $topic->id,
+                        'title' => $topic->title,
+                        'description' => $topic->description,
+                        'created_at' => $topic->created_at,
+                        'user' => [
+                            'id' => $topic->user->id,
+                            'name' => $topic->user->name,
+                            'email' => $topic->user->email,
+                            'role' => $topic->user->role,
+                        ],
+                    ];
+                }),
+            ]
+        );
     }
 
     /**
@@ -61,7 +81,8 @@ class TopicController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
+            'title' => ['required', 'string', 'min:1', 'max:255'],
+            'description' => ['required', 'string'],
             'professional_area_id' => ['required', 'integer', 'exists:professional_areas,id'],
         ]);
 
@@ -85,7 +106,25 @@ class TopicController extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $topic = Topic::findOrFail($id);
+        $currentUserId = $request->user()->id;
+
+        $topic = Topic::with([
+            'posts' => function ($query) {
+                $query->orderBy('created_at', 'desc')
+                    ->withCount([
+                        'reactions as likes_count' => function ($query) {
+                            $query->where('type', 'like');
+                        },
+                        'reactions as dislikes_count' => function ($query) {
+                            $query->where('type', 'dislike');
+                        },
+                    ]);
+            },
+            'posts.creator',
+            'posts.reactions' => function ($query) use ($currentUserId) {
+                $query->where('user_id', $currentUserId);
+            },
+        ])->findOrFail($id);
 
         if (
             $request->user()->hasRole(UserRole::INSTRUCTOR) &&
@@ -96,7 +135,38 @@ class TopicController extends Controller
 
         // Rendering of single topic on /forum/topics/{id}
         // Todo: Filter out data which is not necessary for the single topic view
-        return $topic;
+        $owner = $topic->user;
+
+        return Inertia::render('forum/Topic', [
+            'id' => $topic->id,
+            'title' => $topic->title,
+            'description' => $topic->description,
+            'isOwnPost' => $topic->user_id === $request->user()->id,
+            'owner' => [
+                'id' => $owner->id,
+                'name' => $owner->name,
+                'email' => $owner->email,
+                'role' => $owner->role,
+            ],
+            'posts' => $topic->posts->map(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'content' => $post->content,
+                    'created_at' => $post->created_at,
+                    'updated_at' => $post->updated_at,
+                    'reaction' => $post->reactions->first()?->type,
+                    'likesCount' => $post->likes_count,
+                    'dislikesCount' => $post->dislikes_count,
+                    'user' => [
+                        'id' => $post->creator->id,
+                        'name' => $post->creator->name,
+                        'email' => $post->creator->email,
+                        'role' => $post->creator->role,
+                    ],
+                ];
+            }),
+            'createdAt' => $topic->created_at,
+        ]);
     }
 
     /**
@@ -114,6 +184,7 @@ class TopicController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
         ]);
 
         $topic = Topic::findOrFail($id);
@@ -124,7 +195,7 @@ class TopicController extends Controller
 
         $topic->update($validated);
 
-        return redirect('/forum/topics/' . $id);
+        return back()->with('success', 'Das thema wurde bearbeitet');
     }
 
     /**

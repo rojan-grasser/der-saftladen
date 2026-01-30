@@ -7,6 +7,7 @@ const props = defineProps<{
   defaultValue?: string | number
   modelValue?: string | number
   class?: HTMLAttributes["class"]
+  errorMessage?: string
 }>()
 
 const emits = defineEmits<{
@@ -22,6 +23,7 @@ const modelValue = useVModel(props, "modelValue", emits, {
 <template>
   <input
     v-model="modelValue"
+    v-bind="$attrs"
     data-slot="input"
     :class="cn(
       'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
@@ -30,4 +32,5 @@ const modelValue = useVModel(props, "modelValue", emits, {
       props.class,
     )"
   >
+  <div v-if="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</div>
 </template>
