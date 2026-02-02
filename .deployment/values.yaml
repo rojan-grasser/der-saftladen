@@ -1,0 +1,54 @@
+deployment:
+  spec:
+    containers:
+      - name: der-saftladen
+        image: ghcr.io/rojan-grasser/der-saftladen:{{ .CommitId }}
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: APP_KEY
+            value: base64:r9EkUOISRfHacEdhgcXKaND0ZcdYFgmhIUnUrjYzoow=
+          - name: APP_NAME
+            value: "der-saftladen"
+          - name: APP_ENV
+            value: "production"
+          - name: APP_DEBUG
+            value: "true"
+          - name: APP_URL
+            value: https://{{ .Host }}.{{ .BaseDomain }}
+          - name: FEATURE
+            value: {{ .BranchName }}
+          # Postgres
+          - name: DB_CONNECTION
+            value: "sqlite"
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "500Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+    restartPolicy: Always
+
+
+service:
+  enabled: true
+  port: {{ .Port }}
+  targetPort: {{ .Port }}
+
+virtualService:
+  enabled: true
+  spec:
+    gateways:
+      - {{ .Gateway }}
+    hosts:
+        - "{{ .Host }}.{{ .BaseDomain }}"
+    http:
+      - match:
+          - headers:
+              cookie:
+                regex: ".*feature={{ .BranchName }}.*"
+        route:
+          - destination:
+              port:
+                number: {{ .Port }}
+              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local

@@ -18,7 +18,7 @@ class ProfessionalAreaFactory extends Factory
     {
         return [
             'name' => fake()->unique()->jobTitle(),
-            'description' => fake()->randomLetter()
+            'description' => fake()->sentence()
         ];
     }
 }

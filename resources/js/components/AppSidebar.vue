@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid } from 'lucide-vue-next';
+import {Calendar, LayoutGrid, ShieldCheck } from 'lucide-vue-next';
 
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -28,12 +28,27 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Kalender',
+        href: '/appointments',
+        icon: Calendar,
+    },
 ];
 if (user.roles?.find((u) => u.role === 'admin')) {
     mainNavItems.push({
         title: 'Admin Dashboard',
         href: admin.dashboard(),
-        icon: LayoutGrid,
+        icon: ShieldCheck,
+        children: [
+            {
+                title: 'Benutzerverwaltung',
+                href: admin.users(),
+            },
+            {
+                title: 'Berufsbereiche',
+                href: admin.professionalArea(),
+            },
+        ],
     });
 }
 </script>
