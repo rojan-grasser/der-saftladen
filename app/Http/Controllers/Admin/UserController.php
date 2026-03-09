@@ -7,8 +7,10 @@ use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Enum;
 use Inertia\Inertia;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -68,6 +70,7 @@ class UserController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * @throws Throwable
      */
     public function update(Request $request, string $id)
     {
@@ -79,17 +82,19 @@ class UserController extends Controller
             'roles.*' => [new Enum(Role::class)],
         ]);
 
-        $user = User::findOrFail($id);
+        DB::transaction(function () use ($validated, $id) {
+            $user = User::findOrFail($id);
 
-        $user->update(collect($validated)->except('roles')->toArray());
+            $user->update(collect($validated)->except('roles')->toArray());
 
-        if (isset($validated['roles'])) {
-            $user->roles()->delete();
+            if (isset($validated['roles'])) {
+                $user->roles()->delete();
 
-            foreach ($validated['roles'] as $role) {
-                $user->assignRole(Role::from($role));
+                foreach ($validated['roles'] as $role) {
+                    $user->assignRole(Role::from($role));
+                }
             }
-        }
+        });
 
         return back()->with('success', 'User updated successfully');
     }
