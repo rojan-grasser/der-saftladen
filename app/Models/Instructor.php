@@ -11,7 +11,9 @@ class Instructor extends User
     protected static function booted(): void
     {
         static::addGlobalScope('instructor', function (Builder $query) {
-            $query->where('role', 'instructor');
+            $query->whereHas('roles', function ($q) {
+                $q->where('role', 'instructor');
+            });
         });
     }
 
