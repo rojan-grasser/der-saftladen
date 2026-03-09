@@ -155,7 +155,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <TableRow>
                             <TableHead>Name</TableHead>
                             <TableHead>Email</TableHead>
-                            <TableHead>Rolle</TableHead>
+                            <TableHead>Rollen</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Aktionen</TableHead>
                         </TableRow>
@@ -171,9 +171,14 @@ const breadcrumbs: BreadcrumbItem[] = [
                             <TableCell class="text-muted-foreground">
                                 {{ user.email }}
                             </TableCell>
-                            <TableCell>
-                                <Badge class="capitalize" variant="secondary">
-                                    {{ roleLabels[user.role as UserRole] }}
+                            <TableCell class="break-all whitespace-normal">
+                                <Badge
+                                    v-for="role in user.roles"
+                                    :key="role.id"
+                                    class="mt-1 mr-1 mb-1 capitalize"
+                                    variant="secondary"
+                                >
+                                    {{ roleLabels[role.role] }}
                                 </Badge>
                             </TableCell>
                             <TableCell>

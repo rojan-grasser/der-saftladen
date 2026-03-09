@@ -8,30 +8,14 @@ import PaginationBar from '@/components/PaginationBar.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
 import ProfessionalAreaCreate from '@/pages/admin/ProfessionalAreaCreate.vue';
 import ProfessionalAreaDeleteAlert from '@/pages/admin/ProfessionalAreaDeleteAlert.vue';
 import ProfessionalAreaEdit from '@/pages/admin/ProfessionalAreaEdit.vue';
 import admin from '@/routes/admin';
-import type {
-    BreadcrumbItem,
-    PaginatedResponse,
-    ProfessionalArea,
-} from '@/types';
+import type { BreadcrumbItem, PaginatedResponse, ProfessionalArea } from '@/types';
 
 // --------------------------------------------------
 // Props
@@ -170,7 +154,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     <Badge
                                         v-for="teacher in professionalArea.instructors"
                                         :key="teacher.id"
-                                        class="mr-2 mb-1"
+                                        class="mt-1 mr-2 mb-1"
                                     >
                                         {{ teacher.name }}
                                     </Badge>

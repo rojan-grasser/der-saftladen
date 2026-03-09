@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Enums\UserRole;
+use App\Enums\Role;
 use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Enum;
 use Inertia\Inertia;
+use Throwable;
 
 class UserController extends Controller
 {
@@ -18,15 +20,17 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $validated = $request->validate([
-            'role' => ['sometimes', new Enum(UserRole::class)],
+            'role' => ['sometimes', new Enum(Role::class)],
             'status' => ['sometimes', new Enum(UserStatus::class)],
             'search' => ['sometimes', 'string', 'max:255'],
         ]);
 
-        $query = User::query();
+        $query = User::query()->with('roles');
 
         if (isset($validated['role'])) {
-            $query->where('role', $validated['role']);
+            $query->whereHas('roles', function ($q) use ($validated) {
+                $q->where('role', $validated['role']);
+            });
         }
 
         if (isset($validated['status'])) {
@@ -41,7 +45,7 @@ class UserController extends Controller
             });
         }
 
-        $users = $query->select('id', 'name', 'email', 'role', 'status')
+        $users = $query
             ->orderBy('name')
             ->paginate(20)
             ->withQueryString();
@@ -79,17 +83,31 @@ class UserController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * @throws Throwable
      */
     public function update(Request $request, string $id)
     {
         $validated = $request->validate([
-            'role' => ['sometimes', new Enum(UserRole::class)],
-            'status' => ['sometimes', new Enum(UserStatus::class)],
             'name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'email', 'max:255'],
+            'status' => ['sometimes', new Enum(UserStatus::class)],
+            'roles' => ['sometimes', 'array'],
+            'roles.*' => [new Enum(Role::class)],
         ]);
 
-        User::query()->where('id', $id)->update($validated);
+        DB::transaction(function () use ($validated, $id) {
+            $user = User::findOrFail($id);
+
+            $user->update(collect($validated)->except('roles')->toArray());
+
+            if (isset($validated['roles'])) {
+                $user->roles()->delete();
+
+                foreach ($validated['roles'] as $role) {
+                    $user->assignRole(Role::from($role));
+                }
+            }
+        });
 
         return back()->with('success', 'User updated successfully');
     }

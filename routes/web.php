@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\ProfessionalAreaController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Forum\PostController;
+use App\Http\Controllers\Calender\AppointmentController;
+use App\Http\Controllers\Forum\PostReactionController;
 use App\Http\Controllers\Forum\TopicController;
 use App\Http\Middleware\EnsureInstructorHasAccess;
 use Illuminate\Support\Facades\Route;
@@ -21,7 +23,13 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['request-logging', 'auth', 'verified', 'active'])->name('dashboard');
 
-Route::middleware(['request-logging', 'auth', 'verified', 'active', 'admin'])
+
+
+Route::middleware(['auth', 'verified', 'active'])->group(function () {
+    Route::resource('appointments', AppointmentController::class)->except(['create', 'edit', 'show']);
+});
+
+Route::middleware(['request-logging', 'auth', 'verified', 'active', 'role:admin'])
     ->prefix('admin')
     ->group(function () {
         Route::get('/dashboard', function () {
@@ -49,6 +57,10 @@ Route::middleware(['auth', 'verified', 'active'])
         Route::middleware(['instructor-has-access'])
             ->prefix('topics/{topicId}')
             ->group(function () {
+                Route::get('posts/{postId}/reactions', [PostReactionController::class, 'index']);
+                Route::post('posts/{postId}/reactions', [PostReactionController::class, 'store']);
+                Route::delete('posts/{postId}/reactions', [PostReactionController::class, 'destroy']);
+
                 Route::resource('posts', PostController::class);
             });
 
