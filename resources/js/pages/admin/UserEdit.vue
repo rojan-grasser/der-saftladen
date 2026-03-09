@@ -1,24 +1,12 @@
 <script lang="ts" setup>
 import { useForm } from '@inertiajs/vue3';
-import { watch } from 'vue';
+import { computed, watch } from 'vue';
 
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import admin from '@/routes/admin';
 import { type User } from '@/types';
 
@@ -32,11 +20,36 @@ const emit = defineEmits<{
     (e: 'updated'): void;
 }>();
 
+const roleLabels: Record<string, string> = {
+    admin: 'Admin',
+    user: 'Benutzer',
+    instructor: 'Ausbilder',
+    teacher: 'Lehrer',
+};
+
 const form = useForm({
     name: props.user.name,
     email: props.user.email,
-    roles: props.user.roles?.map((r) => r.role),
+    roles: props.user.roles?.map((r) => r.role) ?? [],
     status: props.user.status,
+});
+
+const selectedRoleLabels = computed(() => {
+    return form.roles.map((role) => roleLabels[role] ?? role).filter(Boolean);
+});
+
+const rolesSummary = computed(() => {
+    const count = selectedRoleLabels.value.length;
+
+    if (count === 0) {
+        return 'Rolle auswählen';
+    }
+
+    if (count <= 2) {
+        return selectedRoleLabels.value.join(', ');
+    }
+
+    return `${count} Rollen ausgewählt`;
 });
 
 watch(
@@ -44,7 +57,7 @@ watch(
     (u) => {
         form.name = u.name;
         form.email = u.email;
-        form.roles = u.roles?.map((r) => r.role);
+        form.roles = u.roles?.map((r) => r.role) ?? [];
         form.status = u.status;
         form.clearErrors();
     },
@@ -97,15 +110,16 @@ const submit = () => {
                 </div>
 
                 <div class="flex gap-4">
-                    <div class="grid flex-1 gap-2">
+                    <div class="grid min-w-0 flex-1 gap-2">
                         <Label for="role">Rollen</Label>
                         <Select v-model="form.roles" multiple>
-                            <SelectTrigger class="w-full">
-                                <SelectValue placeholder="Rolle auswählen" />
+                            <SelectTrigger class="w-full min-w-0">
+                                <SelectValue>
+                                    {{ rolesSummary }}
+                                </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="admin">Admin</SelectItem>
-                                <SelectItem value="user">Benutzer</SelectItem>
                                 <SelectItem value="instructor"
                                     >Ausbilder</SelectItem
                                 >
@@ -114,7 +128,7 @@ const submit = () => {
                         </Select>
                     </div>
 
-                    <div class="grid flex-1 gap-2">
+                    <div class="grid min-w-0 flex-1 gap-2">
                         <Label for="status">Status</Label>
                         <Select v-model="form.status">
                             <SelectTrigger class="w-full">
