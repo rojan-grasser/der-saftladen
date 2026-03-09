@@ -114,20 +114,31 @@ class ProfessionalAreaController extends Controller
             'query' => ['sometimes', 'string', 'max:255'],
         ]);
 
-        $query = ProfessionalArea::query()
+        $queryBuilder = ProfessionalArea::query()
             ->select('id', 'name', 'description')
-            ->with([
-                'instructors',
-            ]);
+            ->with(['instructors']);
 
-        if (isset($validated['query'])) {
-            $query->where('name', 'like', '%' . $validated['query'] . '%');
+        if (!empty($validated['query'])) {
+            $search = $validated['query'];
+
+            $queryBuilder->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    //->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('instructors', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+            });
         }
 
         return Inertia::render('admin/ProfessionalAreas', [
-            'professionalAreas' => $query->paginate(20)->withQueryString(),
+            'professionalAreas' => $queryBuilder
+                ->orderBy('name')
+                ->paginate(20)
+                ->withQueryString(),
+            'filters' => $request->only('query'),
         ]);
     }
+
 
     public function getInstructors(Request $request, string $id)
     {
