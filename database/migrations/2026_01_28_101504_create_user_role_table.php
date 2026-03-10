@@ -43,6 +43,7 @@ return new class extends Migration {
         }
 
         Schema::table('users', function (Blueprint $table) {
+            $table->dropIndex('users_role_status_index');
             $table->dropColumn('role');
         });
     }
@@ -54,6 +55,7 @@ return new class extends Migration {
     {
         Schema::table('users', function (Blueprint $table) {
             $table->enum('role', ['user', 'teacher', 'instructor', 'admin'])->default(Role::USER);
+            $table->index(['role', 'status']);
         });
 
         $roles = DB::table('user_role')
