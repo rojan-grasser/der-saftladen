@@ -8,6 +8,7 @@ import {
 import ReactionButtonGroup from '@/pages/forum/components/ReactionButtonGroup.vue';
 import { formatDate, formatTime } from '@/pages/forum/dateStrings';
 import { Topic } from '@/pages/forum/types';
+import TopicDescription from '@/pages/forum/components/TopicDescription.vue';
 
 const { posts, topicId } = defineProps<{
     posts: Topic['posts'];
@@ -41,7 +42,7 @@ const { posts, topicId } = defineProps<{
                         </span>
                     </CardTitle>
                     <CardDescription class="text-black dark:text-white">
-                        {{ post.content }}
+                        <TopicDescription :description="post.content" />
                     </CardDescription>
 
                     <ReactionButtonGroup
