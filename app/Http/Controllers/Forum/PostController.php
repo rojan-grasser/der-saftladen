@@ -37,7 +37,7 @@ class PostController extends Controller
             'content' => ['required', 'string'],
         ]);
 
-        $post = ForumPost::create([
+        ForumPost::create([
             'content' => $validated['content'],
             'user_id' => $request->user()->id,
             'topic_id' => $topicId,
@@ -79,7 +79,7 @@ class PostController extends Controller
 
         $post->update($validated);
 
-        return redirect("/forum/topics/$topicId/posts/" . $post->id);
+        return redirect("/forum/area/$areaId/topics/$topicId/posts/" . $post->id);
     }
 
     /**
@@ -95,6 +95,6 @@ class PostController extends Controller
 
         $post->delete();
 
-        return redirect("/forum/topics/$topicId");
+        return redirect("/forum/area/$areaId/topics/$topicId");
     }
 }
