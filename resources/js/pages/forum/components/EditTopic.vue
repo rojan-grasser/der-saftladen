@@ -30,6 +30,7 @@ const form = useForm({
 const submit = () => {
     form.put(topics.update({ topicId: topic.id, areaId }).url, {
         onSuccess: () => {
+            form.defaults({ title: form.title, description: form.description });
             open.value = false;
         },
         preserveScroll: true,
