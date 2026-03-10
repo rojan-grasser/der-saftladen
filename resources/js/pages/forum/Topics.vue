@@ -36,7 +36,7 @@ const search = ref(initialQuery ?? '');
 
 const debouncedSearch = debounce((value: string) => {
     router.get(
-        topicIndex({ areaId: area.id }, { query: value ? { query: value } : undefined }).url,
+        topicIndex({ areaId: area.id }, { query: { query: value } }).url,
         {},
         { preserveState: true, replace: true },
     );
