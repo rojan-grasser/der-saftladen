@@ -21,8 +21,6 @@ const reactionAmounts = ref<{ like: number; dislike: number }>({
     like: post.likesCount,
 });
 
-console.log(JSON.parse(JSON.stringify(post)));
-
 const changeReaction = (button: Reaction) => {
     if (reaction.value === button) {
         reaction.value = null;
