@@ -25,11 +25,11 @@ watch(splitDesc, () => {
 </script>
 
 <template>
-    <div v-if="splitDesc.length === 1">
+        <div v-if="splitDesc.length === 1" class="whitespace-pre-wrap">
         {{ splitDesc[0] }}
     </div>
     <div v-if="splitDesc.length > 1">
-        <div>
+        <div class="whitespace-pre-wrap">
             {{
                 Array.from({ length: currentShowAllIdx })
                     .map((_, index) => splitDesc[index])
