@@ -32,6 +32,7 @@ const submit = () => {
         onSuccess: () => {
             open.value = false;
         },
+        preserveScroll: true,
     });
 };
 

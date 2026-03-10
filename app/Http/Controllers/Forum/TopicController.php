@@ -202,7 +202,7 @@ class TopicController extends Controller
 
         $topic->update($validated);
 
-        return back()->with('success', 'Das thema wurde bearbeitet');
+        return redirect()->route('topics.show', ['areaId' => $topicID, 'topicId' => $id])->with('success', 'Das thema wurde bearbeitet');
     }
 
     /**

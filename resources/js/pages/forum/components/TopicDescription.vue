@@ -1,19 +1,27 @@
-    <script setup lang="ts">
-import { ref } from 'vue';
+<script setup lang="ts">
+import { computed, ref, toRef, watch } from 'vue';
 
 import { Button } from '@/components/ui/button';
 
-const { description } = defineProps<{ description: string }>();
+const props = defineProps<{ description: string }>();
+
+const description = toRef(props, 'description');
 
 const size = 1000;
 
-const splitDesc: string[] = [];
-for (let i = 0; i < description.length; i += size) {
-    splitDesc.push(description.slice(i, i + size));
-}
+const splitDesc = computed<string[]>(() => {
+    const parts: string[] = [];
+    for (let i = 0; i < description.value.length; i += size) {
+        parts.push(description.value.slice(i, i + size));
+    }
+    return parts;
+});
 
 const currentShowAllIdx = ref<number>(1);
 
+watch(splitDesc, () => {
+    currentShowAllIdx.value = 1;
+});
 </script>
 
 <template>
