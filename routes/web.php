@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\InstructorToProfessionalAreaController;
 use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\ProfessionalAreaController;
+use App\Http\Controllers\Forum\ProfessionalAreaController as ForumProfessionalAreaController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Forum\PostController;
 use App\Http\Controllers\Calender\AppointmentController;
@@ -54,17 +55,28 @@ Route::middleware(['request-logging', 'auth', 'verified', 'active', 'role:admin'
 Route::middleware(['auth', 'verified', 'active'])
     ->prefix('forum')
     ->group(function () {
-        Route::middleware(['instructor-has-access'])
-            ->prefix('topics/{topicId}')
+        Route::get('areas', [ForumProfessionalAreaController::class, 'index'])->name('forum.areas');
+
+        // Route::resource('area', TopicController::class);
+        Route::get('area/{areaId}', [TopicController::class, 'index'])->name('topics.index');
+        Route::post('area/{areaId}/topics', [TopicController::class, 'store'])->name('topics.store');
+
+        Route::middleware([])
+            ->prefix('area/{areaId}')
             ->group(function () {
-                Route::get('posts/{postId}/reactions', [PostReactionController::class, 'index']);
-                Route::post('posts/{postId}/reactions', [PostReactionController::class, 'store']);
-                Route::delete('posts/{postId}/reactions', [PostReactionController::class, 'destroy']);
+                Route::get('/topics/{topicId}', [TopicController::class, 'show'])->name('topics.show');
+                Route::put('/topics/{topicId}', [TopicController::class, 'update'])->name('topics.update');
 
-                Route::resource('posts', PostController::class);
+                Route::middleware([])
+                    ->prefix('topics/{topicId}')
+                    ->group(function () {
+                        Route::get('posts/{postId}/reactions', [PostReactionController::class, 'index'])->name('posts.reactions.index');
+                        Route::post('posts/{postId}/reactions', [PostReactionController::class, 'store'])->name('posts.reactions.store');
+                        Route::delete('posts/{postId}/reactions', [PostReactionController::class, 'destroy'])->name('posts.reactions.destroy');
+
+                        Route::resource('posts', PostController::class);
+                    });
             });
-
-        Route::resource('topics', TopicController::class);
     });
 
 require __DIR__ . '/settings.php';

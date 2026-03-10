@@ -15,7 +15,7 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(string $topicId)
+    public function index(string $areaId, string $topicId)
     {
         return Topic::findOrFail($topicId)->posts()->paginate(25);
     }
@@ -23,7 +23,7 @@ class PostController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request, string $topicId)
+    public function create(Request $request, string $areaId, string $topicId)
     {
         //
     }
@@ -31,25 +31,25 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, string $topicId)
+    public function store(Request $request, string $areaId, string $topicId)
     {
         $validated = $request->validate([
             'content' => ['required', 'string'],
         ]);
 
-        $post = ForumPost::create([
+        ForumPost::create([
             'content' => $validated['content'],
             'user_id' => $request->user()->id,
             'topic_id' => $topicId,
         ]);
 
-        return redirect("/forum/topics/$topicId/posts/" . $post->id);
+        return back()->with('success', 'Der kommentar wurde erstellt');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $topicId, string $postId)
+    public function show(string $areaId, string $topicId, string $postId)
     {
         return ForumPost::findOrFail($postId);
     }
@@ -65,7 +65,7 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $topicId, string $postId)
+    public function update(Request $request, string $areaId, string $topicId, string $postId)
     {
         $validated = $request->validate([
             'content' => ['required', 'string'],
@@ -79,13 +79,13 @@ class PostController extends Controller
 
         $post->update($validated);
 
-        return redirect("/forum/topics/$topicId/posts/" . $post->id);
+        return redirect("/forum/area/$areaId/topics/$topicId/posts/" . $post->id);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, string $topicId, $postId)
+    public function destroy(Request $request, string $areaId, string $topicId, $postId)
     {
         $post = ForumPost::findOrFail($postId);
 
@@ -95,6 +95,6 @@ class PostController extends Controller
 
         $post->delete();
 
-        return redirect("/forum/topics/$topicId");
+        return redirect("/forum/area/$areaId/topics/$topicId");
     }
 }

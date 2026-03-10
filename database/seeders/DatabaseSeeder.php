@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         User::factory()->count(250)->create();
-        ProfessionalArea::factory()->count(250)->create();
+        // ProfessionalArea::factory()->count(250)->create();
+
+        $this->call(TopicSeeder::class);
     }
 }

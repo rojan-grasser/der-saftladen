@@ -17,13 +17,13 @@ class EnsureInstructorHasAccess
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $topicId = $request->route('topicId');
+        $areaId = $request->route('areaId');
 
         $instructor = Instructor::find($request->user()->id);
 
         if (
             $instructor &&
-            !$instructor->hasAccess(Topic::findOrFail($topicId)->professional_area_id)
+            !$instructor->hasAccess($areaId)
         ) {
             return back()->with('error', 'Du hast keinen zugriff auf dieses Thema');
         }
