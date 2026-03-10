@@ -74,7 +74,7 @@ watch(open, () => {
                             id="description-1"
                             v-model="form.description"
                             name="description"
-                            :errorMessage="form.errors.markdown"
+                            :errorMessage="form.errors.description"
                             class="max-h-[70vh] resize-y overflow-auto"
                         />
                     </div>
