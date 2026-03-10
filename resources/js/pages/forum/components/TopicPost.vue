@@ -19,7 +19,6 @@ const {
         <div class="flex flex-col gap-5">
             <div class="flex justify-between">
                 <h2 class="text-2xl font-semibold">{{ topic.title }}</h2>
-                <!-- <Button v-if="topic.isOwnPost">Bearbeiten</Button> -->
                 <EditTopic
                     :topic="topic"
                     v-if="topic.isOwnPost"
