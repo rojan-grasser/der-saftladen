@@ -100,6 +100,12 @@ class UserController extends Controller
 
             $user->update(collect($validated)->except('roles')->toArray());
 
+            if (($validated['status'] ?? null) != UserStatus::ACTIVE->value) {
+                DB::table('user_to_professional_area')
+                    ->where('user_id', $user->id)
+                    ->delete();
+            }
+
             if (isset($validated['roles'])) {
                 $user->roles()->delete();
 
