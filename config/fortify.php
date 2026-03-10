@@ -146,7 +146,7 @@ return [
     'features' => [
         Features::registration(),
         Features::resetPasswords(),
-        Features::emailVerification(),
+        env('APP_ENV') === 'production' ? Features::emailVerification() : null,
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => true,
