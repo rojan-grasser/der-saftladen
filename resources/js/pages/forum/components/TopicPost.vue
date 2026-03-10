@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import Markdown from '@/components/Markdown.vue';
 import EditTopic from '@/pages/forum/components/EditTopic.vue';
-import TopicDescription from '@/pages/forum/components/TopicDescription.vue';
 import { Topic } from '@/pages/forum/types';
 
 const {
@@ -35,7 +35,7 @@ const {
                 </span>
             </div>
 
-            <TopicDescription :description="topic.description" />
+            <Markdown :markdown="topic.description" />
         </div>
     </div>
 </template>
