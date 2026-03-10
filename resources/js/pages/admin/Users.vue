@@ -15,7 +15,7 @@ import { roleLabels, statusLabels, statusVariants } from '@/constants/user';
 import AppLayout from '@/layouts/AppLayout.vue';
 import UserEdit from '@/pages/admin/UserEdit.vue';
 import admin from '@/routes/admin';
-import { type BreadcrumbItem, type PaginatedResponse, type User, type UserRole, type UserStatus } from '@/types';
+import { type BreadcrumbItem, type PaginatedResponse, type User, type UserStatus } from '@/types';
 
 // ------------------------------
 // Props
@@ -110,7 +110,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <SelectContent>
                         <SelectItem value="all">Alle Rollen</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="user">Benutzer</SelectItem>
                         <SelectItem value="instructor">Ausbilder</SelectItem>
                         <SelectItem value="teacher">Lehrer</SelectItem>
                     </SelectContent>
