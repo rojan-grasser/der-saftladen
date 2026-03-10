@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Schema;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class User extends Authenticatable
@@ -62,6 +63,43 @@ class User extends Authenticatable
     }
 
     /**
+     * Return role payloads that work with both legacy and current schemas.
+     *
+     * @return array<int, array{id:int,user_id:int,role:string}>
+     */
+    public function rolePayload(): array
+    {
+        if (Schema::hasTable('user_role')) {
+            if ($this->relationLoaded('roles')) {
+                return $this->roles->values()->toArray();
+            }
+
+            return $this->roles()->get()->toArray();
+        }
+
+        if (Schema::hasColumn($this->getTable(), 'role') && $this->getAttribute('role')) {
+            return [[
+                'id' => 0,
+                'user_id' => $this->id,
+                'role' => $this->getAttribute('role'),
+            ]];
+        }
+
+        return [];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function roleValues(): array
+    {
+        return array_values(array_unique(array_map(
+            fn(array $role) => $role['role'],
+            $this->rolePayload(),
+        )));
+    }
+
+    /**
      * Check if a user has at least one of the given roles.
      */
     public function hasRole(Role $role): bool
@@ -82,14 +120,13 @@ class User extends Authenticatable
             $roles
         );
 
-        $query = $this->roles()
-            ->whereIn('role', $roleValues);
+        $assignedRoles = $this->roleValues();
 
         if ($requireAll) {
-            return $query->count() === count($roleValues);
+            return count(array_diff($roleValues, $assignedRoles)) === 0;
         }
 
-        return $query->exists();
+        return array_intersect($roleValues, $assignedRoles) !== [];
     }
 
     /**
@@ -100,6 +137,16 @@ class User extends Authenticatable
     public function assignRole(Role|array $roles): void
     {
         $roles = is_array($roles) ? $roles : [$roles];
+
+        if (! Schema::hasTable('user_role')) {
+            if (Schema::hasColumn($this->getTable(), 'role') && $roles !== []) {
+                $this->forceFill([
+                    'role' => $roles[0]->value,
+                ])->save();
+            }
+
+            return;
+        }
 
         foreach ($roles as $role) {
             UserRole::firstOrCreate([
@@ -117,6 +164,19 @@ class User extends Authenticatable
     public function removeRole(Role|array $roles): void
     {
         $roles = is_array($roles) ? $roles : [$roles];
+
+        if (! Schema::hasTable('user_role')) {
+            if (
+                Schema::hasColumn($this->getTable(), 'role') &&
+                in_array($this->getAttribute('role'), array_map(fn($r) => $r->value, $roles), true)
+            ) {
+                $this->forceFill([
+                    'role' => Role::USER->value,
+                ])->save();
+            }
+
+            return;
+        }
 
         $this->roles()
             ->whereIn('role', array_map(fn($r) => $r->value, $roles))

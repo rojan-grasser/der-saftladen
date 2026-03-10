@@ -3,6 +3,7 @@ import { ref, watch } from 'vue';
 
 import appointments from '@/routes/appointments';
 
+import { defaultAppointmentColor } from '../constants';
 import type { Appointment } from '../types';
 import {
     addMinutes,
@@ -18,6 +19,7 @@ const isAllDayRange = (start: Date | null, end: Date | null) => {
     if (!start || !end) {
         return false;
     }
+
     return (
         start.getHours() === 0 &&
         start.getMinutes() === 0 &&
@@ -35,6 +37,7 @@ export const useAppointmentForm = () => {
         title: '',
         description: '',
         location: '',
+        color: defaultAppointmentColor,
         start_time: '',
         end_time: '',
     });
@@ -74,9 +77,11 @@ export const useAppointmentForm = () => {
             toDateString(form.start_time) ||
             toInputDate(new Date());
         const time = startTime.value || toTimeString(form.start_time) || '00:00';
+
         if (!startTime.value && time) {
             startTime.value = time;
         }
+
         form.start_time = `${date}T${time}`;
     };
 
@@ -92,12 +97,15 @@ export const useAppointmentForm = () => {
             toTimeString(form.end_time) ||
             toTimeString(form.start_time) ||
             '00:00';
+
         if (!endDate.value && date) {
             endDate.value = date;
         }
+
         if (!endTime.value && time) {
             endTime.value = time;
         }
+
         form.end_time = `${date}T${time}`;
     };
 
@@ -107,8 +115,11 @@ export const useAppointmentForm = () => {
         isCreateOpen.value = true;
         form.reset();
         form.clearErrors();
+        form.color = defaultAppointmentColor;
         isAllDay.value = false;
+
         const now = new Date();
+
         form.start_time = toInputDateTime(now);
         form.end_time = toInputDateTime(addMinutes(now, 60));
         allDayStart.value = toInputDate(now);
@@ -131,8 +142,11 @@ export const useAppointmentForm = () => {
         form.title = appointment.title ?? '';
         form.description = appointment.description ?? '';
         form.location = appointment.location ?? '';
+        form.color = appointment.color ?? defaultAppointmentColor;
+
         const start = parseDate(appointment.start_time);
         const end = parseDate(appointment.end_time) ?? start;
+
         form.start_time = start ? toInputDateTime(start) : '';
         form.end_time = end ? toInputDateTime(end) : '';
         allDayStart.value = start ? toInputDate(start) : '';
@@ -146,16 +160,19 @@ export const useAppointmentForm = () => {
         if (isAllDay.value) {
             applyAllDayTimes();
         }
+
         if (isEditMode.value && editingAppointmentId.value != null) {
             form.put(appointments.update(editingAppointmentId.value).url, {
                 preserveScroll: true,
                 onSuccess: () => {
                     form.reset();
+                    form.color = defaultAppointmentColor;
                     isCreateOpen.value = false;
                     isEditMode.value = false;
                     editingAppointmentId.value = null;
                 },
             });
+
             return;
         }
 
@@ -163,6 +180,7 @@ export const useAppointmentForm = () => {
             preserveScroll: true,
             onSuccess: () => {
                 form.reset();
+                form.color = defaultAppointmentColor;
                 isCreateOpen.value = false;
             },
         });
@@ -173,6 +191,7 @@ export const useAppointmentForm = () => {
             closeCreate();
             return;
         }
+
         isCreateOpen.value = true;
     };
 
@@ -186,6 +205,7 @@ export const useAppointmentForm = () => {
         if (isAllDay.value || !value) {
             return;
         }
+
         if (endDate.value !== value) {
             endDate.value = value;
         }
@@ -195,6 +215,7 @@ export const useAppointmentForm = () => {
         if (isAllDay.value) {
             return;
         }
+
         updateStartDateTime();
     });
 
@@ -202,6 +223,7 @@ export const useAppointmentForm = () => {
         if (isAllDay.value) {
             return;
         }
+
         updateEndDateTime();
     });
 
@@ -210,16 +232,19 @@ export const useAppointmentForm = () => {
             syncDateTimeFields();
             return;
         }
+
         if (!allDayStart.value) {
             allDayStart.value = form.start_time
                 ? toDateString(form.start_time)
                 : toInputDate(new Date());
         }
+
         if (!allDayEnd.value) {
             allDayEnd.value = form.end_time
                 ? toDateString(form.end_time)
                 : allDayStart.value;
         }
+
         applyAllDayTimes();
     });
 
@@ -227,6 +252,7 @@ export const useAppointmentForm = () => {
         if (!isAllDay.value) {
             return;
         }
+
         applyAllDayTimes();
     });
 

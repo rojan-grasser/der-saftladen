@@ -38,62 +38,95 @@ const viewValue = computed({
     get: () => props.viewMode,
     set: (value: ViewMode) => emit('update:viewMode', value),
 });
+
+const viewLabel = computed(() => {
+    if (props.viewMode === 'week') {
+        return 'Wochenansicht';
+    }
+
+    if (props.viewMode === 'day') {
+        return 'Tagesansicht';
+    }
+
+    return 'Monatsansicht';
+});
 </script>
 
 <template>
-    <div class="flex flex-wrap items-center justify-end gap-4">
-        <div class="flex flex-wrap items-center gap-3">
-            <div class="relative">
-                <Search
-                    class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-                />
-                <Input
-                    v-model="searchValue"
-                    class="h-9 w-48 pl-9"
-                    placeholder="Termine suchen"
-                />
-            </div>
-
-            <Button variant="outline" @click="emit('today')"> Heute </Button>
-
-            <div class="flex items-center rounded-md border bg-card">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    class="h-9 w-9"
-                    @click="emit('prev-month')"
+    <div class="rounded-2xl border bg-card p-4 shadow-sm">
+        <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+            <div class="space-y-1">
+                <div
+                    class="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase"
                 >
-                    <ChevronLeft class="h-4 w-4" />
-                </Button>
-                <span class="px-3 text-sm font-medium">
+                    Kalender
+                </div>
+                <div class="text-2xl font-semibold">
                     {{ monthLabel }}
-                </span>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    class="h-9 w-9"
-                    @click="emit('next-month')"
-                >
-                    <ChevronRight class="h-4 w-4" />
-                </Button>
+                </div>
+                <p class="text-sm text-muted-foreground">
+                    {{ viewLabel }} mit Agenda links und Kalenderbereich rechts.
+                </p>
             </div>
 
-            <Select v-model="viewValue">
-                <SelectTrigger class="w-36">
-                    <SelectValue placeholder="Ansicht" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="month">Monat</SelectItem>
-                    <SelectItem value="week">Woche</SelectItem>
-                    <SelectItem value="day">Tag</SelectItem>
-                    <SelectItem value="agenda">Agenda</SelectItem>
-                </SelectContent>
-            </Select>
+            <div class="flex flex-col gap-3 xl:items-end">
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="relative">
+                        <Search
+                            class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                        />
+                        <Input
+                            v-model="searchValue"
+                            class="h-10 w-60 pl-9"
+                            placeholder="Termine suchen"
+                        />
+                    </div>
 
-            <Button @click="emit('create')">
-                <Plus class="h-4 w-4" />
-                Neuer Termin
-            </Button>
+                    <div class="flex items-center rounded-xl border bg-muted/20 p-1">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            class="h-9 w-9 rounded-lg"
+                            @click="emit('prev-month')"
+                        >
+                            <ChevronLeft class="h-4 w-4" />
+                        </Button>
+                        <span class="px-3 text-sm font-medium">
+                            {{ monthLabel }}
+                        </span>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            class="h-9 w-9 rounded-lg"
+                            @click="emit('next-month')"
+                        >
+                            <ChevronRight class="h-4 w-4" />
+                        </Button>
+                    </div>
+
+                    <Button variant="outline" @click="emit('today')">
+                        Heute
+                    </Button>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3">
+                    <Select v-model="viewValue">
+                        <SelectTrigger class="w-40">
+                            <SelectValue placeholder="Ansicht" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="month">Monat</SelectItem>
+                            <SelectItem value="week">Woche</SelectItem>
+                            <SelectItem value="day">Tag</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Button @click="emit('create')">
+                        <Plus class="h-4 w-4" />
+                        Neuer Termin
+                    </Button>
+                </div>
+            </div>
         </div>
     </div>
 </template>

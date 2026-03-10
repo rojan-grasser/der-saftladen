@@ -15,7 +15,20 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+} from '@/components/ui/select';
 import { InputGroupTimePicker } from '@/components/ui/time-picker';
+
+import {
+    appointmentColorMap,
+    appointmentColorOptions,
+    defaultAppointmentColor,
+} from '../constants';
+import type { AppointmentColor } from '../types';
 
 const props = defineProps<{
     open: boolean;
@@ -24,6 +37,7 @@ const props = defineProps<{
         title: string;
         description: string;
         location: string;
+        color: AppointmentColor;
         start_time: string;
         end_time: string;
         errors: Record<string, string>;
@@ -85,11 +99,18 @@ const endTimeValue = computed({
     get: () => props.endTime,
     set: (value) => emit('update:endTime', value),
 });
+
+const selectedColorOption = computed(() => {
+    return (
+        appointmentColorMap[props.form.color] ??
+        appointmentColorMap[defaultAppointmentColor]
+    );
+});
 </script>
 
 <template>
     <Dialog :open="open" @update:open="emit('update:open', $event)">
-        <DialogContent class="sm:max-w-2xl">
+        <DialogContent class="sm:max-w-3xl">
             <DialogHeader>
                 <DialogTitle>
                     {{ isEditMode ? 'Termin bearbeiten' : 'Neuer Termin' }}
@@ -98,10 +119,11 @@ const endTimeValue = computed({
                     {{
                         isEditMode
                             ? 'Termin aktualisieren.'
-                            : 'Neuen Termin zum Kalender hinzufügen.'
+                            : 'Neuen Termin zum Kalender hinzufuegen.'
                     }}
                 </DialogDescription>
             </DialogHeader>
+
             <form class="grid gap-4" @submit.prevent="emit('submit')">
                 <div class="grid gap-2">
                     <Label for="title">Titel</Label>
@@ -112,29 +134,86 @@ const endTimeValue = computed({
                     />
                     <InputError :message="form.errors.title" />
                 </div>
+
                 <div class="grid gap-2">
                     <Label for="description">Beschreibung</Label>
                     <textarea
                         id="description"
                         v-model="form.description"
                         class="min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
-                        placeholder="Details oder Notizen hinzufügen"
+                        placeholder="Details oder Notizen hinzufuegen"
                     ></textarea>
                     <InputError :message="form.errors.description" />
                 </div>
-                <div class="grid gap-2">
-                    <Label for="location">Ort</Label>
-                    <Input
-                        id="location"
-                        v-model="form.location"
-                        placeholder="Ort oder Meeting-Link"
-                    />
-                    <InputError :message="form.errors.location" />
+
+                <div class="grid gap-2 sm:grid-cols-2">
+                    <div class="grid gap-2">
+                        <Label for="location">Ort</Label>
+                        <Input
+                            id="location"
+                            v-model="form.location"
+                            placeholder="Ort oder Meeting-Link"
+                        />
+                        <InputError :message="form.errors.location" />
+                    </div>
+
+                    <div class="grid gap-2">
+                        <Label for="color">Farbe</Label>
+                        <Select v-model="form.color">
+                            <SelectTrigger id="color" class="w-full">
+                                <span class="flex min-w-0 items-center gap-3">
+                                    <span
+                                        class="h-3.5 w-3.5 shrink-0 rounded-full"
+                                        :class="selectedColorOption.swatchClass"
+                                    />
+                                    <span class="min-w-0 text-left">
+                                        <span class="block text-sm font-medium">
+                                            {{ selectedColorOption.label }}
+                                        </span>
+                                        <span
+                                            class="block text-xs text-muted-foreground"
+                                        >
+                                            {{ selectedColorOption.tone }}
+                                        </span>
+                                    </span>
+                                </span>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem
+                                    v-for="option in appointmentColorOptions"
+                                    :key="option.value"
+                                    :value="option.value"
+                                >
+                                    <span class="flex items-center gap-3">
+                                        <span
+                                            class="h-3.5 w-3.5 shrink-0 rounded-full"
+                                            :class="option.swatchClass"
+                                        />
+                                        <span class="min-w-0">
+                                            <span
+                                                class="block text-sm font-medium"
+                                            >
+                                                {{ option.label }}
+                                            </span>
+                                            <span
+                                                class="block text-xs text-muted-foreground"
+                                            >
+                                                {{ option.tone }}
+                                            </span>
+                                        </span>
+                                    </span>
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <InputError :message="form.errors.color" />
+                    </div>
                 </div>
+
                 <div class="flex items-center gap-3">
                     <Checkbox id="all_day" v-model="isAllDayValue" />
-                    <Label for="all_day">Ganztägig</Label>
+                    <Label for="all_day">Ganztagig</Label>
                 </div>
+
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="grid gap-2">
                         <Label :for="isAllDay ? 'start_date' : 'start_time'">
@@ -144,22 +223,23 @@ const endTimeValue = computed({
                             <DatePicker
                                 id="start_date"
                                 v-model="allDayStartValue"
-                                placeholder="Datum auswählen"
+                                placeholder="Datum auswaehlen"
                             />
                         </div>
                         <div v-else class="grid gap-2">
                             <DatePicker
                                 id="start_time"
                                 v-model="startDateValue"
-                                placeholder="Datum auswählen"
+                                placeholder="Datum auswaehlen"
                             />
                             <InputGroupTimePicker
                                 v-model="startTimeValue"
-                                placeholder="Zeit auswählen"
+                                placeholder="Zeit auswaehlen"
                             />
                         </div>
                         <InputError :message="form.errors.start_time" />
                     </div>
+
                     <div class="grid gap-2">
                         <Label :for="isAllDay ? 'end_date' : 'end_time'">
                             Ende
@@ -168,23 +248,24 @@ const endTimeValue = computed({
                             <DatePicker
                                 id="end_date"
                                 v-model="allDayEndValue"
-                                placeholder="Datum auswählen"
+                                placeholder="Datum auswaehlen"
                             />
                         </div>
                         <div v-else class="grid gap-2">
                             <DatePicker
                                 id="end_time"
                                 v-model="endDateValue"
-                                placeholder="Datum auswählen"
+                                placeholder="Datum auswaehlen"
                             />
                             <InputGroupTimePicker
                                 v-model="endTimeValue"
-                                placeholder="Zeit auswählen"
+                                placeholder="Zeit auswaehlen"
                             />
                         </div>
                         <InputError :message="form.errors.end_time" />
                     </div>
                 </div>
+
                 <DialogFooter class="gap-2">
                     <Button type="button" variant="outline" @click="emit('close')">
                         Abbrechen
@@ -192,7 +273,7 @@ const endTimeValue = computed({
                     <Button type="submit" :disabled="form.processing">
                         {{
                             isEditMode
-                                ? 'Änderungen speichern'
+                                ? 'Aenderungen speichern'
                                 : 'Termin speichern'
                         }}
                     </Button>

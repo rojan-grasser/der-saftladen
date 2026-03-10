@@ -5,12 +5,14 @@ import { computed, ref } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type AppPageProps, type BreadcrumbItem } from '@/types';
 
-import AppointmentDetailsDialog from './components/AppointmentDetailsDialog.vue';
 import AppointmentFormDialog from './components/AppointmentFormDialog.vue';
 import CalendarToolbar from './components/CalendarToolbar.vue';
 import CalendarViews from './components/CalendarViews.vue';
 import DetailsSidebar from './components/DetailsSidebar.vue';
-import MiniCalendarCard from './components/MiniCalendarCard.vue';
+import {
+    appointmentColorMap,
+    defaultAppointmentColor,
+} from './constants';
 import { useAppointmentForm } from './composables/useAppointmentForm';
 import { useCalendarAppointments } from './composables/useCalendarAppointments';
 import type { Appointment, ViewMode } from './types';
@@ -30,7 +32,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const viewMode = ref<ViewMode>('agenda');
+const viewMode = ref<ViewMode>('month');
 const searchQuery = ref('');
 const showMine = ref(true);
 const showTeam = ref(true);
@@ -39,8 +41,6 @@ const includePast = ref(true);
 const currentMonth = ref(new Date());
 const selectedDate = ref(new Date());
 const selectedAppointmentId = ref<number | null>(null);
-
-const isDetailsOpen = ref(false);
 
 const {
     form,
@@ -63,13 +63,11 @@ const {
 const {
     monthLabel,
     dayLabels,
-    sortedAppointments,
     calendarDays,
     weekDays,
     selectedAppointments,
     selectedAppointment,
     upcomingAppointments,
-    agendaGroups,
     selectDay,
     selectAppointment,
 } = useCalendarAppointments({
@@ -86,18 +84,6 @@ const {
 
 const getOwnerName = (appointment: Appointment) => {
     return appointment.creator?.name ?? 'Unbekannt';
-};
-
-const truncateWords = (value: string, maxWords = 100) => {
-    const trimmed = value.trim();
-    if (!trimmed) {
-        return '';
-    }
-    const words = trimmed.split(/\s+/);
-    if (words.length <= maxWords) {
-        return trimmed;
-    }
-    return `${words.slice(0, maxWords).join(' ')}...`;
 };
 
 const formatTime = (value: string | number) => {
@@ -147,32 +133,17 @@ const setViewMode = (mode: ViewMode) => {
 
 const openDetails = (appointment: Appointment) => {
     selectAppointment(appointment);
-    isDetailsOpen.value = true;
-};
-
-const openEditFromDetails = () => {
-    if (!selectedAppointment.value) {
-        return;
-    }
-    isDetailsOpen.value = false;
-    openEdit(selectedAppointment.value);
 };
 
 const handleAppointmentDeleted = () => {
     selectedAppointmentId.value = null;
-    isDetailsOpen.value = false;
 };
 
-const eventColorClasses = [
-    'bg-sky-500/10 text-sky-700 border-sky-200 dark:border-sky-500/40 dark:text-sky-300',
-    'bg-emerald-500/10 text-emerald-700 border-emerald-200 dark:border-emerald-500/40 dark:text-emerald-300',
-    'bg-amber-500/10 text-amber-700 border-amber-200 dark:border-amber-500/40 dark:text-amber-300',
-    'bg-rose-500/10 text-rose-700 border-rose-200 dark:border-rose-500/40 dark:text-rose-300',
-];
-
 const getEventClass = (appointment: Appointment) => {
-    const index = appointment.id % eventColorClasses.length;
-    return eventColorClasses[index];
+    const color = appointment.color ?? defaultAppointmentColor;
+
+    return appointmentColorMap[color]?.eventClass
+        ?? appointmentColorMap[defaultAppointmentColor].eventClass;
 };
 </script>
 
@@ -190,35 +161,8 @@ const getEventClass = (appointment: Appointment) => {
                 @next-month="goNextMonth"
                 @create="openCreate"
             />
-            <div class="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)_320px]">
-                <aside class="flex flex-col gap-6">
-                    <MiniCalendarCard
-                        :month-label="monthLabel"
-                        :day-labels="dayLabels"
-                        :calendar-days="calendarDays"
-                        @select-day="selectDay"
-                        @prev-month="goPrevMonth"
-                        @next-month="goNextMonth"
-                    />
-                </aside>
-                <section class="flex flex-col gap-4">
-                    <CalendarViews
-                        :view-mode="viewMode"
-                        :day-labels="dayLabels"
-                        :calendar-days="calendarDays"
-                        :week-days="weekDays"
-                        :selected-date="selectedDate"
-                        :selected-appointments="selectedAppointments"
-                        :agenda-groups="agendaGroups"
-                        :sorted-appointments-count="sortedAppointments.length"
-                        :format-date="formatDate"
-                        :format-time="formatTime"
-                        :get-event-class="getEventClass"
-                        @select-day="selectDay"
-                        @open-details="openDetails"
-                        @open-create="openCreate"
-                    />
-                </section>
+
+            <div class="grid items-start gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
                 <DetailsSidebar
                     :selected-date="selectedDate"
                     :selected-appointments="selectedAppointments"
@@ -228,26 +172,79 @@ const getEventClass = (appointment: Appointment) => {
                     :format-time="formatTime"
                     :parse-date="parseDate"
                     :get-event-class="getEventClass"
-                    :truncate-words="truncateWords"
                     :get-owner-name="getOwnerName"
                     @open-create="openCreate"
                     @open-edit="openEdit"
                     @open-details="openDetails"
                     @set-view-mode="setViewMode"
+                    @deleted="handleAppointmentDeleted"
                 />
+
+                <section class="min-w-0 space-y-4">
+                    <div class="rounded-2xl border bg-card p-4 shadow-sm">
+                        <div
+                            class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+                        >
+                            <div class="space-y-1">
+                                <div
+                                    class="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase"
+                                >
+                                    Kalenderbereich
+                                </div>
+                                <div class="text-lg font-semibold">
+                                    {{ formatDate(selectedDate) }}
+                                </div>
+                                <p class="text-sm text-muted-foreground">
+                                    {{ selectedAppointments.length }} Termin(e)
+                                    im Fokus.
+                                </p>
+                            </div>
+
+                            <div
+                                v-if="selectedAppointment"
+                                class="rounded-xl border bg-muted/20 px-4 py-3"
+                            >
+                                <div
+                                    class="text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+                                >
+                                    Ausgewaehlt
+                                </div>
+                                <div class="mt-1 text-sm font-semibold">
+                                    {{ selectedAppointment.title }}
+                                </div>
+                                <div class="text-xs text-muted-foreground">
+                                    {{
+                                        formatTime(
+                                            selectedAppointment.start_time,
+                                        )
+                                    }}
+                                    -
+                                    {{
+                                        formatTime(selectedAppointment.end_time)
+                                    }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <CalendarViews
+                        :view-mode="viewMode"
+                        :day-labels="dayLabels"
+                        :calendar-days="calendarDays"
+                        :week-days="weekDays"
+                        :selected-date="selectedDate"
+                        :selected-appointments="selectedAppointments"
+                        :format-date="formatDate"
+                        :format-time="formatTime"
+                        :get-event-class="getEventClass"
+                        @select-day="selectDay"
+                        @open-details="openDetails"
+                        @open-create="openCreate"
+                    />
+                </section>
             </div>
         </div>
-        <AppointmentDetailsDialog
-            :open="isDetailsOpen"
-            :appointment="selectedAppointment"
-            :format-date="formatDate"
-            :format-time="formatTime"
-            :parse-date="parseDate"
-            :get-owner-name="getOwnerName"
-            @update:open="isDetailsOpen = $event"
-            @edit="openEditFromDetails"
-            @deleted="handleAppointmentDeleted"
-        />
+
         <AppointmentFormDialog
             :open="isCreateOpen"
             :is-edit-mode="isEditMode"

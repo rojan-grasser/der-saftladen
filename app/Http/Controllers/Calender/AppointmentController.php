@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Calender;
 
+use App\Enums\AppointmentColor;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
@@ -16,9 +18,11 @@ class AppointmentController extends Controller
     {
         if (is_numeric($value)) {
             $timestamp = (int) $value;
+
             if ($timestamp > 9999999999) {
                 $timestamp = (int) floor($timestamp / 1000);
             }
+
             return Carbon::createFromTimestamp($timestamp);
         }
 
@@ -39,6 +43,7 @@ class AppointmentController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'location' => 'nullable|string|max:255',
+            'color' => ['nullable', new Enum(AppointmentColor::class)],
             'start_time' => 'required',
             'end_time' => 'required',
         ]);
@@ -47,20 +52,24 @@ class AppointmentController extends Controller
         $end = $this->parseAppointmentTime($validated['end_time']);
 
         $errors = [];
-        if (!$start) {
-            $errors['start_time'] = 'Ungültiges Startdatum.';
+
+        if (! $start) {
+            $errors['start_time'] = 'Ungueltiges Startdatum.';
         }
-        if (!$end) {
-            $errors['end_time'] = 'Ungültiges Enddatum.';
+
+        if (! $end) {
+            $errors['end_time'] = 'Ungueltiges Enddatum.';
         }
+
         if ($start && $end && $end->lessThanOrEqualTo($start)) {
             $errors['end_time'] = 'Ende muss nach dem Beginn liegen.';
         }
 
-        if ($errors) {
+        if ($errors !== []) {
             throw ValidationException::withMessages($errors);
         }
 
+        $validated['color'] = $validated['color'] ?? AppointmentColor::PEACOCK->value;
         $validated['start_time'] = $start;
         $validated['end_time'] = $end;
 
@@ -74,6 +83,7 @@ class AppointmentController extends Controller
             ->map(function (Appointment $appointment) {
                 return [
                     ...$appointment->toArray(),
+                    'color' => $appointment->color?->value ?? AppointmentColor::PEACOCK->value,
                     'start_time' => $appointment->start_time?->timestamp,
                     'end_time' => $appointment->end_time?->timestamp,
                 ];
@@ -109,6 +119,6 @@ class AppointmentController extends Controller
     {
         $appointment->delete();
 
-        return back()->with('success', 'Termin erfolgreich gelöscht!');
+        return back()->with('success', 'Termin erfolgreich geloescht!');
     }
 }
