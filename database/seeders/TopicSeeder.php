@@ -10,16 +10,8 @@ use Illuminate\Database\Seeder;
 
 class TopicSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Ensure there are users to assign as authors
-        if (User::count() === 0) {
-            User::factory(10)->create();
-        }
-
         $areas = ProfessionalArea::factory(5)->create();
 
         foreach ($areas as $area) {
