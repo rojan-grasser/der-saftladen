@@ -21,21 +21,23 @@ const { posts, topicId } = defineProps<{
         <div v-for="post in posts" :key="`post-${post.id}`">
             <Card>
                 <CardHeader class="gap-3">
-                    <CardTitle class="flex justify-between">
-                        <span class="italic">
-                            {{ post.user.name }}
+                    <CardTitle>
+                        <div class="flex justify-between">
+                            <span class="italic">
+                                {{ post.user.name }}
+                            </span>
                             <span
                                 class="text-sm font-normal text-foreground/70"
                             >
-                                {{ post.user.email }}
+                                {{
+                                    formatDate(post.created_at)
+                                }}&nbsp;&nbsp;&nbsp;{{
+                                    formatTime(post.created_at)
+                                }}
                             </span>
-                        </span>
+                        </div>
                         <span class="text-sm font-normal text-foreground/70">
-                            {{
-                                formatDate(post.created_at)
-                            }}&nbsp;&nbsp;&nbsp;{{
-                                formatTime(post.created_at)
-                            }}
+                            {{ post.user.email }}
                         </span>
                     </CardTitle>
                     <CardDescription class="text-black dark:text-white">

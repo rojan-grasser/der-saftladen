@@ -50,7 +50,7 @@ watch(search, debouncedSearch);
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-3 p-5">
-            <div class="flex justify-between">
+            <div class="flex justify-between gap-2">
                 <CreateTopic :area-id="area.id" />
                 <div class="w-96">
                     <Input v-model="search" placeholder="Suche" />

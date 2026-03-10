@@ -56,7 +56,7 @@ watch(open, () => {
                         "Speichern"
                     </DialogDescription>
                 </DialogHeader>
-                <div class="mb-5 grid gap-4">
+                <div class="my-5 grid gap-4">
                     <div class="grid gap-3">
                         <Label for="title-1">Titel</Label>
                         <Input
