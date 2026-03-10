@@ -22,7 +22,6 @@ const emit = defineEmits<{
 
 const roleLabels: Record<string, string> = {
     admin: 'Admin',
-    user: 'Benutzer',
     instructor: 'Ausbilder',
     teacher: 'Lehrer',
 };
