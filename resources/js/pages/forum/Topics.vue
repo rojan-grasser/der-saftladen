@@ -1,6 +1,10 @@
 <script lang="ts" setup>
+import { router } from '@inertiajs/vue3';
 import { Head } from '@inertiajs/vue3';
+import debounce from 'debounce';
+import { ref, watch } from 'vue';
 
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import CreateTopic from '@/pages/forum/components/CreateTopic.vue';
 import TopicsMapper from '@/pages/forum/components/TopicsMapper.vue';
@@ -12,10 +16,10 @@ import { BreadcrumbItem, PaginatedResponse } from '@/types';
 type Props = {
     topics: PaginatedResponse<MinimalTopic>;
     area: ProfessionalArea;
+    query?: string;
 };
 
-// Todo: The actual topic type is not in the actual props
-const { area, topics } = defineProps<Props>();
+const { area, topics, query: initialQuery } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -27,6 +31,18 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: topicIndex({ areaId: area.id }).url,
     },
 ];
+
+const search = ref(initialQuery ?? '');
+
+const debouncedSearch = debounce((value: string) => {
+    router.get(
+        topicIndex({ areaId: area.id }, { query: value ? { query: value } : undefined }).url,
+        {},
+        { preserveState: true, replace: true },
+    );
+}, 300);
+
+watch(search, debouncedSearch);
 </script>
 
 <template>
@@ -34,8 +50,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-3 p-5">
-            <div>
+            <div class="flex justify-between">
                 <CreateTopic :area-id="area.id" />
+                <div class="w-96">
+                    <Input v-model="search" placeholder="Suche" />
+                </div>
             </div>
             <TopicsMapper :topics="topics" :area="area" />
         </div>

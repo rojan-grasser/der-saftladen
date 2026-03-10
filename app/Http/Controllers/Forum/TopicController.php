@@ -18,8 +18,8 @@ class TopicController extends Controller
     public function index(Request $request, string $areaId)
     {
         $validated = $request->validate([
-            'cursor' => ['nullable', 'string'],
             'limit' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'query' => ['nullable', 'string', 'min:1', 'max:50']
         ]);
 
         $area = ProfessionalArea::findOrFail($areaId);
@@ -30,10 +30,14 @@ class TopicController extends Controller
 
         $limit = $validated['limit'] ?? 15;
 
+        if (isset($validated['query'])) {
+            $query->where('title', 'like', $validated['query'] . '%');
+        }
+
         return Inertia::render(
             'forum/Topics',
             [
-                'topics' => $query->cursorPaginate($limit)->withQueryString()->through(function ($topic) {
+                'topics' => $query->paginate($limit)->withQueryString()->through(function ($topic) {
                     return [
                         'id' => $topic->id,
                         'title' => $topic->title,
@@ -52,6 +56,7 @@ class TopicController extends Controller
                     'name' => $area->name,
                     'description' => $area->description,
                 ],
+                'query' => $validated['query'] ?? null,
             ]
         );
     }

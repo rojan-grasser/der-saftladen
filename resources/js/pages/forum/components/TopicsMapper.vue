@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 
+import PaginationBar from '@/components/PaginationBar.vue';
 import {
     Card,
     CardDescription,
@@ -8,7 +9,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { MinimalTopic, ProfessionalArea } from '@/pages/forum/types';
-import { show } from '@/routes/topics';
+import topicsApi, { show } from '@/routes/topics';
 import { PaginatedResponse } from '@/types';
 
 interface Props {
@@ -16,7 +17,20 @@ interface Props {
     area: ProfessionalArea;
 }
 
-const { topics } = defineProps<Props>();
+const { topics, area } = defineProps<Props>();
+
+const handlePageChange = (page: number) => {
+    router.get(
+        topicsApi.index({ areaId: area.id }).url,
+        {
+            page: page,
+        },
+        {
+            preserveState: true,
+            replace: true,
+        },
+    );
+};
 </script>
 
 <template>
@@ -49,4 +63,10 @@ const { topics } = defineProps<Props>();
             </Card>
         </Link>
     </div>
+    <PaginationBar
+        :current-page="topics.current_page"
+        :per-page="topics.per_page"
+        :total="topics.total"
+        @page-change="handlePageChange"
+    />
 </template>
