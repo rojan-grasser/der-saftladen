@@ -35,7 +35,7 @@ const {
                 </span>
             </div>
 
-            <Markdown :markdown="topic.description" />
+            <Markdown :markdown="topic.description" show-more-button />
         </div>
     </div>
 </template>

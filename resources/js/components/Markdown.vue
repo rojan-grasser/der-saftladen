@@ -5,7 +5,7 @@ import { computed, ref, toRef, watch } from 'vue';
 
 import { Button } from '@/components/ui/button';
 
-const props = defineProps<{ markdown: string; showMoreButton: number }>();
+const props = defineProps<{ markdown: string; showMoreButton?: boolean }>();
 
 const description = toRef(props, 'markdown');
 

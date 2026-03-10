@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Markdown from '@/components/Markdown.vue';
 import {
     Card,
     CardDescription,
@@ -8,7 +9,6 @@ import {
 import ReactionButtonGroup from '@/pages/forum/components/ReactionButtonGroup.vue';
 import { formatDate, formatTime } from '@/pages/forum/dateStrings';
 import { Topic } from '@/pages/forum/types';
-import Markdown from '@/components/Markdown.vue';
 
 const { posts, topicId } = defineProps<{
     posts: Topic['posts'];
@@ -42,7 +42,7 @@ const { posts, topicId } = defineProps<{
                         </span>
                     </CardTitle>
                     <CardDescription class="text-black dark:text-white">
-                        <Markdown :markdown="post.content" />
+                        <Markdown :markdown="post.content" show-more-button />
                     </CardDescription>
 
                     <ReactionButtonGroup

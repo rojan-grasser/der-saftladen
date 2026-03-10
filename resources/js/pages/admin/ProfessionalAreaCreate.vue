@@ -59,7 +59,7 @@ function submit() {
                     <Label for="description">Beschreibung</Label>
                     <Textarea id="description" v-model="form.description" />
                     <div
-                        v-if="form.errors.markdown"
+                        v-if="form.errors.description"
                         class="text-sm text-red-600"
                     >
                         {{ form.errors.description }}
