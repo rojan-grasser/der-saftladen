@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Forum;
 
-use App\Enums\UserRole;
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\ProfessionalArea;
 use Illuminate\Http\Request;
@@ -28,7 +28,7 @@ class ProfessionalAreaController extends Controller
      */
     public function index(Request $request)
     {
-        $areas = ($request->user()->hasRole(UserRole::INSTRUCTOR) ?
+        $areas = ($request->user()->hasRole(Role::INSTRUCTOR) ?
             $this->getQueryForInstructor($request->user()->id) :
             $this->getQueryForTeacher())
             ->get()
