@@ -40,7 +40,7 @@ const mainNavItems: NavItem[] = [
         icon: MessageSquare,
     },
 ];
-if (user.role === 'admin') {
+if (user.roles?.find((u) => u.role === 'admin')) {
     mainNavItems.push({
         title: 'Admin Dashboard',
         href: admin.dashboard(),

@@ -30,7 +30,7 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
     Route::resource('appointments', AppointmentController::class)->except(['create', 'edit', 'show']);
 });
 
-Route::middleware(['request-logging', 'auth', 'verified', 'active', 'admin'])
+Route::middleware(['request-logging', 'auth', 'verified', 'active', 'role:admin'])
     ->prefix('admin')
     ->group(function () {
         Route::get('/dashboard', function () {
