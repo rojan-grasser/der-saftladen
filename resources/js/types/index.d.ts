@@ -27,8 +27,14 @@ export type AppPageProps<
     [key: string]: unknown;
 };
 
-export type UserRole = 'user' | 'admin' | 'instructor' | 'teacher';
+export type UserRoleString = 'admin' | 'instructor' | 'teacher';
 export type UserStatus = 'active' | 'inactive' | 'pending';
+
+export interface UserRole {
+    id: number;
+    user_id: number;
+    role: UserRoleString;
+}
 
 export interface User {
     id: number;
@@ -39,7 +45,7 @@ export interface User {
     created_at: string;
     updated_at: string;
     status: UserStatus;
-    role: UserRole;
+    roles: UserRole[] | null;
     [key: string]: unknown; // This allows for additional properties...
 }
 

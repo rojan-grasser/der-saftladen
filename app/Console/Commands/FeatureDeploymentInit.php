@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Enums\UserRole;
+use App\Enums\Role;
 use App\Models\User;
 use Database\Factories\UserFactory;
 use Illuminate\Console\Command;
@@ -32,13 +32,13 @@ class FeatureDeploymentInit extends Command
     {
         $factory = new UserFactory();
 
-        User::create([
+        $user = User::create([
             ...$factory->definition(),
-            'role' => UserRole::ADMIN,
             'password' => Hash::make('password'),
             'name' => 'Test Admin',
             'email' => 'test-admin@example.com',
         ]);
+        $user->assignRole(Role::ADMIN);
 
         Log::info('Created user test admin');
     }
