@@ -97,7 +97,7 @@
     --popover: hsl(0 0% 100%);
     --popover-foreground: hsl(0 0% 3.9%);
     --primary: hsl(46 100% 49%);
-    --primary-foreground: hsl(0 0% 0%);
+    --primary-foreground: hsl(0 0% 9%);
     --secondary: hsl(0 0% 92.1%);
     --secondary-foreground: hsl(0 0% 9%);
     --muted: hsl(0 0% 96.1%);
@@ -118,7 +118,7 @@
     --sidebar-background: hsl(0 0% 98%);
     --sidebar-foreground: hsl(240 5.3% 26.1%);
     --sidebar-primary: hsl(46 100% 49%);
-    --sidebar-primary-foreground: hsl(0 0% 0%);
+    --sidebar-primary-foreground: hsl(0 0% 9%);
     --sidebar-accent: hsl(0 0% 94%);
     --sidebar-accent-foreground: hsl(0 0% 30%);
     --sidebar-border: hsl(0 0% 91%);
@@ -134,7 +134,7 @@
     --popover: hsl(0 0% 3.9%);
     --popover-foreground: hsl(0 0% 98%);
     --primary: hsl(46 100% 49%);
-    --primary-foreground: hsl(0 0% 0%);
+    --primary-foreground: hsl(0 0% 9%);
     --secondary: hsl(0 0% 14.9%);
     --secondary-foreground: hsl(0 0% 98%);
     --muted: hsl(0 0% 16.08%);
@@ -154,7 +154,7 @@
     --sidebar-background: hsl(0 0% 7%);
     --sidebar-foreground: hsl(0 0% 95.9%);
     --sidebar-primary: hsl(46 100% 49%);
-    --sidebar-primary-foreground: hsl(0 0% 0%);
+    --sidebar-primary-foreground: hsl(0 0% 9%);
     --sidebar-accent: hsl(0 0% 15.9%);
     --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
     --sidebar-border: hsl(0 0% 15.9%);
