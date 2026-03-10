@@ -19,7 +19,7 @@ class ForumPostFactory extends Factory
     public function definition(): array
     {
         return [
-            'content' => implode("\n\n", fake()->paragraphs(3)),
+            'content' => fake()->paragraph(2),
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
             'topic_id' => Topic::inRandomOrder()->first()?->id ?? Topic::factory(),
         ];
