@@ -40,6 +40,8 @@ class FeatureDeploymentInit extends Command
         ]);
         $user->assignRole(Role::ADMIN);
 
+        $user->markEmailAsVerified();
+
         Log::info('Created user test admin');
     }
 }
