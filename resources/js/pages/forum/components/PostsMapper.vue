@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import {
-    Card,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
-import ReactionButtonGroup from '@/pages/forum/components/ReactionButtonGroup.vue';
-import { formatDate, formatTime } from '@/pages/forum/dateStrings';
+import PostCard from '@/pages/forum/components/PostCard.vue';
+import PostContextMenu from '@/pages/forum/components/PostContextMenu.vue';
 import { Topic } from '@/pages/forum/types';
-import TopicDescription from '@/pages/forum/components/TopicDescription.vue';
 
 const { posts, topicId } = defineProps<{
     posts: Topic['posts'];
@@ -20,38 +13,20 @@ const { posts, topicId } = defineProps<{
 <template>
     <div class="flex flex-col gap-4">
         <div v-for="post in posts" :key="`post-${post.id}`">
-            <Card>
-                <CardHeader class="gap-3">
-                    <CardTitle>
-                        <div class="flex justify-between">
-                            <span class="italic">
-                                {{ post.user.name }}
-                            </span>
-                            <span
-                                class="text-sm font-normal text-foreground/70"
-                            >
-                                {{
-                                    formatDate(post.created_at)
-                                }}&nbsp;&nbsp;&nbsp;{{
-                                    formatTime(post.created_at)
-                                }}
-                            </span>
-                        </div>
-                        <span class="text-sm font-normal text-foreground/70">
-                            {{ post.user.email }}
-                        </span>
-                    </CardTitle>
-                    <CardDescription class="text-black dark:text-white">
-                        <TopicDescription :description="post.content" />
-                    </CardDescription>
-
-                    <ReactionButtonGroup
-                        :post="post"
-                        :topicId="topicId"
-                        :area-id="areaId"
-                    />
-                </CardHeader>
-            </Card>
+            <PostContextMenu
+                v-if="post.isOwnPost"
+                :topic-id="topicId"
+                :area-id="areaId"
+                :post="post"
+            >
+                <PostCard :post="post" :topic-id="topicId" :area-id="areaId" />
+            </PostContextMenu>
+            <PostCard
+                :post="post"
+                :topic-id="topicId"
+                :area-id="areaId"
+                v-if="!post.isOwnPost"
+            />
         </div>
     </div>
 </template>

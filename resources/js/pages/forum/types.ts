@@ -16,7 +16,9 @@ export type Post = {
     likesCount: number;
     dislikesCount: number;
     user: User;
-}
+    isOwnPost: boolean;
+    edited: boolean;
+};
 
 export type Topic = {
     id: number;

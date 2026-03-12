@@ -149,7 +149,7 @@ class TopicController extends Controller
                     'email' => $owner->email,
                     'role' => $owner->role,
                 ],
-                'posts' => $topic->posts->map(function ($post) {
+                'posts' => $topic->posts->map(function ($post) use ($request) {
                     return [
                         'id' => $post->id,
                         'content' => $post->content,
@@ -158,6 +158,8 @@ class TopicController extends Controller
                         'reaction' => $post->reactions->first()?->type,
                         'likesCount' => $post->likes_count,
                         'dislikesCount' => $post->dislikes_count,
+                        'isOwnPost' => ($post->creator?->id ?? 0) === $request->user()->id,
+                        'edited' => !!$post->edited,
                         'user' => [
                             'id' => $post->creator->id,
                             'name' => $post->creator->name,
@@ -202,7 +204,7 @@ class TopicController extends Controller
 
         $topic->update($validated);
 
-        return redirect()->route('topics.show', ['areaId' => $topicID, 'topicId' => $id])->with('success', 'Das thema wurde bearbeitet');
+        return back()->with('success', 'Das thema wurde bearbeitet');
     }
 
     /**
