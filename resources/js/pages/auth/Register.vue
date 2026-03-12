@@ -3,6 +3,7 @@ import { Form, Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 import InputError from '@/components/InputError.vue';
+import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -89,9 +90,8 @@ const roles = ref<string[]>([]);
 
                 <div class="grid gap-2">
                     <Label for="password">Passwort</Label>
-                    <Input
+                    <PasswordInput
                         id="password"
-                        type="password"
                         required
                         :tabindex="3"
                         name="password"
@@ -104,9 +104,8 @@ const roles = ref<string[]>([]);
                     <Label for="password_confirmation"
                         >Passwort bestätigen</Label
                     >
-                    <Input
+                    <PasswordInput
                         id="password_confirmation"
-                        type="password"
                         required
                         :tabindex="4"
                         name="password_confirmation"
