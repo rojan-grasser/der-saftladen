@@ -41,6 +41,8 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public static string $deletedUserName = 'Gelöschter Benutzer';
+
     /**
      * Get the attributes that should be cast.
      *
