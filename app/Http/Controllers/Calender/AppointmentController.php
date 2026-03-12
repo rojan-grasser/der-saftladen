@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Calender;
 
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
@@ -76,6 +77,10 @@ class AppointmentController extends Controller
                     ...$appointment->toArray(),
                     'start_time' => $appointment->start_time?->timestamp,
                     'end_time' => $appointment->end_time?->timestamp,
+                    'creator' => [
+                        'id' => $appointment->creator?->id ?? 0,
+                        'name' => $appointment->creator?->name ?? User::$deletedUserName,
+                    ]
                 ];
             });
 

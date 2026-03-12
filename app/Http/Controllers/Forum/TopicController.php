@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Instructor;
 use App\Models\ProfessionalArea;
 use App\Models\Topic;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -44,10 +45,9 @@ class TopicController extends Controller
                         'description' => $topic->description,
                         'created_at' => $topic->created_at,
                         'user' => [
-                            'id' => $topic->user->id,
-                            'name' => $topic->user->name,
-                            'email' => $topic->user->email,
-                            'role' => $topic->user->role,
+                            'id' => $topic->user?->id ?? 0,
+                            'name' => $topic->user?->name ?? User::$deletedUserName,
+                            'email' => $topic->user?->email ?? '',
                         ],
                     ];
                 }),
@@ -144,10 +144,9 @@ class TopicController extends Controller
                 'description' => $topic->description,
                 'isOwnPost' => $topic->user_id === $request->user()->id,
                 'owner' => [
-                    'id' => $owner->id,
-                    'name' => $owner->name,
-                    'email' => $owner->email,
-                    'role' => $owner->role,
+                    'id' => $owner?->id ?? 0,
+                    'name' => $owner?->name ?? User::$deletedUserName,
+                    'email' => $owner?->email ?? '',
                 ],
                 'posts' => $topic->posts->map(function ($post) use ($request) {
                     return [
@@ -161,10 +160,9 @@ class TopicController extends Controller
                         'isOwnPost' => ($post->creator?->id ?? 0) === $request->user()->id,
                         'edited' => !!$post->edited,
                         'user' => [
-                            'id' => $post->creator->id,
-                            'name' => $post->creator->name,
-                            'email' => $post->creator->email,
-                            'role' => $post->creator->role,
+                            'id' => $post->creator?->id ?? 0,
+                            'name' => $post->creator?->name ?? User::$deletedUserName,
+                            'email' => $post->creator?->email ?? '',
                         ],
                     ];
                 }),

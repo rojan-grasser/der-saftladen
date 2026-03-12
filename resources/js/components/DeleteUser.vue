@@ -5,6 +5,7 @@ import { useTemplateRef } from 'vue';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -16,7 +17,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const passwordInput = useTemplateRef('passwordInput');
@@ -34,7 +34,8 @@ const passwordInput = useTemplateRef('passwordInput');
             <div class="relative space-y-0.5 text-red-600 dark:text-red-100">
                 <p class="font-medium">Warnung</p>
                 <p class="text-sm">
-                    Bitte gehen Sie mit Vorsicht vor, dies kann nicht rückgängig gemacht werden.
+                    Bitte gehen Sie mit Vorsicht vor, dies kann nicht rückgängig
+                    gemacht werden.
                 </p>
             </div>
             <Dialog>
@@ -54,12 +55,15 @@ const passwordInput = useTemplateRef('passwordInput');
                     >
                         <DialogHeader class="space-y-3">
                             <DialogTitle
-                                >Möchten Sie Ihr
-                                 Konto wirklich löschen?</DialogTitle
+                                >Möchten Sie Ihr Konto wirklich
+                                löschen?</DialogTitle
                             >
                             <DialogDescription>
-                                Sobald Ihr Konto gelöscht ist, werden auch alle zugehörigen Ressourcen und Daten endgültig gelöscht.
-                                Bitte geben Sie Ihr Passwort ein, um zu bestätigen, dass Sie Ihr Konto endgültig löschen möchten.
+                                Sobald Ihr Konto gelöscht ist, werden auch alle
+                                zugehörigen Ressourcen und Daten endgültig
+                                gelöscht. Bitte geben Sie Ihr Passwort ein, um
+                                zu bestätigen, dass Sie Ihr Konto endgültig
+                                löschen möchten.
                             </DialogDescription>
                         </DialogHeader>
 
@@ -67,9 +71,8 @@ const passwordInput = useTemplateRef('passwordInput');
                             <Label for="password" class="sr-only"
                                 >Passwort</Label
                             >
-                            <Input
+                            <PasswordInput
                                 id="password"
-                                type="password"
                                 name="password"
                                 ref="passwordInput"
                                 placeholder="Password"

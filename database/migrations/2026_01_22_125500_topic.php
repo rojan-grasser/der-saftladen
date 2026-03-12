@@ -11,8 +11,13 @@ return new class extends Migration
         Schema::create('topics', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('professional_area_id')->constrained();
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+            $table->foreignId('professional_area_id')
+                ->constrained()
+                ->cascadeOnDelete();
             $table->timestamps();
         });
     }
