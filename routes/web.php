@@ -20,7 +20,7 @@ Route::get('/', function () {
 })->name('home')->middleware('request-logging');
 
 Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
+    return redirect()->route('appointments.index');
 })->middleware(['request-logging', 'auth', 'verified', 'active'])->name('dashboard');
 
 

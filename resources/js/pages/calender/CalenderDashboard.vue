@@ -5,6 +5,7 @@ import { computed, ref } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type AppPageProps, type BreadcrumbItem } from '@/types';
 
+import AgendaSidebar from './components/AgendaSidebar.vue';
 import AppointmentFormDialog from './components/AppointmentFormDialog.vue';
 import CalendarToolbar from './components/CalendarToolbar.vue';
 import CalendarViews from './components/CalendarViews.vue';
@@ -105,6 +106,10 @@ const formatDate = (value: Date) => {
     }).format(value);
 };
 
+const syncCurrentMonth = (date: Date) => {
+    currentMonth.value = new Date(date.getFullYear(), date.getMonth(), 1);
+};
+
 const goPrevMonth = () => {
     currentMonth.value = new Date(
         currentMonth.value.getFullYear(),
@@ -122,16 +127,23 @@ const goNextMonth = () => {
 };
 
 const goToday = () => {
-    const now = new Date();
-    currentMonth.value = new Date(now.getFullYear(), now.getMonth(), 1);
-    selectedDate.value = now;
+    handleSelectDay(new Date());
 };
 
 const setViewMode = (mode: ViewMode) => {
     viewMode.value = mode;
 };
 
+const handleSelectDay = (date: Date) => {
+    syncCurrentMonth(date);
+    selectDay(date);
+};
+
 const openDetails = (appointment: Appointment) => {
+    const appointmentDate = parseDate(appointment.start_time);
+    if (appointmentDate) {
+        syncCurrentMonth(appointmentDate);
+    }
     selectAppointment(appointment);
 };
 
@@ -162,22 +174,24 @@ const getEventClass = (appointment: Appointment) => {
                 @create="openCreate"
             />
 
-            <div class="grid items-start gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
-                <DetailsSidebar
+            <div
+                class="grid items-start gap-6 xl:grid-cols-[300px_minmax(0,1fr)_340px]"
+            >
+                <AgendaSidebar
+                    :month-label="monthLabel"
+                    :day-labels="dayLabels"
+                    :calendar-days="calendarDays"
                     :selected-date="selectedDate"
                     :selected-appointments="selectedAppointments"
-                    :selected-appointment="selectedAppointment"
-                    :upcoming-appointments="upcomingAppointments"
                     :format-date="formatDate"
                     :format-time="formatTime"
-                    :parse-date="parseDate"
                     :get-event-class="getEventClass"
-                    :get-owner-name="getOwnerName"
+                    @select-day="handleSelectDay"
+                    @prev-month="goPrevMonth"
+                    @next-month="goNextMonth"
                     @open-create="openCreate"
-                    @open-edit="openEdit"
                     @open-details="openDetails"
                     @set-view-mode="setViewMode"
-                    @deleted="handleAppointmentDeleted"
                 />
 
                 <section class="min-w-0 space-y-4">
@@ -237,11 +251,24 @@ const getEventClass = (appointment: Appointment) => {
                         :format-date="formatDate"
                         :format-time="formatTime"
                         :get-event-class="getEventClass"
-                        @select-day="selectDay"
+                        @select-day="handleSelectDay"
                         @open-details="openDetails"
                         @open-create="openCreate"
                     />
                 </section>
+
+                <DetailsSidebar
+                    :selected-appointment="selectedAppointment"
+                    :upcoming-appointments="upcomingAppointments"
+                    :format-date="formatDate"
+                    :format-time="formatTime"
+                    :parse-date="parseDate"
+                    :get-event-class="getEventClass"
+                    :get-owner-name="getOwnerName"
+                    @open-edit="openEdit"
+                    @open-details="openDetails"
+                    @deleted="handleAppointmentDeleted"
+                />
             </div>
         </div>
 

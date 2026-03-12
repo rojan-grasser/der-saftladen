@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import {Calendar, LayoutGrid, ShieldCheck } from 'lucide-vue-next';
+import { Calendar, ShieldCheck } from 'lucide-vue-next';
 
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -13,7 +13,6 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
 import admin from '@/routes/admin';
 import { type NavItem } from '@/types';
 
@@ -23,11 +22,6 @@ const page = usePage();
 const user = page.props.auth.user;
 
 const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
     {
         title: 'Kalender',
         href: '/appointments',
@@ -59,7 +53,7 @@ if (user.roles?.find((u) => u.role === 'admin')) {
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()">
+                        <Link href="/appointments">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>
