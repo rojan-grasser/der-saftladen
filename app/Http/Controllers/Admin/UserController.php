@@ -23,6 +23,7 @@ class UserController extends Controller
             'role' => ['sometimes', new Enum(Role::class)],
             'status' => ['sometimes', new Enum(UserStatus::class)],
             'search' => ['sometimes', 'string', 'max:255'],
+            'priority' => ['sometimes', 'in:firstname,lastname,email'],
         ]);
 
         $query = User::query()->with('roles');
@@ -43,6 +44,42 @@ class UserController extends Controller
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
             });
+            if (!empty($validated['priority'])) {
+                if ($validated['priority'] === 'firstname') {
+                    $query->orderByRaw("
+                        CASE
+                            WHEN name LIKE ? THEN 1
+                            WHEN name LIKE ? THEN 2
+                            ELSE 3
+                        END
+                    ", [
+                        "{$search}%",
+                        "% {$search}%"
+                    ]);
+                }
+                if ($validated['priority'] === 'lastname') {
+                    $query->orderByRaw("
+                        CASE
+                            WHEN name LIKE ? THEN 1
+                            WHEN name LIKE ? THEN 2
+                            ELSE 3
+                        END
+                    ", [
+                        "% {$search}%",
+                        "{$search}%"
+                    ]);
+                }
+                if ($validated['priority'] === 'email') {
+                    $query->orderByRaw("
+                        CASE
+                            WHEN email LIKE ? THEN 1
+                            ELSE 2
+                        END
+                    ", [
+                        "{$search}%"
+                    ]);
+                }
+            }
         }
 
         $users = $query
@@ -52,10 +89,9 @@ class UserController extends Controller
 
         return Inertia::render('admin/Users', [
             'users' => $users,
-            'filters' => $request->only(['role', 'status', 'search']),
+            'filters' => $request->only(['role', 'status', 'search', 'priority']),
         ]);
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -100,6 +136,12 @@ class UserController extends Controller
 
             $user->update(collect($validated)->except('roles')->toArray());
 
+            if (($validated['status'] ?? null) != UserStatus::ACTIVE->value) {
+                DB::table('user_to_professional_area')
+                    ->where('user_id', $user->id)
+                    ->delete();
+            }
+
             if (isset($validated['roles'])) {
                 $user->roles()->delete();
 
@@ -120,4 +162,3 @@ class UserController extends Controller
         //
     }
 }
-

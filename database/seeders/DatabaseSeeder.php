@@ -21,5 +21,6 @@ class DatabaseSeeder extends Seeder
         User::factory()->count(250)->create();
         $this->call(AppointmentSeeder::class);
         ProfessionalArea::factory()->count(250)->create();
+        $this->call(TopicSeeder::class);
     }
 }

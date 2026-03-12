@@ -130,6 +130,10 @@ class AppointmentController extends Controller
                     'color' => $appointment->color?->value ?? AppointmentColor::PEACOCK->value,
                     'start_time' => $appointment->start_time?->timestamp,
                     'end_time' => $appointment->end_time?->timestamp,
+                    'creator' => [
+                        'id' => $appointment->creator?->id ?? 0,
+                        'name' => $appointment->creator?->name ?? User::$deletedUserName,
+                    ]
                 ];
             });
 

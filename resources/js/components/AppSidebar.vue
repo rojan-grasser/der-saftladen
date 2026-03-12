@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { Calendar, ShieldCheck } from 'lucide-vue-next';
+import { Calendar, ShieldCheck, MessageSquare } from 'lucide-vue-next';
 
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -14,6 +14,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import admin from '@/routes/admin';
+import { areas } from '@/routes/forum';
 import { type NavItem } from '@/types';
 
 import AppLogo from './AppLogo.vue';
@@ -26,6 +27,11 @@ const mainNavItems: NavItem[] = [
         title: 'Kalender',
         href: '/appointments',
         icon: Calendar,
+    },
+    {
+        title: 'Forum',
+        href: areas(),
+        icon: MessageSquare,
     },
 ];
 if (user.roles?.find((u) => u.role === 'admin')) {

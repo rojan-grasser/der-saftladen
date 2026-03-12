@@ -14,7 +14,7 @@ class PostReactionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(string $topicId, string $postId)
+    public function index(string $areaId, string $topicId, string $postId)
     {
         $post = ForumPost::findOrFail($postId);
 
@@ -30,7 +30,7 @@ class PostReactionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, string $topicId, string $postId)
+    public function store(Request $request, string $areaId, string $topicId, string $postId)
     {
         $validated = $request->validate([
             'type' => ['required', Rule::enum(PostReactionType::class)],
@@ -46,20 +46,18 @@ class PostReactionController extends Controller
                 'type' => $validated['type'],
             ]);
 
-            return response(null, 201);
+            return;
         }
 
         $postReaction->update([
             'type' => $validated['type'],
         ]);
-
-        return response(null, 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, string $topicId, string $postId)
+    public function destroy(Request $request, string $areaId, string $topicId, string $postId)
     {
         PostReaction::findOrFailByUserAndPost($request->user()->id, $postId)->delete();
 
