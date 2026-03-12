@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -22,7 +21,7 @@ const { areaId, topicId, post } = defineProps<{
     post: Post;
 }>();
 
-const open = ref(false);
+const open = defineModel<boolean>('open', { default: false });
 
 const form = useForm({
     content: post.content,
@@ -35,17 +34,10 @@ const submit = () => {
         },
     });
 };
-
-watch(open, () => {
-    if (!open.value) {
-        form.reset();
-    }
-});
 </script>
 
 <template>
     <Dialog :open="open" @update:open="(o) => (open = o)">
-        <slot />
         <DialogContent class="sm:max-w-2xl">
             <form @submit.prevent="submit">
                 <DialogHeader>

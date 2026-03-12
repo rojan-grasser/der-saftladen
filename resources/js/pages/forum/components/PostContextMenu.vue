@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
 import { Pencil, Trash2 } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 import {
     ContextMenu,
@@ -9,10 +9,9 @@ import {
     ContextMenuSeparator,
     ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { DialogTrigger } from '@/components/ui/dialog';
-import EditPost from '@/pages/forum/components/EditPost.vue';
+import DeletePostDialog from '@/pages/forum/components/DeletePostDialog.vue';
+import EditPostDialog from '@/pages/forum/components/EditPostDialog.vue';
 import { Post } from '@/pages/forum/types';
-import posts from '@/routes/posts';
 
 const { post, areaId, topicId } = defineProps<{
     areaId: number;
@@ -20,34 +19,30 @@ const { post, areaId, topicId } = defineProps<{
     post: Post;
 }>();
 
-const deletePost = () => {
-    router.delete(posts.destroy({ post: post.id, topicId, areaId }).url, {
-        preserveScroll: true,
-    });
-};
+const editOpen = ref(false);
+const deleteOpen = ref(false);
 </script>
 
 <template>
-    <EditPost :area-id="areaId" :topic-id="topicId" :post="post">
-        <ContextMenu>
-            <ContextMenuTrigger as-child>
-                <div>
-                    <slot />
-                </div>
-            </ContextMenuTrigger>
-            <ContextMenuContent>
-                <DialogTrigger as-child>
-                    <ContextMenuItem>
-                        <Pencil />
-                        Bearbeiten
-                    </ContextMenuItem>
-                </DialogTrigger>
-                <ContextMenuSeparator />
-                <ContextMenuItem variant="destructive" :onclick="deletePost">
-                    <Trash2 />
-                    Löschen
-                </ContextMenuItem>
-            </ContextMenuContent>
-        </ContextMenu>
-    </EditPost>
+    <EditPostDialog v-model:open="editOpen" :area-id="areaId" :topic-id="topicId" :post="post" />
+    <DeletePostDialog v-model:open="deleteOpen" :area-id="areaId" :topic-id="topicId" :post="post" />
+
+    <ContextMenu>
+        <ContextMenuTrigger as-child>
+            <div>
+                <slot />
+            </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+            <ContextMenuItem @click="editOpen = true">
+                <Pencil />
+                Bearbeiten
+            </ContextMenuItem>
+            <ContextMenuSeparator />
+            <ContextMenuItem variant="destructive" @click="deleteOpen = true">
+                <Trash2 />
+                Löschen
+            </ContextMenuItem>
+        </ContextMenuContent>
+    </ContextMenu>
 </template>
