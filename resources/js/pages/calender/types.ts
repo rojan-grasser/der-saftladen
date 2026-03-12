@@ -1,4 +1,4 @@
-export type ViewMode = 'month' | 'week' | 'day';
+export type ViewMode = 'month' | 'week' | 'day' | 'agenda';
 export type AppointmentColor =
     | 'peacock'
     | 'sage'

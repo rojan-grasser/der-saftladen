@@ -7,12 +7,13 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type AppPageProps, type BreadcrumbItem } from '@/types';
 
+import AgendaView from './components/AgendaView.vue';
 import AppointmentDetailsSheet from './components/AppointmentDetailsSheet.vue';
 import AppointmentFormDialog from './components/AppointmentFormDialog.vue';
+import DayView from './components/DayView.vue';
 import MiniCalendar from './components/MiniCalendar.vue';
 import MonthView from './components/MonthView.vue';
 import WeekView from './components/WeekView.vue';
-import DayView from './components/DayView.vue';
 import {
     appointmentColorMap,
     defaultAppointmentColor,
@@ -332,6 +333,14 @@ const getEventBgClass = (appointment: Appointment) => {
                         >
                             Monat
                         </Button>
+                        <Button
+                            :variant="viewMode === 'agenda' ? 'secondary' : 'ghost'"
+                            size="sm"
+                            class="rounded-md px-3"
+                            @click="viewMode = 'agenda'"
+                        >
+                            Agenda
+                        </Button>
                     </div>
                 </div>
 
@@ -356,12 +365,20 @@ const getEventBgClass = (appointment: Appointment) => {
                         @open-details="openDetails"
                     />
                     <DayView
-                        v-else
+                        v-else-if="viewMode === 'day'"
                         :selected-date="selectedDate"
                         :selected-appointments="selectedAppointments"
                         :format-time="formatTime"
                         :format-full-date="formatFullDate"
                         :get-event-bg-class="getEventBgClass"
+                        @open-details="openDetails"
+                    />
+                    <AgendaView
+                        v-else
+                        :appointments="appointments"
+                        :format-time="formatTime"
+                        :get-event-bg-class="getEventBgClass"
+                        :get-owner-name="getOwnerName"
                         @open-details="openDetails"
                     />
                 </div>
