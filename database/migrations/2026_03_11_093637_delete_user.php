@@ -82,7 +82,7 @@ return new class extends Migration
 
     public function up(): void
     {
-        // SQLITE cannot edit the constraint of foreign keys, new table -> insert old tables data -> drop old table -> rename new table
+        // SQLITE does not allow editing the constraint of foreign keys, new table -> insert old tables data -> drop old table -> rename new table
         $this->topics();
         $this->posts();
         $this->appointments();
@@ -93,6 +93,47 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::create('topics_old', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->text('description');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('professional_area_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+        });
+        DB::table('topics_old')->insert(
+            DB::table('topics')->get()->map(fn($row) => (array) $row)->toArray()
+        );
+        Schema::drop('topics');
+        Schema::rename('topics_old', 'topics');
+
+        Schema::create('forum_posts_old', function (Blueprint $table) {
+            $table->id();
+            $table->string('content');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('topic_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+        });
+        DB::table('forum_posts_old')->insert(
+            DB::table('forum_posts')->get()->map(fn($row) => (array) $row)->toArray()
+        );
+        Schema::drop('forum_posts');
+        Schema::rename('forum_posts_old', 'forum_posts');
+
+        Schema::create('appointments_old', function (Blueprint $table) {
+            $table->id();
+            $table->text('title');
+            $table->longText('description')->nullable();
+            $table->text('location')->nullable();
+            $table->dateTime('start_time');
+            $table->dateTime('end_time');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->timestamps();
+        });
+        DB::table('appointments_old')->insert(
+            DB::table('appointments')->get()->map(fn($row) => (array) $row)->toArray()
+        );
+        Schema::drop('appointments');
+        Schema::rename('appointments_old', 'appointments');
     }
 };
