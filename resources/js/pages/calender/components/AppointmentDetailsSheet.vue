@@ -37,6 +37,7 @@ const showDeleteAlert = ref(false);
 
 const handleDeleted = () => {
     showDeleteAlert.value = false;
+    emit('update:open', false);
     emit('deleted');
 };
 
@@ -69,7 +70,7 @@ const handleEdit = () => {
             </SheetHeader>
 
             <div v-if="appointment" class="mt-6 flex flex-1 flex-col space-y-6 overflow-hidden pr-4">
-                <div class="space-y-4">
+                <div class="space-y-4 pl-2">
                     <div class="flex items-center gap-3 text-sm">
                         <Calendar class="h-5 w-5 flex-shrink-0 text-muted-foreground" />
                         <span>
@@ -112,7 +113,7 @@ const handleEdit = () => {
                     </div>
                 </div>
 
-                <div v-if="canEdit || canDelete" class="flex flex-shrink-0 gap-2 border-t pt-4">
+                <div v-if="canEdit || canDelete" class="flex flex-shrink-0 gap-2 border-t pb-6 pt-4">
                     <Button
                         v-if="canEdit"
                         variant="outline"
