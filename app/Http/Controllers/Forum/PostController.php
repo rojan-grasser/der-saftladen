@@ -79,7 +79,7 @@ class PostController extends Controller
 
         $post->update([
             ...$validated,
-            'edited' => 1,
+            'edited' => true,
         ]);
 
         return redirect("/forum/area/$areaId/topics/$topicId")->with('success', 'Der Kommentar wurde aktualisiert');
