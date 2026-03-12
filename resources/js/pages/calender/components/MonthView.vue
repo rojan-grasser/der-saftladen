@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import type { Appointment, CalendarDay } from '../types';
+import { computed } from 'vue';
 
-defineProps<{
+import type { Appointment, CalendarDay } from '../types';
+import { parseDate, toDateKey, toDayStart } from '../utils/date';
+
+const props = defineProps<{
     dayLabels: string[];
     calendarDays: CalendarDay[];
     formatTime: (value: string | number) => string;
@@ -12,6 +15,143 @@ const emit = defineEmits<{
     (e: 'select-day', date: Date): void;
     (e: 'open-details', appointment: Appointment): void;
 }>();
+
+interface EventSegment {
+    appointment: Appointment;
+    startCol: number;
+    span: number;
+    isStart: boolean;
+    isEnd: boolean;
+    lane: number;
+}
+
+interface WeekRow {
+    days: CalendarDay[];
+    eventSegments: EventSegment[];
+}
+
+const weeks = computed<WeekRow[]>(() => {
+    const result: WeekRow[] = [];
+
+    for (let i = 0; i < props.calendarDays.length; i += 7) {
+        const weekDays = props.calendarDays.slice(i, i + 7);
+        const weekStart = toDayStart(weekDays[0].date);
+        const weekEnd = toDayStart(weekDays[6].date);
+
+        // Collect all unique appointments that appear in this week
+        const appointmentsInWeek = new Map<number, Appointment>();
+        for (const day of weekDays) {
+            for (const apt of day.appointments) {
+                if (!appointmentsInWeek.has(apt.id)) {
+                    appointmentsInWeek.set(apt.id, apt);
+                }
+            }
+        }
+
+        // Calculate segments for each appointment
+        const segments: EventSegment[] = [];
+        const sortedAppointments = Array.from(appointmentsInWeek.values()).sort((a, b) => {
+            const aStart = parseDate(a.start_time)?.getTime() ?? 0;
+            const bStart = parseDate(b.start_time)?.getTime() ?? 0;
+            if (aStart !== bStart) return aStart - bStart;
+            // Longer events first
+            const aEnd = parseDate(a.end_time)?.getTime() ?? aStart;
+            const bEnd = parseDate(b.end_time)?.getTime() ?? bStart;
+            return (bEnd - bStart) - (aEnd - aStart);
+        });
+
+        // Track lane usage per day (0-6)
+        const lanesPerDay: number[][] = [[], [], [], [], [], [], []];
+
+        for (const apt of sortedAppointments) {
+            const aptStart = parseDate(apt.start_time);
+            const aptEnd = parseDate(apt.end_time);
+            if (!aptStart || !aptEnd) continue;
+
+            const aptStartDay = toDayStart(aptStart);
+            const aptEndDay = toDayStart(aptEnd);
+
+            // Calculate which columns this event spans in this week
+            let startCol = 0;
+            let endCol = 6;
+
+            for (let col = 0; col < 7; col++) {
+                const dayDate = toDayStart(weekDays[col].date);
+                if (dayDate.getTime() === aptStartDay.getTime() ||
+                    (aptStartDay < weekStart && col === 0)) {
+                    startCol = col;
+                    if (aptStartDay >= weekStart) break;
+                }
+            }
+
+            for (let col = 6; col >= 0; col--) {
+                const dayDate = toDayStart(weekDays[col].date);
+                if (dayDate.getTime() === aptEndDay.getTime() ||
+                    (aptEndDay > weekEnd && col === 6)) {
+                    endCol = col;
+                    if (aptEndDay <= weekEnd) break;
+                }
+            }
+
+            // Clamp to week bounds
+            if (aptStartDay < weekStart) startCol = 0;
+            if (aptEndDay > weekEnd) endCol = 6;
+
+            const span = endCol - startCol + 1;
+            const isStart = aptStartDay >= weekStart && aptStartDay <= weekEnd;
+            const isEnd = aptEndDay >= weekStart && aptEndDay <= weekEnd;
+
+            // Find available lane
+            let lane = 0;
+            let foundLane = false;
+            while (!foundLane) {
+                foundLane = true;
+                for (let col = startCol; col <= endCol; col++) {
+                    if (lanesPerDay[col].includes(lane)) {
+                        foundLane = false;
+                        lane++;
+                        break;
+                    }
+                }
+            }
+
+            // Mark lane as used for these days
+            for (let col = startCol; col <= endCol; col++) {
+                lanesPerDay[col].push(lane);
+            }
+
+            segments.push({
+                appointment: apt,
+                startCol,
+                span,
+                isStart,
+                isEnd,
+                lane,
+            });
+        }
+
+        result.push({
+            days: weekDays,
+            eventSegments: segments,
+        });
+    }
+
+    return result;
+});
+
+const maxVisibleLanes = 3;
+
+const getVisibleSegments = (segments: EventSegment[]) => {
+    return segments.filter(s => s.lane < maxVisibleLanes);
+};
+
+const getHiddenCount = (segments: EventSegment[], dayIndex: number) => {
+    const hidden = segments.filter(s => {
+        if (s.lane < maxVisibleLanes) return false;
+        return dayIndex >= s.startCol && dayIndex < s.startCol + s.span;
+    });
+    return hidden.length;
+};
 </script>
 
 <template>
@@ -26,55 +166,83 @@ const emit = defineEmits<{
             </div>
         </div>
 
-        <div class="grid flex-1 grid-cols-7 grid-rows-6">
+        <div class="flex-1">
             <div
-                v-for="day in calendarDays"
-                :key="day.key"
-                class="group relative min-h-[100px] cursor-pointer border-b border-r p-1 transition-colors last:border-r-0 hover:bg-muted/30"
-                :class="[
-                    !day.isCurrentMonth ? 'bg-muted/20' : '',
-                    day.isSelected ? 'bg-primary/5' : '',
-                ]"
-                @click="emit('select-day', day.date)"
+                v-for="(week, weekIndex) in weeks"
+                :key="weekIndex"
+                class="relative grid grid-cols-7"
+                :style="{ minHeight: `${Math.max(100, 28 + Math.min(maxVisibleLanes, Math.max(...week.eventSegments.map(s => s.lane + 1), 0)) * 22 + 16)}px` }"
             >
-                <div class="mb-1 flex items-center justify-center">
-                    <span
-                        class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium"
-                        :class="[
-                            day.isToday
-                                ? 'bg-primary text-primary-foreground'
-                                : day.isCurrentMonth
-                                  ? 'text-foreground'
-                                  : 'text-muted-foreground',
-                        ]"
-                    >
-                        {{ day.date.getDate() }}
-                    </span>
-                </div>
-
-                <div class="space-y-0.5">
-                    <button
-                        v-for="appointment in day.appointments.slice(0, 3)"
-                        :key="appointment.id"
-                        type="button"
-                        class="flex w-full items-center gap-1 rounded px-1 py-0.5 text-left text-[11px] text-white transition-opacity hover:opacity-80"
-                        :class="getEventBgClass(appointment)"
-                        @click.stop="emit('open-details', appointment)"
-                    >
-                        <span class="truncate font-medium">
-                            {{ appointment.title }}
+                <!-- Day cells -->
+                <div
+                    v-for="(day, dayIndex) in week.days"
+                    :key="day.key"
+                    class="group relative cursor-pointer border-b border-r p-1 transition-colors last:border-r-0 hover:bg-muted/30"
+                    :class="[
+                        !day.isCurrentMonth ? 'bg-muted/20' : '',
+                        day.isSelected ? 'bg-primary/5' : '',
+                    ]"
+                    @click="emit('select-day', day.date)"
+                >
+                    <div class="flex items-center justify-center">
+                        <span
+                            class="flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium"
+                            :class="[
+                                day.isToday
+                                    ? 'bg-primary text-primary-foreground'
+                                    : day.isCurrentMonth
+                                      ? 'text-foreground'
+                                      : 'text-muted-foreground',
+                            ]"
+                        >
+                            {{ day.date.getDate() }}
                         </span>
-                    </button>
+                    </div>
 
+                    <!-- Hidden events indicator -->
                     <button
-                        v-if="day.appointments.length > 3"
+                        v-if="getHiddenCount(week.eventSegments, dayIndex) > 0"
                         type="button"
-                        class="w-full rounded px-1 py-0.5 text-left text-[10px] font-medium text-muted-foreground hover:bg-muted"
+                        class="absolute bottom-1 left-1 right-1 rounded px-1 py-0.5 text-center text-[10px] font-medium text-muted-foreground hover:bg-muted"
                         @click.stop="emit('select-day', day.date)"
                     >
-                        +{{ day.appointments.length - 3 }} weitere
+                        +{{ getHiddenCount(week.eventSegments, dayIndex) }} weitere
                     </button>
                 </div>
+
+                <!-- Event segments (absolute positioned) -->
+                <button
+                    v-for="segment in getVisibleSegments(week.eventSegments)"
+                    :key="`${segment.appointment.id}-${segment.startCol}`"
+                    type="button"
+                    class="absolute z-10 flex items-center overflow-hidden text-[11px] text-white transition-opacity hover:opacity-90"
+                    :class="[
+                        getEventBgClass(segment.appointment),
+                        segment.isStart ? 'rounded-l ml-0.5' : '',
+                        segment.isEnd ? 'rounded-r mr-0.5' : '',
+                        !segment.isStart && !segment.isEnd ? '' : '',
+                    ]"
+                    :style="{
+                        left: `calc(${(segment.startCol / 7) * 100}% + ${segment.isStart ? '2px' : '0px'})`,
+                        width: `calc(${(segment.span / 7) * 100}% - ${(segment.isStart ? 2 : 0) + (segment.isEnd ? 2 : 0)}px)`,
+                        top: `${28 + segment.lane * 22}px`,
+                        height: '20px',
+                    }"
+                    @click.stop="emit('open-details', segment.appointment)"
+                >
+                    <span
+                        v-if="segment.isStart"
+                        class="truncate px-1.5 font-medium"
+                    >
+                        {{ segment.appointment.title }}
+                    </span>
+                    <span
+                        v-else
+                        class="truncate px-1.5 font-medium opacity-0"
+                    >
+                        {{ segment.appointment.title }}
+                    </span>
+                </button>
             </div>
         </div>
     </div>
