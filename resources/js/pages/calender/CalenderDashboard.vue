@@ -4,8 +4,8 @@ import { ChevronLeft, ChevronRight, Plus } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
 import { Button } from '@/components/ui/button';
-import CalendarLayout from '@/layouts/CalendarLayout.vue';
-import { type AppPageProps } from '@/types';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { type AppPageProps, type BreadcrumbItem } from '@/types';
 
 import AppointmentDetailsSheet from './components/AppointmentDetailsSheet.vue';
 import AppointmentFormDialog from './components/AppointmentFormDialog.vue';
@@ -33,6 +33,13 @@ const props = defineProps<{
 
 const page = usePage<AppPageProps>();
 const userId = computed(() => page.props.auth?.user?.id ?? null);
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Kalender',
+        href: '/appointments',
+    },
+];
 
 const viewMode = ref<ViewMode>('month');
 const searchQuery = ref('');
@@ -181,12 +188,6 @@ const handleAppointmentDeleted = () => {
     detailsOpen.value = false;
 };
 
-const getEventClass = (appointment: Appointment) => {
-    const color = appointment.color ?? defaultAppointmentColor;
-    return appointmentColorMap[color]?.eventClass
-        ?? appointmentColorMap[defaultAppointmentColor].eventClass;
-};
-
 const getEventBgClass = (appointment: Appointment) => {
     const color = appointment.color ?? defaultAppointmentColor;
     const colorMap: Record<string, string> = {
@@ -204,78 +205,75 @@ const getEventBgClass = (appointment: Appointment) => {
     };
     return colorMap[color] ?? colorMap[defaultAppointmentColor];
 };
-
-const sidebarOpen = ref(true);
 </script>
 
 <template>
     <Head title="Kalender" />
 
-    <CalendarLayout>
-        <div class="flex h-[calc(100vh-4rem)]">
-            <aside
-                v-if="sidebarOpen"
-                class="hidden w-64 flex-shrink-0 border-r bg-background p-4 lg:block"
-            >
-                <div class="space-y-4">
-                    <Button
-                        v-if="canCreateAppointments"
-                        class="w-full gap-2 rounded-full shadow-md"
-                        size="lg"
-                        @click="startCreate"
-                    >
-                        <Plus class="h-5 w-5" />
-                        Erstellen
-                    </Button>
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="flex h-[calc(100vh-8rem)] gap-4 p-4">
+            <!-- Linke Sidebar mit Mini-Kalender -->
+            <aside class="hidden w-64 flex-shrink-0 space-y-4 lg:block">
+                <Button
+                    v-if="canCreateAppointments"
+                    class="w-full gap-2 rounded-full shadow-md"
+                    size="lg"
+                    @click="startCreate"
+                >
+                    <Plus class="h-5 w-5" />
+                    Erstellen
+                </Button>
 
-                    <div
-                        v-else
-                        class="flex h-10 items-center justify-center rounded-full border border-dashed text-sm text-muted-foreground"
-                    >
-                        Nur Lesemodus
-                    </div>
+                <div
+                    v-else
+                    class="flex h-10 items-center justify-center rounded-full border border-dashed text-sm text-muted-foreground"
+                >
+                    Nur Lesemodus
+                </div>
 
-                    <MiniCalendar
-                        :current-month="currentMonth"
-                        :selected-date="selectedDate"
-                        :calendar-days="calendarDays"
-                        @select-day="handleSelectDay"
-                        @prev-month="goPrevMonth"
-                        @next-month="goNextMonth"
-                    />
+                <MiniCalendar
+                    :current-month="currentMonth"
+                    :selected-date="selectedDate"
+                    :calendar-days="calendarDays"
+                    @select-day="handleSelectDay"
+                    @prev-month="goPrevMonth"
+                    @next-month="goNextMonth"
+                />
 
-                    <div v-if="selectedAppointments.length > 0" class="space-y-2">
-                        <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                            Termine am {{ formatDate(selectedDate) }}
-                        </h3>
-                        <div class="space-y-1">
-                            <button
-                                v-for="apt in selectedAppointments.slice(0, 5)"
-                                :key="apt.id"
-                                class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-sm transition-colors hover:bg-muted/50"
-                                @click="openDetails(apt)"
-                            >
-                                <div
-                                    class="h-2 w-2 rounded-full"
-                                    :class="getEventBgClass(apt)"
-                                />
-                                <span class="truncate">{{ apt.title }}</span>
-                                <span class="ml-auto text-xs text-muted-foreground">
-                                    {{ formatTime(apt.start_time) }}
-                                </span>
-                            </button>
-                            <p
-                                v-if="selectedAppointments.length > 5"
-                                class="pl-4 text-xs text-muted-foreground"
-                            >
-                                +{{ selectedAppointments.length - 5 }} weitere
-                            </p>
-                        </div>
+                <!-- Termine am ausgewählten Tag -->
+                <div v-if="selectedAppointments.length > 0" class="space-y-2">
+                    <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                        Termine am {{ formatDate(selectedDate) }}
+                    </h3>
+                    <div class="space-y-1">
+                        <button
+                            v-for="apt in selectedAppointments.slice(0, 5)"
+                            :key="apt.id"
+                            class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-sm transition-colors hover:bg-muted/50"
+                            @click="openDetails(apt)"
+                        >
+                            <div
+                                class="h-2 w-2 rounded-full"
+                                :class="getEventBgClass(apt)"
+                            />
+                            <span class="truncate">{{ apt.title }}</span>
+                            <span class="ml-auto text-xs text-muted-foreground">
+                                {{ formatTime(apt.start_time) }}
+                            </span>
+                        </button>
+                        <p
+                            v-if="selectedAppointments.length > 5"
+                            class="pl-4 text-xs text-muted-foreground"
+                        >
+                            +{{ selectedAppointments.length - 5 }} weitere
+                        </p>
                     </div>
                 </div>
             </aside>
 
-            <div class="flex flex-1 flex-col overflow-hidden">
+            <!-- Hauptbereich -->
+            <div class="flex flex-1 flex-col overflow-hidden rounded-xl border bg-card">
+                <!-- Toolbar -->
                 <div class="flex items-center justify-between border-b px-4 py-3">
                     <div class="flex items-center gap-2">
                         <Button
@@ -337,6 +335,7 @@ const sidebarOpen = ref(true);
                     </div>
                 </div>
 
+                <!-- Kalenderansicht -->
                 <div class="flex-1 overflow-auto">
                     <MonthView
                         v-if="viewMode === 'month'"
@@ -369,6 +368,7 @@ const sidebarOpen = ref(true);
             </div>
         </div>
 
+        <!-- Termindetails Sheet -->
         <AppointmentDetailsSheet
             v-model:open="detailsOpen"
             :appointment="selectedAppointment"
@@ -383,6 +383,7 @@ const sidebarOpen = ref(true);
             @deleted="handleAppointmentDeleted"
         />
 
+        <!-- Termin erstellen/bearbeiten Dialog -->
         <AppointmentFormDialog
             :open="isCreateOpen"
             :is-edit-mode="isEditMode"
@@ -398,5 +399,5 @@ const sidebarOpen = ref(true);
             @submit="submit"
             @close="closeCreate"
         />
-    </CalendarLayout>
+    </AppLayout>
 </template>
