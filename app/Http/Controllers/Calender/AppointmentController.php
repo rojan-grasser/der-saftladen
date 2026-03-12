@@ -119,7 +119,7 @@ class AppointmentController extends Controller
         return back()->with('success', 'Termin erfolgreich aktualisiert!');
     }
 
-    public function destroy(Appointment $appointment)
+    public function destroy(Request $request, Appointment $appointment)
     {
         if ($request->user()->id !== $appointment->creator()->id) {
             return back()->with('error', 'Sie dürfen diesen termin nicht löschen');
