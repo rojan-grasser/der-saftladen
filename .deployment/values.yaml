@@ -37,6 +37,8 @@ deployment:
             value: "tls"
           - name: MAIL_FROM_ADDRESS
             value: "der.saftladen01@gmail.com"
+          - name: MAIL_FROM_NAME
+            value: "Der Saftladen"
         resources:
           requests:
             cpu: "200m"
