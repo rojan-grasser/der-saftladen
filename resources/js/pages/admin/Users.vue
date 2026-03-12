@@ -26,6 +26,7 @@ const props = defineProps<{
         role?: string;
         status?: string;
         search?: string;
+        priority?: string;
     };
 }>();
 
@@ -35,6 +36,7 @@ const props = defineProps<{
 const search = ref(props.filters?.search || '');
 const roleFilter = ref(props.filters?.role || 'all');
 const statusFilter = ref(props.filters?.status || 'all');
+const priorityFilter = ref(props.filters?.priority || 'default');
 
 const isEditOpen = ref(false);
 const editingUser = ref<User | null>(null);
@@ -58,6 +60,7 @@ const fetchUsers = (page = 1, searchValue = search.value) => {
             role: roleFilter.value === 'all' ? undefined : roleFilter.value,
             status:
                 statusFilter.value === 'all' ? undefined : statusFilter.value,
+                priority: priorityFilter.value === 'default' ? undefined : priorityFilter.value,
             page,
         },
         { preserveState: true, replace: true },
@@ -77,6 +80,8 @@ watch([roleFilter, statusFilter], () => fetchUsers(1));
 watch(search, (value) => {
     debouncedFetchUsers(value);
 });
+// Watch bevorzugten Filter
+watch([roleFilter, statusFilter, priorityFilter], () => fetchUsers(1));
 
 // Pagination Handler
 const handlePageChange = (page: number) => fetchUsers(page);
@@ -101,6 +106,19 @@ const breadcrumbs: BreadcrumbItem[] = [
                     class="w-64"
                     placeholder="Nutzer suchen…"
                 />
+
+                <!-- Anordnung -->
+                <Select v-model="priorityFilter">
+                    <SelectTrigger class="w-48"
+                        ><SelectValue placeholder="Anordnen nach"
+                    /></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="default">Standard-Filter</SelectItem>
+                        <SelectItem value="firstname">Vorname bevorzugen</SelectItem>
+                        <SelectItem value="lastname">Nachname bevorzugen</SelectItem>
+                        <SelectItem value="email">Email bevorzugen</SelectItem>
+                    </SelectContent>
+                </Select>
 
                 <!-- Rolle -->
                 <Select v-model="roleFilter">
@@ -130,15 +148,14 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                 <!-- Reset -->
                 <Button
-                    v-if="
-                        search || roleFilter !== 'all' || statusFilter !== 'all'
-                    "
+                    v-if="search || roleFilter !== 'all' || statusFilter !== 'all' || priorityFilter !== 'default'"
                     variant="ghost"
                     @click="
                         () => {
                             search = '';
                             roleFilter = 'all';
                             statusFilter = 'all';
+                            priorityFilter = 'default';
                             fetchUsers(1);
                         }
                     "
