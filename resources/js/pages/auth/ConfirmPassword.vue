@@ -2,8 +2,8 @@
 import { Form, Head } from '@inertiajs/vue3';
 
 import InputError from '@/components/InputError.vue';
+import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/AuthLayout.vue';
@@ -25,9 +25,8 @@ import { store } from '@/routes/password/confirm';
             <div class="space-y-6">
                 <div class="grid gap-2">
                     <Label htmlFor="password">Passwort</Label>
-                    <Input
+                    <PasswordInput
                         id="password"
-                        type="password"
                         name="password"
                         class="mt-1 block w-full"
                         required

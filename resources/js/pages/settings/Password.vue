@@ -4,8 +4,8 @@ import { Form, Head } from '@inertiajs/vue3';
 import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
+import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
@@ -49,10 +49,9 @@ const breadcrumbItems: BreadcrumbItem[] = [
                 >
                     <div class="grid gap-2">
                         <Label for="current_password">Aktuelles Passwort</Label>
-                        <Input
+                        <PasswordInput
                             id="current_password"
                             name="current_password"
-                            type="password"
                             class="mt-1 block w-full"
                             placeholder="Aktuelles Passwort"
                         />
@@ -61,10 +60,9 @@ const breadcrumbItems: BreadcrumbItem[] = [
 
                     <div class="grid gap-2">
                         <Label for="password">Neues Passwort</Label>
-                        <Input
+                        <PasswordInput
                             id="password"
                             name="password"
-                            type="password"
                             class="mt-1 block w-full"
                             placeholder="Neues Passwort"
                         />
@@ -75,10 +73,9 @@ const breadcrumbItems: BreadcrumbItem[] = [
                         <Label for="password_confirmation"
                             >Passwort bestätigen</Label
                         >
-                        <Input
+                        <PasswordInput
                             id="password_confirmation"
                             name="password_confirmation"
-                            type="password"
                             class="mt-1 block w-full"
                             placeholder="Passwort bestätigen"
                         />
@@ -86,7 +83,9 @@ const breadcrumbItems: BreadcrumbItem[] = [
                     </div>
 
                     <div class="flex items-center gap-4">
-                        <Button :disabled="processing">Passwort speichern</Button>
+                        <Button :disabled="processing"
+                            >Passwort speichern</Button
+                        >
 
                         <Transition
                             enter-active-class="transition ease-in-out"

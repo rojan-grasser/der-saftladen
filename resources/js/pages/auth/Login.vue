@@ -2,6 +2,7 @@
 import { Form, Head } from '@inertiajs/vue3';
 
 import InputError from '@/components/InputError.vue';
+import PasswordInput from '@/components/PasswordInput.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -67,9 +68,8 @@ defineProps<{
                             Passwort vergessen?
                         </TextLink>
                     </div>
-                    <Input
+                    <PasswordInput
                         id="password"
-                        type="password"
                         name="password"
                         required
                         :tabindex="2"
@@ -101,7 +101,9 @@ defineProps<{
                 v-if="canRegister"
             >
                 Sie haben noch kein Konto?
-                <TextLink :href="register()" :tabindex="5">Registrieren</TextLink>
+                <TextLink :href="register()" :tabindex="5"
+                    >Registrieren</TextLink
+                >
             </div>
         </Form>
     </AuthBase>
