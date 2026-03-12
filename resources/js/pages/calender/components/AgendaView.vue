@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { Calendar, Clock, MapPin } from 'lucide-vue-next';
 
+import MarkdownContent from '@/components/MarkdownContent.vue';
 import type { Appointment } from '../types';
 import { parseDate, toDateKey } from '../utils/date';
 
@@ -138,12 +139,15 @@ function formatDateLabel(date: Date): string {
                                         {{ getOwnerName(apt) }}
                                     </span>
                                 </div>
-                                <p
+                                <div
                                     v-if="apt.description"
-                                    class="mt-1 line-clamp-2 text-xs text-muted-foreground"
+                                    class="mt-2 max-h-[4.5rem] overflow-hidden text-xs"
                                 >
-                                    {{ apt.description }}
-                                </p>
+                                    <MarkdownContent
+                                        :content="apt.description"
+                                        class="text-xs text-muted-foreground"
+                                    />
+                                </div>
                             </div>
                         </button>
                     </div>
