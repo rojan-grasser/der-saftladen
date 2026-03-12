@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Calendar, Clock, MapPin, Pencil, Trash2, User, X } from 'lucide-vue-next';
+import { Calendar, Clock, MapPin, Pencil, Trash2, User } from 'lucide-vue-next';
 
+import MarkdownContent from '@/components/MarkdownContent.vue';
 import { Button } from '@/components/ui/button';
 import {
     Sheet,
@@ -103,9 +104,10 @@ const handleEdit = () => {
                     <h4 class="text-sm font-medium text-muted-foreground">
                         Beschreibung
                     </h4>
-                    <p class="whitespace-pre-wrap text-sm">
-                        {{ appointment.description }}
-                    </p>
+                    <MarkdownContent
+                        :content="appointment.description"
+                        class="text-sm"
+                    />
                 </div>
 
                 <div v-if="canEdit || canDelete" class="flex gap-2 border-t pt-4">
