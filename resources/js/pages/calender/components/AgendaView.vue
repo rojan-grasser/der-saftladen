@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { Calendar, Clock, MapPin } from 'lucide-vue-next';
 
 import type { Appointment } from '../types';
+import { parseDate, toDateKey } from '../utils/date';
 
 const props = defineProps<{
     appointments: Appointment[];
@@ -21,17 +22,25 @@ const groupedAppointments = computed(() => {
 
     const upcoming = props.appointments
         .filter((apt) => {
-            const aptDate = new Date(apt.start_time);
-            aptDate.setHours(0, 0, 0, 0);
-            return aptDate >= now;
+            const aptDate = parseDate(apt.start_time);
+            if (!aptDate) return false;
+            const dayStart = new Date(aptDate);
+            dayStart.setHours(0, 0, 0, 0);
+            return dayStart >= now;
         })
-        .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
+        .sort((a, b) => {
+            const aDate = parseDate(a.start_time);
+            const bDate = parseDate(b.start_time);
+            return (aDate?.getTime() ?? 0) - (bDate?.getTime() ?? 0);
+        });
 
     const groups: { date: Date; dateKey: string; label: string; appointments: Appointment[] }[] = [];
 
     for (const apt of upcoming) {
-        const aptDate = new Date(apt.start_time);
-        const dateKey = aptDate.toISOString().split('T')[0];
+        const aptDate = parseDate(apt.start_time);
+        if (!aptDate) continue;
+
+        const dateKey = toDateKey(aptDate);
 
         let group = groups.find((g) => g.dateKey === dateKey);
         if (!group) {
