@@ -17,18 +17,20 @@ const isPending = user.status === 'pending';
                 ? 'Ihr Konto wird derzeit überprüft. Bitte warten Sie, bis ein Administrator es aktiviert.'
                 : 'Ihr Konto wurde deaktiviert. Sie haben keinen Zugriff mehr auf diese Plattform.'
         "
-        :title="isPending ? 'Account Pending' : 'Account Deactivated'"
+        :title="isPending ? 'Konto ausstehend' : 'Konto deaktiviert'"
     >
         <Head title="Account Status" />
 
         <div class="space-y-6 text-center">
             <p v-if="isPending" class="text-sm text-muted-foreground">
-                Bitte schauen Sie sporadisch nach, ob Ihr Zugang genehmigt worden ist. 
-                Sollten Sie der Meinung sein, dass dies zu lange dauert, kontaktieren Sie bitte unseren Support.
+                Bitte schauen Sie sporadisch nach, ob Ihr Zugang genehmigt
+                worden ist. Sollten Sie der Meinung sein, dass dies zu lange
+                dauert, kontaktieren Sie bitte unseren Support.
             </p>
             <p v-else class="text-sm text-destructive">
-                Der Zugriff auf dieses Konto wurde eingeschränkt. 
-                Bitte kontaktieren Sie einen Administrator, falls Sie der Meinung sind, dass dies ein Fehler ist.
+                Der Zugriff auf dieses Konto wurde eingeschränkt. Bitte
+                kontaktieren Sie einen Administrator, falls Sie der Meinung
+                sind, dass dies ein Fehler ist.
             </p>
 
             <div class="flex flex-col gap-4">
