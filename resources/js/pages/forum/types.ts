@@ -4,7 +4,6 @@ export type User = {
     id: string;
     name: string;
     email: string;
-    role: string;
 };
 
 export type Post = {
@@ -36,7 +35,6 @@ export type MinimalTopic = {
         id: number;
         name: string;
         email: string;
-        role: UserRole;
     }
 };
 
