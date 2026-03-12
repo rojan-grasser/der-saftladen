@@ -19,7 +19,18 @@ deployment:
             value: {{ .BranchName }}
           # Postgres
           - name: DB_CONNECTION
-            value: "sqlite"
+            value: "pgsql"
+          - name: DB_HOST
+            value: "127.0.0.1"
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_DATABASE
+            value: "saftladen"
+          - name: DB_USERNAME
+            value: "postgres"
+          - name: DB_PASSWORD
+            value: "postgres"
+          # Email Support
           - name: MAIL_MAILER
             value: "smtp"
           - name: MAIL_HOST
@@ -46,6 +57,24 @@ deployment:
           limits:
             cpu: "500m"
             memory: "1Gi"
+      - name: postgres
+        image: postgres:16-alpine
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: POSTGRES_DB
+            value: "saftladen"
+          - name: POSTGRES_PASSWORD
+            value: "postgres"
+        ports:
+          - containerPort: 5432
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "250m"
+            memory: "512Mi"
+    volumes: []
     restartPolicy: Always
 
 
