@@ -27,6 +27,13 @@ export interface Appointment {
     } | null;
 }
 
+export interface CalendarPermissions {
+    canCreate: boolean;
+    canEditOwn: boolean;
+    canEditAll: boolean;
+    canDeleteAll: boolean;
+}
+
 export interface CalendarDay {
     date: Date;
     key: string;

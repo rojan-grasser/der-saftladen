@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Calender;
 
 use App\Enums\AppointmentColor;
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +16,46 @@ use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
+    private function canCreateAppointment(User $user): bool
+    {
+        return $user->hasRole(Role::ADMIN) || $user->hasRole(Role::TEACHER);
+    }
+
+    private function canUpdateAppointment(User $user, Appointment $appointment): bool
+    {
+        if ($user->hasRole(Role::ADMIN)) {
+            return true;
+        }
+
+        return $user->hasRole(Role::TEACHER) && $appointment->user_id === $user->id;
+    }
+
+    private function canDeleteAppointment(User $user): bool
+    {
+        return $user->hasRole(Role::ADMIN);
+    }
+
+    private function abortIfCannotCreate(?User $user): void
+    {
+        if (! $user || ! $this->canCreateAppointment($user)) {
+            abort(403, 'Sie dürfen keine Termine erstellen.');
+        }
+    }
+
+    private function abortIfCannotUpdate(?User $user, Appointment $appointment): void
+    {
+        if (! $user || ! $this->canUpdateAppointment($user, $appointment)) {
+            abort(403, 'Sie dürfen diesen Termin nicht bearbeiten.');
+        }
+    }
+
+    private function abortIfCannotDelete(?User $user): void
+    {
+        if (! $user || ! $this->canDeleteAppointment($user)) {
+            abort(403, 'Sie dürfen diesen Termin nicht löschen.');
+        }
+    }
+
     private function parseAppointmentTime(mixed $value): ?Carbon
     {
         if (is_numeric($value)) {
@@ -78,6 +120,8 @@ class AppointmentController extends Controller
 
     public function index()
     {
+        $user = Auth::user();
+
         $appointments = Appointment::with('creator:id,name')
             ->get()
             ->map(function (Appointment $appointment) {
@@ -91,11 +135,19 @@ class AppointmentController extends Controller
 
         return Inertia::render('calender/CalenderDashboard', [
             'appointments' => $appointments,
+            'permissions' => [
+                'canCreate' => $user ? $this->canCreateAppointment($user) : false,
+                'canEditOwn' => $user ? $user->hasRole(Role::TEACHER) : false,
+                'canEditAll' => $user ? $user->hasRole(Role::ADMIN) : false,
+                'canDeleteAll' => $user ? $this->canDeleteAppointment($user) : false,
+            ],
         ]);
     }
 
     public function store(Request $request)
     {
+        $this->abortIfCannotCreate($request->user());
+
         $validated = $this->validateAppointment($request);
 
         Appointment::create([
@@ -108,6 +160,8 @@ class AppointmentController extends Controller
 
     public function update(Request $request, Appointment $appointment)
     {
+        $this->abortIfCannotUpdate($request->user(), $appointment);
+
         $validated = $this->validateAppointment($request);
 
         $appointment->update($validated);
@@ -117,6 +171,8 @@ class AppointmentController extends Controller
 
     public function destroy(Appointment $appointment)
     {
+        $this->abortIfCannotDelete(request()->user());
+
         $appointment->delete();
 
         return back()->with('success', 'Termin erfolgreich gelöscht!');

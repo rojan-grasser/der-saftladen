@@ -49,12 +49,12 @@ function close() {
     >
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>Termin löschen?</AlertDialogTitle>
+                <AlertDialogTitle>Termin l&ouml;schen?</AlertDialogTitle>
                 <AlertDialogDescription class="space-y-1">
-                    <p>Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
+                    <p>Dieser Vorgang kann nicht r&uuml;ckg&auml;ngig gemacht werden.</p>
 
                     <div class="flex flex-wrap items-baseline gap-x-1 gap-y-1">
-                        <span class="shrink-0">Möchten Sie den Termin</span>
+                        <span class="shrink-0">M&ouml;chten Sie den Termin</span>
 
                         <span
                             class="font-medium break-all"
@@ -63,7 +63,7 @@ function close() {
                             {{ props.appointment.title }}
                         </span>
 
-                        <span class="shrink-0">wirklich löschen?</span>
+                        <span class="shrink-0">wirklich l&ouml;schen?</span>
                     </div>
                 </AlertDialogDescription>
             </AlertDialogHeader>
@@ -77,7 +77,7 @@ function close() {
                     class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     @click="submit"
                 >
-                    Löschen
+                    L&ouml;schen
                 </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>

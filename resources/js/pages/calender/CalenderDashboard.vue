@@ -16,15 +16,20 @@ import {
 } from './constants';
 import { useAppointmentForm } from './composables/useAppointmentForm';
 import { useCalendarAppointments } from './composables/useCalendarAppointments';
-import type { Appointment, ViewMode } from './types';
+import type {
+    Appointment,
+    CalendarPermissions,
+    ViewMode,
+} from './types';
 import { parseDate } from './utils/date';
 
 const props = defineProps<{
     appointments: Appointment[];
+    permissions: CalendarPermissions;
 }>();
 
 const page = usePage<AppPageProps>();
-const userId = computed(() => page.props.auth?.user?.id);
+const userId = computed(() => page.props.auth?.user?.id ?? null);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -83,6 +88,36 @@ const {
     selectedAppointmentId,
 });
 
+const canCreateAppointments = computed(() => props.permissions.canCreate);
+
+const canEditAppointment = (appointment: Appointment | null) => {
+    if (!appointment) {
+        return false;
+    }
+
+    if (props.permissions.canEditAll) {
+        return true;
+    }
+
+    return props.permissions.canEditOwn && appointment.user_id === userId.value;
+};
+
+const canDeleteAppointment = (appointment: Appointment | null) => {
+    if (!appointment) {
+        return false;
+    }
+
+    return props.permissions.canDeleteAll;
+};
+
+const canEditSelectedAppointment = computed(() => {
+    return canEditAppointment(selectedAppointment.value);
+});
+
+const canDeleteSelectedAppointment = computed(() => {
+    return canDeleteAppointment(selectedAppointment.value);
+});
+
 const getOwnerName = (appointment: Appointment) => {
     return appointment.creator?.name ?? 'Unbekannt';
 };
@@ -92,6 +127,7 @@ const formatTime = (value: string | number) => {
     if (!date) {
         return '';
     }
+
     return new Intl.DateTimeFormat('de-DE', {
         hour: '2-digit',
         minute: '2-digit',
@@ -139,11 +175,28 @@ const handleSelectDay = (date: Date) => {
     selectDay(date);
 };
 
+const startCreate = () => {
+    if (!canCreateAppointments.value) {
+        return;
+    }
+
+    openCreate();
+};
+
+const startEdit = (appointment: Appointment) => {
+    if (!canEditAppointment(appointment)) {
+        return;
+    }
+
+    openEdit(appointment);
+};
+
 const openDetails = (appointment: Appointment) => {
     const appointmentDate = parseDate(appointment.start_time);
     if (appointmentDate) {
         syncCurrentMonth(appointmentDate);
     }
+
     selectAppointment(appointment);
 };
 
@@ -168,73 +221,25 @@ const getEventClass = (appointment: Appointment) => {
                 v-model:searchQuery="searchQuery"
                 v-model:viewMode="viewMode"
                 :month-label="monthLabel"
+                :can-create="canCreateAppointments"
                 @today="goToday"
                 @prev-month="goPrevMonth"
                 @next-month="goNextMonth"
-                @create="openCreate"
+                @create="startCreate"
             />
 
-            <div
-                class="grid items-start gap-6 xl:grid-cols-[300px_minmax(0,1fr)_340px]"
-            >
+            <div class="grid items-start gap-6 xl:grid-cols-[300px_minmax(0,1fr)_340px]">
                 <AgendaSidebar
                     :selected-date="selectedDate"
                     :selected-appointments="selectedAppointments"
                     :format-date="formatDate"
                     :format-time="formatTime"
                     :get-event-class="getEventClass"
-                    @open-create="openCreate"
                     @open-details="openDetails"
                     @set-view-mode="setViewMode"
                 />
 
-                <section class="min-w-0 space-y-4">
-                    <div class="rounded-2xl border bg-card p-4 shadow-sm">
-                        <div
-                            class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
-                        >
-                            <div class="space-y-1">
-                                <div
-                                    class="text-xs font-semibold tracking-[0.24em] text-muted-foreground uppercase"
-                                >
-                                    Kalenderbereich
-                                </div>
-                                <div class="text-lg font-semibold">
-                                    {{ formatDate(selectedDate) }}
-                                </div>
-                                <p class="text-sm text-muted-foreground">
-                                    {{ selectedAppointments.length }} Termin(e)
-                                    im Fokus.
-                                </p>
-                            </div>
-
-                            <div
-                                v-if="selectedAppointment"
-                                class="rounded-xl border bg-muted/20 px-4 py-3"
-                            >
-                                <div
-                                    class="text-xs font-semibold tracking-wide text-muted-foreground uppercase"
-                                >
-                                    Ausgewählt
-                                </div>
-                                <div class="mt-1 text-sm font-semibold">
-                                    {{ selectedAppointment.title }}
-                                </div>
-                                <div class="text-xs text-muted-foreground">
-                                    {{
-                                        formatTime(
-                                            selectedAppointment.start_time,
-                                        )
-                                    }}
-                                    -
-                                    {{
-                                        formatTime(selectedAppointment.end_time)
-                                    }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <section class="min-w-0">
                     <CalendarViews
                         :view-mode="viewMode"
                         :day-labels="dayLabels"
@@ -247,19 +252,20 @@ const getEventClass = (appointment: Appointment) => {
                         :get-event-class="getEventClass"
                         @select-day="handleSelectDay"
                         @open-details="openDetails"
-                        @open-create="openCreate"
                     />
                 </section>
 
                 <DetailsSidebar
                     :selected-appointment="selectedAppointment"
                     :upcoming-appointments="upcomingAppointments"
+                    :can-edit-selected="canEditSelectedAppointment"
+                    :can-delete-selected="canDeleteSelectedAppointment"
                     :format-date="formatDate"
                     :format-time="formatTime"
                     :parse-date="parseDate"
                     :get-event-class="getEventClass"
                     :get-owner-name="getOwnerName"
-                    @open-edit="openEdit"
+                    @open-edit="startEdit"
                     @open-details="openDetails"
                     @deleted="handleAppointmentDeleted"
                 />

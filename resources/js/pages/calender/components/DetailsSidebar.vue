@@ -13,6 +13,8 @@ import type { Appointment } from '../types';
 const props = defineProps<{
     selectedAppointment: Appointment | null;
     upcomingAppointments: Appointment[];
+    canEditSelected: boolean;
+    canDeleteSelected: boolean;
     formatDate: (value: Date) => string;
     formatTime: (value: string | number) => string;
     parseDate: (value: string | number) => Date | null;
@@ -33,14 +35,12 @@ const handleDeleted = () => {
     emit('deleted');
 };
 
-const nextAppointment = computed(() => {
-    return props.upcomingAppointments[0] ?? null;
-});
+const nextAppointment = computed(() => props.upcomingAppointments[0] ?? null);
 </script>
 
 <template>
     <aside class="flex flex-col gap-4 xl:sticky xl:top-6">
-        <Card>
+        <Card class="rounded-3xl shadow-sm">
             <CardHeader class="space-y-4">
                 <div class="space-y-1">
                     <div
@@ -49,34 +49,40 @@ const nextAppointment = computed(() => {
                         Details
                     </div>
                     <CardTitle class="text-lg">
-                        Ausgewählter Termin
+                        Ausgew&auml;hlter Termin
                     </CardTitle>
                 </div>
+
                 <div
-                    v-if="selectedAppointment"
+                    v-if="selectedAppointment && (canEditSelected || canDeleteSelected)"
                     class="flex flex-wrap items-center gap-2"
                 >
                     <Button
+                        v-if="canEditSelected"
                         variant="outline"
                         size="sm"
+                        class="rounded-xl"
                         @click="emit('open-edit', selectedAppointment)"
                     >
                         Bearbeiten
                     </Button>
                     <Button
+                        v-if="canDeleteSelected"
                         variant="destructive"
                         size="sm"
+                        class="rounded-xl"
                         @click="showDeleteAlert = true"
                     >
                         <Trash2 class="h-4 w-4" />
-                        Löschen
+                        L&ouml;schen
                     </Button>
                 </div>
             </CardHeader>
+
             <CardContent>
                 <div
                     v-if="selectedAppointment"
-                    class="space-y-4 rounded-xl border p-4"
+                    class="space-y-4 rounded-2xl border p-4"
                 >
                     <div class="flex items-start justify-between gap-3">
                         <div class="text-base font-semibold">
@@ -134,25 +140,26 @@ const nextAppointment = computed(() => {
                         </p>
                     </div>
                 </div>
+
                 <div
                     v-else
-                    class="rounded-xl border border-dashed p-4 text-sm text-muted-foreground"
+                    class="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground"
                 >
-                    Wähle links einen Termin aus, um Details zu sehen.
+                    W&auml;hle links einen Termin aus, um Details zu sehen.
                 </div>
             </CardContent>
         </Card>
 
-        <Card>
+        <Card class="rounded-3xl shadow-sm">
             <CardHeader>
-                <CardTitle class="text-base">Nächster Termin</CardTitle>
+                <CardTitle class="text-base">N&auml;chster Termin</CardTitle>
             </CardHeader>
             <CardContent class="space-y-3">
                 <button
                     v-if="nextAppointment"
                     :key="`upcoming-${nextAppointment.id}`"
                     type="button"
-                    class="flex w-full items-start justify-between gap-3 rounded-xl border p-3 text-left text-sm"
+                    class="flex w-full items-start justify-between gap-3 rounded-2xl border p-3 text-left text-sm"
                     :class="getEventClass(nextAppointment)"
                     @click="emit('open-details', nextAppointment)"
                 >
@@ -173,9 +180,10 @@ const nextAppointment = computed(() => {
                         }}
                     </Badge>
                 </button>
+
                 <div
                     v-else
-                    class="rounded-xl border border-dashed p-4 text-sm text-muted-foreground"
+                    class="rounded-2xl border border-dashed p-4 text-sm text-muted-foreground"
                 >
                     Keine kommenden Termine.
                 </div>
@@ -183,9 +191,9 @@ const nextAppointment = computed(() => {
         </Card>
 
         <AppoitmentDeleteAlert
-            v-if="props.selectedAppointment"
+            v-if="selectedAppointment && canDeleteSelected"
             v-model:open="showDeleteAlert"
-            :appointment="props.selectedAppointment"
+            :appointment="selectedAppointment"
             @deleted="handleDeleted"
         />
     </aside>

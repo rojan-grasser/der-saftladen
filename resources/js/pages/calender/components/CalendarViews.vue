@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { Plus } from 'lucide-vue-next';
-
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
 import type { Appointment, CalendarDay, ViewMode, WeekDay } from '../types';
@@ -21,12 +18,11 @@ defineProps<{
 const emit = defineEmits<{
     (e: 'select-day', date: Date): void;
     (e: 'open-details', appointment: Appointment): void;
-    (e: 'open-create'): void;
 }>();
 </script>
 
 <template>
-    <div class="overflow-hidden rounded-2xl border bg-card shadow-sm">
+    <div class="overflow-hidden rounded-3xl border bg-card shadow-sm">
         <div
             v-if="viewMode !== 'day'"
             class="grid grid-cols-7 border-b bg-muted/20 text-xs text-muted-foreground"
@@ -50,7 +46,7 @@ const emit = defineEmits<{
                 class="bg-card p-2"
             >
                 <div
-                    class="flex min-h-[132px] flex-col gap-2 rounded-xl border p-2 transition hover:border-primary/40"
+                    class="flex min-h-[132px] flex-col gap-2 rounded-2xl border p-2 transition hover:border-primary/40"
                     :class="[
                         day.isSelected
                             ? 'border-primary/60 ring-1 ring-primary/20'
@@ -84,7 +80,7 @@ const emit = defineEmits<{
                             v-for="appointment in day.appointments.slice(0, 2)"
                             :key="appointment.id"
                             type="button"
-                            class="group flex items-center justify-between gap-2 rounded-lg border px-2 py-1 text-left text-[11px] font-medium"
+                            class="group flex items-center justify-between gap-2 rounded-xl border px-2 py-1 text-left text-[11px] font-medium"
                             :class="getEventClass(appointment)"
                             @click.stop="emit('open-details', appointment)"
                         >
@@ -112,14 +108,17 @@ const emit = defineEmits<{
             </div>
         </div>
 
-        <div v-else-if="viewMode === 'week'" class="grid grid-cols-7 gap-px bg-border/70">
+        <div
+            v-else-if="viewMode === 'week'"
+            class="grid grid-cols-7 gap-px bg-border/70"
+        >
             <div
                 v-for="day in weekDays"
                 :key="`week-${day.key}`"
                 class="bg-card p-3"
             >
                 <div
-                    class="flex h-full flex-col gap-2 rounded-xl border p-3"
+                    class="flex h-full flex-col gap-2 rounded-2xl border p-3"
                     :class="
                         day.isSelected
                             ? 'border-primary/60 ring-1 ring-primary/20'
@@ -143,7 +142,7 @@ const emit = defineEmits<{
                             v-for="appointment in day.appointments"
                             :key="appointment.id"
                             type="button"
-                            class="flex items-center justify-between gap-2 rounded-lg border px-2 py-1 text-left text-[11px] font-medium"
+                            class="flex items-center justify-between gap-2 rounded-xl border px-2 py-1 text-left text-[11px] font-medium"
                             :class="getEventClass(appointment)"
                             @click.stop="emit('open-details', appointment)"
                         >
@@ -166,25 +165,21 @@ const emit = defineEmits<{
         </div>
 
         <div v-else class="p-6">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                    <div class="text-sm text-muted-foreground">Tagesansicht</div>
-                    <div class="text-lg font-semibold">
-                        {{ formatDate(selectedDate) }}
-                    </div>
+            <div class="space-y-1">
+                <div class="text-sm text-muted-foreground">Tagesansicht</div>
+                <div class="text-lg font-semibold">
+                    {{ formatDate(selectedDate) }}
                 </div>
-                <Button variant="outline" size="sm" @click="emit('open-create')">
-                    <Plus class="h-4 w-4" />
-                    Hinzufügen
-                </Button>
             </div>
+
             <Separator class="my-4" />
+
             <div class="space-y-3">
                 <button
                     v-for="appointment in selectedAppointments"
                     :key="`day-${appointment.id}`"
                     type="button"
-                    class="flex w-full items-start justify-between gap-4 rounded-xl border p-3 text-left"
+                    class="flex w-full items-start justify-between gap-4 rounded-2xl border p-3 text-left"
                     :class="getEventClass(appointment)"
                     @click="emit('open-details', appointment)"
                 >
@@ -201,11 +196,12 @@ const emit = defineEmits<{
                         {{ formatTime(appointment.end_time) }}
                     </div>
                 </button>
+
                 <div
                     v-if="selectedAppointments.length === 0"
-                    class="rounded-xl border border-dashed p-6 text-sm text-muted-foreground"
+                    class="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground"
                 >
-                    Keine Termine für diesen Tag.
+                    Keine Termine f&uuml;r diesen Tag.
                 </div>
             </div>
         </div>
