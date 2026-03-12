@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 
 import type { Appointment, CalendarDay } from '../types';
-import { parseDate, toDateKey, toDayStart } from '../utils/date';
+import { parseDate, toDayStart } from '../utils/date';
 
 const props = defineProps<{
     dayLabels: string[];
@@ -50,15 +50,17 @@ const weeks = computed<WeekRow[]>(() => {
 
         // Calculate segments for each appointment
         const segments: EventSegment[] = [];
-        const sortedAppointments = Array.from(appointmentsInWeek.values()).sort((a, b) => {
-            const aStart = parseDate(a.start_time)?.getTime() ?? 0;
-            const bStart = parseDate(b.start_time)?.getTime() ?? 0;
-            if (aStart !== bStart) return aStart - bStart;
-            // Longer events first
-            const aEnd = parseDate(a.end_time)?.getTime() ?? aStart;
-            const bEnd = parseDate(b.end_time)?.getTime() ?? bStart;
-            return (bEnd - bStart) - (aEnd - aStart);
-        });
+        const sortedAppointments = Array.from(appointmentsInWeek.values()).sort(
+            (a, b) => {
+                const aStart = parseDate(a.start_time)?.getTime() ?? 0;
+                const bStart = parseDate(b.start_time)?.getTime() ?? 0;
+                if (aStart !== bStart) return aStart - bStart;
+                // Longer events first
+                const aEnd = parseDate(a.end_time)?.getTime() ?? aStart;
+                const bEnd = parseDate(b.end_time)?.getTime() ?? bStart;
+                return bEnd - bStart - (aEnd - aStart);
+            },
+        );
 
         // Track lane usage per day (0-6)
         const lanesPerDay: number[][] = [[], [], [], [], [], [], []];
@@ -77,8 +79,10 @@ const weeks = computed<WeekRow[]>(() => {
 
             for (let col = 0; col < 7; col++) {
                 const dayDate = toDayStart(weekDays[col].date);
-                if (dayDate.getTime() === aptStartDay.getTime() ||
-                    (aptStartDay < weekStart && col === 0)) {
+                if (
+                    dayDate.getTime() === aptStartDay.getTime() ||
+                    (aptStartDay < weekStart && col === 0)
+                ) {
                     startCol = col;
                     if (aptStartDay >= weekStart) break;
                 }
@@ -86,8 +90,10 @@ const weeks = computed<WeekRow[]>(() => {
 
             for (let col = 6; col >= 0; col--) {
                 const dayDate = toDayStart(weekDays[col].date);
-                if (dayDate.getTime() === aptEndDay.getTime() ||
-                    (aptEndDay > weekEnd && col === 6)) {
+                if (
+                    dayDate.getTime() === aptEndDay.getTime() ||
+                    (aptEndDay > weekEnd && col === 6)
+                ) {
                     endCol = col;
                     if (aptEndDay <= weekEnd) break;
                 }
@@ -141,12 +147,20 @@ const weeks = computed<WeekRow[]>(() => {
 
 const maxVisibleLanes = 3;
 
+const getWeekMinHeight = (week: WeekRow) => {
+    const laneCount = Math.max(
+        ...week.eventSegments.map((segment) => segment.lane + 1),
+        0,
+    );
+    return Math.max(100, 28 + Math.min(maxVisibleLanes, laneCount) * 22 + 16);
+};
+
 const getVisibleSegments = (segments: EventSegment[]) => {
-    return segments.filter(s => s.lane < maxVisibleLanes);
+    return segments.filter((s) => s.lane < maxVisibleLanes);
 };
 
 const getHiddenCount = (segments: EventSegment[], dayIndex: number) => {
-    const hidden = segments.filter(s => {
+    const hidden = segments.filter((s) => {
         if (s.lane < maxVisibleLanes) return false;
         return dayIndex >= s.startCol && dayIndex < s.startCol + s.span;
     });
@@ -166,18 +180,18 @@ const getHiddenCount = (segments: EventSegment[], dayIndex: number) => {
             </div>
         </div>
 
-        <div class="flex-1">
+        <div class="grid min-h-0 flex-1 grid-rows-6">
             <div
                 v-for="(week, weekIndex) in weeks"
                 :key="weekIndex"
-                class="relative grid grid-cols-7"
-                :style="{ minHeight: `${Math.max(100, 28 + Math.min(maxVisibleLanes, Math.max(...week.eventSegments.map(s => s.lane + 1), 0)) * 22 + 16)}px` }"
+                class="relative grid h-full grid-cols-7"
+                :style="{ minHeight: `${getWeekMinHeight(week)}px` }"
             >
                 <!-- Day cells -->
                 <div
                     v-for="(day, dayIndex) in week.days"
                     :key="day.key"
-                    class="group relative cursor-pointer border-b border-r p-1 transition-colors last:border-r-0 hover:bg-muted/30"
+                    class="group relative h-full min-h-[100px] cursor-pointer border-r border-b p-1 transition-colors last:border-r-0 hover:bg-muted/30"
                     :class="[
                         !day.isCurrentMonth ? 'bg-muted/20' : '',
                         day.isSelected ? 'bg-primary/5' : '',
@@ -203,10 +217,13 @@ const getHiddenCount = (segments: EventSegment[], dayIndex: number) => {
                     <button
                         v-if="getHiddenCount(week.eventSegments, dayIndex) > 0"
                         type="button"
-                        class="absolute bottom-1 left-1 right-1 rounded px-1 py-0.5 text-center text-[10px] font-medium text-muted-foreground hover:bg-muted"
+                        class="absolute right-1 bottom-1 left-1 rounded px-1 py-0.5 text-center text-[10px] font-medium text-muted-foreground hover:bg-muted"
                         @click.stop="emit('select-day', day.date)"
                     >
-                        +{{ getHiddenCount(week.eventSegments, dayIndex) }} weitere
+                        +{{
+                            getHiddenCount(week.eventSegments, dayIndex)
+                        }}
+                        weitere
                     </button>
                 </div>
 
@@ -218,8 +235,8 @@ const getHiddenCount = (segments: EventSegment[], dayIndex: number) => {
                     class="absolute z-10 flex items-center overflow-hidden text-[11px] text-white transition-opacity hover:opacity-90"
                     :class="[
                         getEventBgClass(segment.appointment),
-                        segment.isStart ? 'rounded-l ml-0.5' : '',
-                        segment.isEnd ? 'rounded-r mr-0.5' : '',
+                        segment.isStart ? 'ml-0.5 rounded-l' : '',
+                        segment.isEnd ? 'mr-0.5 rounded-r' : '',
                         !segment.isStart && !segment.isEnd ? '' : '',
                     ]"
                     :style="{
@@ -236,10 +253,7 @@ const getHiddenCount = (segments: EventSegment[], dayIndex: number) => {
                     >
                         {{ segment.appointment.title }}
                     </span>
-                    <span
-                        v-else
-                        class="truncate px-1.5 font-medium opacity-0"
-                    >
+                    <span v-else class="truncate px-1.5 font-medium opacity-0">
                         {{ segment.appointment.title }}
                     </span>
                 </button>
