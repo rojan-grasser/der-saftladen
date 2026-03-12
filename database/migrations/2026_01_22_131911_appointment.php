@@ -19,7 +19,10 @@ return new class extends Migration
             $table->text('location')->nullable();
             $table->dateTime('start_time');
             $table->dateTime('end_time');
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('user_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
             $table->timestamps();
         });
     }
