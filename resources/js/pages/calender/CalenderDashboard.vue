@@ -178,17 +178,11 @@ const getEventClass = (appointment: Appointment) => {
                 class="grid items-start gap-6 xl:grid-cols-[300px_minmax(0,1fr)_340px]"
             >
                 <AgendaSidebar
-                    :month-label="monthLabel"
-                    :day-labels="dayLabels"
-                    :calendar-days="calendarDays"
                     :selected-date="selectedDate"
                     :selected-appointments="selectedAppointments"
                     :format-date="formatDate"
                     :format-time="formatTime"
                     :get-event-class="getEventClass"
-                    @select-day="handleSelectDay"
-                    @prev-month="goPrevMonth"
-                    @next-month="goNextMonth"
                     @open-create="openCreate"
                     @open-details="openDetails"
                     @set-view-mode="setViewMode"
@@ -221,7 +215,7 @@ const getEventClass = (appointment: Appointment) => {
                                 <div
                                     class="text-xs font-semibold tracking-wide text-muted-foreground uppercase"
                                 >
-                                    Ausgewaehlt
+                                    Ausgewählt
                                 </div>
                                 <div class="mt-1 text-sm font-semibold">
                                     {{ selectedAppointment.title }}

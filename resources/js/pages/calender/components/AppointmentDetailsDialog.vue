@@ -14,7 +14,6 @@ import AppoitmentDeleteAlert from '@/pages/calender/components/AppoitmentDeleteA
 
 import type { Appointment } from '../types';
 
-
 const props = defineProps<{
     open: boolean;
     appointment: Appointment | null;

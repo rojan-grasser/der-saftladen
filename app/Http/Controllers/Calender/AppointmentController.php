@@ -54,11 +54,11 @@ class AppointmentController extends Controller
         $errors = [];
 
         if (! $start) {
-            $errors['start_time'] = 'Ungueltiges Startdatum.';
+            $errors['start_time'] = 'Ungültiges Startdatum.';
         }
 
         if (! $end) {
-            $errors['end_time'] = 'Ungueltiges Enddatum.';
+            $errors['end_time'] = 'Ungültiges Enddatum.';
         }
 
         if ($start && $end && $end->lessThanOrEqualTo($start)) {
@@ -119,6 +119,6 @@ class AppointmentController extends Controller
     {
         $appointment->delete();
 
-        return back()->with('success', 'Termin erfolgreich geloescht!');
+        return back()->with('success', 'Termin erfolgreich gelöscht!');
     }
 }

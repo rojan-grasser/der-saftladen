@@ -65,7 +65,7 @@ const viewLabel = computed(() => {
                     {{ monthLabel }}
                 </div>
                 <p class="text-sm text-muted-foreground">
-                    {{ viewLabel }} mit Agenda links und Kalenderbereich rechts.
+                    {{ viewLabel }} mit Übersicht links, Kalender in der Mitte und Details rechts.
                 </p>
             </div>
 

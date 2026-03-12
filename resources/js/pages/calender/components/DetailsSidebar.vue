@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue';
 import { Calendar, Clock, MapPin, Trash2, User } from 'lucide-vue-next';
-import { ref } from 'vue';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,10 @@ const handleDeleted = () => {
     showDeleteAlert.value = false;
     emit('deleted');
 };
+
+const nextAppointment = computed(() => {
+    return props.upcomingAppointments[0] ?? null;
+});
 </script>
 
 <template>
@@ -45,7 +49,7 @@ const handleDeleted = () => {
                         Details
                     </div>
                     <CardTitle class="text-lg">
-                        Ausgewaehlter Termin
+                        Ausgewählter Termin
                     </CardTitle>
                 </div>
                 <div
@@ -65,7 +69,7 @@ const handleDeleted = () => {
                         @click="showDeleteAlert = true"
                     >
                         <Trash2 class="h-4 w-4" />
-                        Loeschen
+                        Löschen
                     </Button>
                 </div>
             </CardHeader>
@@ -134,42 +138,43 @@ const handleDeleted = () => {
                     v-else
                     class="rounded-xl border border-dashed p-4 text-sm text-muted-foreground"
                 >
-                    Waehle links einen Termin aus, um Details zu sehen.
+                    Wähle links einen Termin aus, um Details zu sehen.
                 </div>
             </CardContent>
         </Card>
 
         <Card>
             <CardHeader>
-                <CardTitle class="text-base">Naechste Termine</CardTitle>
+                <CardTitle class="text-base">Nächster Termin</CardTitle>
             </CardHeader>
             <CardContent class="space-y-3">
                 <button
-                    v-for="appointment in upcomingAppointments"
-                    :key="`upcoming-${appointment.id}`"
+                    v-if="nextAppointment"
+                    :key="`upcoming-${nextAppointment.id}`"
                     type="button"
                     class="flex w-full items-start justify-between gap-3 rounded-xl border p-3 text-left text-sm"
-                    :class="getEventClass(appointment)"
-                    @click="emit('open-details', appointment)"
+                    :class="getEventClass(nextAppointment)"
+                    @click="emit('open-details', nextAppointment)"
                 >
                     <div class="space-y-1">
                         <div class="font-semibold">
-                            {{ appointment.title }}
+                            {{ nextAppointment.title }}
                         </div>
                         <div class="text-xs text-muted-foreground">
-                            {{ formatTime(appointment.start_time) }}
+                            {{ formatTime(nextAppointment.start_time) }}
                         </div>
                     </div>
                     <Badge variant="outline" class="text-[10px]">
                         {{
                             formatDate(
-                                parseDate(appointment.start_time) || new Date(),
+                                parseDate(nextAppointment.start_time) ||
+                                    new Date(),
                             )
                         }}
                     </Badge>
                 </button>
                 <div
-                    v-if="upcomingAppointments.length === 0"
+                    v-else
                     class="rounded-xl border border-dashed p-4 text-sm text-muted-foreground"
                 >
                     Keine kommenden Termine.

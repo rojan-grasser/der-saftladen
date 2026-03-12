@@ -119,7 +119,7 @@ const selectedColorOption = computed(() => {
                     {{
                         isEditMode
                             ? 'Termin aktualisieren.'
-                            : 'Neuen Termin zum Kalender hinzufuegen.'
+                            : 'Neuen Termin zum Kalender hinzufügen.'
                     }}
                 </DialogDescription>
             </DialogHeader>
@@ -141,7 +141,7 @@ const selectedColorOption = computed(() => {
                         id="description"
                         v-model="form.description"
                         class="min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
-                        placeholder="Details oder Notizen hinzufuegen"
+                        placeholder="Details oder Notizen hinzufügen"
                     ></textarea>
                     <InputError :message="form.errors.description" />
                 </div>
@@ -223,18 +223,18 @@ const selectedColorOption = computed(() => {
                             <DatePicker
                                 id="start_date"
                                 v-model="allDayStartValue"
-                                placeholder="Datum auswaehlen"
+                                placeholder="Datum auswählen"
                             />
                         </div>
                         <div v-else class="grid gap-2">
                             <DatePicker
                                 id="start_time"
                                 v-model="startDateValue"
-                                placeholder="Datum auswaehlen"
+                                placeholder="Datum auswählen"
                             />
                             <InputGroupTimePicker
                                 v-model="startTimeValue"
-                                placeholder="Zeit auswaehlen"
+                                placeholder="Zeit auswählen"
                             />
                         </div>
                         <InputError :message="form.errors.start_time" />
@@ -248,18 +248,18 @@ const selectedColorOption = computed(() => {
                             <DatePicker
                                 id="end_date"
                                 v-model="allDayEndValue"
-                                placeholder="Datum auswaehlen"
+                                placeholder="Datum auswählen"
                             />
                         </div>
                         <div v-else class="grid gap-2">
                             <DatePicker
                                 id="end_time"
                                 v-model="endDateValue"
-                                placeholder="Datum auswaehlen"
+                                placeholder="Datum auswählen"
                             />
                             <InputGroupTimePicker
                                 v-model="endTimeValue"
-                                placeholder="Zeit auswaehlen"
+                                placeholder="Zeit auswählen"
                             />
                         </div>
                         <InputError :message="form.errors.end_time" />
@@ -273,7 +273,7 @@ const selectedColorOption = computed(() => {
                     <Button type="submit" :disabled="form.processing">
                         {{
                             isEditMode
-                                ? 'Aenderungen speichern'
+                                ? 'Änderungen speichern'
                                 : 'Termin speichern'
                         }}
                     </Button>

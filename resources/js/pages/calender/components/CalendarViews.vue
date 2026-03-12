@@ -175,7 +175,7 @@ const emit = defineEmits<{
                 </div>
                 <Button variant="outline" size="sm" @click="emit('open-create')">
                     <Plus class="h-4 w-4" />
-                    Hinzufuegen
+                    Hinzufügen
                 </Button>
             </div>
             <Separator class="my-4" />
@@ -205,7 +205,7 @@ const emit = defineEmits<{
                     v-if="selectedAppointments.length === 0"
                     class="rounded-xl border border-dashed p-6 text-sm text-muted-foreground"
                 >
-                    Keine Termine fuer diesen Tag.
+                    Keine Termine für diesen Tag.
                 </div>
             </div>
         </div>
