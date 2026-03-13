@@ -11,6 +11,7 @@ import {
 } from 'lucide-vue-next';
 
 import InputError from '@/components/InputError.vue';
+import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -30,7 +31,6 @@ import {
     SelectItem,
     SelectTrigger,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { InputGroupTimePicker } from '@/components/ui/time-picker';
 
 import {
@@ -304,11 +304,9 @@ const formatReminderLabel = (minutes: number) => {
                 </div>
 
                 <div class="space-y-2">
-                    <Label for="description">Beschreibung</Label>
-                    <Textarea
-                        id="description"
+                    <Label>Beschreibung</Label>
+                    <MarkdownEditor
                         v-model="form.description"
-                        class="min-h-[80px] resize-none"
                         placeholder="Notizen oder Details hinzufügen..."
                     />
                     <InputError :message="form.errors.description" />
