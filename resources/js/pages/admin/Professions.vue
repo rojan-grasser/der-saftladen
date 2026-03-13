@@ -8,20 +8,32 @@ import PaginationBar from '@/components/PaginationBar.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
-import ProfessionalAreaCreate from '@/pages/admin/ProfessionalAreaCreate.vue';
-import ProfessionalAreaDeleteAlert from '@/pages/admin/ProfessionalAreaDeleteAlert.vue';
-import ProfessionalAreaEdit from '@/pages/admin/ProfessionalAreaEdit.vue';
+import ProfessionCreate from '@/pages/admin/ProfessionCreate.vue';
+import ProfessionDeleteAlert from '@/pages/admin/ProfessionDeleteAlert.vue';
+import ProfessionEdit from '@/pages/admin/ProfessionEdit.vue';
 import admin from '@/routes/admin';
-import type { BreadcrumbItem, PaginatedResponse, ProfessionalArea } from '@/types';
+import type { BreadcrumbItem, PaginatedResponse, Profession } from '@/types';
 
 // --------------------------------------------------
 // Props
 // --------------------------------------------------
 const props = defineProps<{
-    professionalAreas: PaginatedResponse<ProfessionalArea>;
+    professions: PaginatedResponse<Profession>;
     filters?: {
         query?: string;
     };
@@ -36,28 +48,28 @@ const isCreateOpen = ref(false);
 const isEditOpen = ref(false);
 const isDeleteOpen = ref(false);
 
-const editingProfessionalArea = ref<ProfessionalArea | null>(null);
-const deletingProfessionalArea = ref<ProfessionalArea | null>(null);
+const editingProfession = ref<Profession | null>(null);
+const deletingProfession = ref<Profession | null>(null);
 
 // --------------------------------------------------
 // CRUD Actions
 // --------------------------------------------------
-const editProfessionalArea = (professionalArea: ProfessionalArea) => {
-    editingProfessionalArea.value = professionalArea;
+const editProfession = (profession: Profession) => {
+    editingProfession.value = profession;
     isEditOpen.value = true;
 };
 
-const askDeleteProfessionalArea = (professionalArea: ProfessionalArea) => {
-    deletingProfessionalArea.value = professionalArea;
+const askDeleteProfession = (profession: Profession) => {
+    deletingProfession.value = profession;
     isDeleteOpen.value = true;
 };
 
 // --------------------------------------------------
 // Fetch (Search + Pagination)
 // --------------------------------------------------
-const fetchProfessionalAreas = (page = 1, value = search.value) => {
+const fetchProfessions = (page = 1, value = search.value) => {
     router.get(
-        admin.professionalArea().url,
+        admin.profession().url,
         {
             query: value || undefined,
             page,
@@ -71,7 +83,7 @@ const fetchProfessionalAreas = (page = 1, value = search.value) => {
 
 // Debounced search
 const debouncedFetch = debounce((value: string) => {
-    fetchProfessionalAreas(1, value);
+    fetchProfessions(1, value);
 }, 500);
 
 // Watch search
@@ -81,7 +93,7 @@ watch(search, (value) => {
 
 // Pagination handler
 const handlePageChange = (page: number) => {
-    fetchProfessionalAreas(page);
+    fetchProfessions(page);
 };
 
 // --------------------------------------------------
@@ -89,12 +101,12 @@ const handlePageChange = (page: number) => {
 // --------------------------------------------------
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin Dashboard', href: admin.dashboard().url },
-    { title: 'Berufsbereiche', href: admin.professionalArea().url },
+    { title: 'Berufe', href: admin.profession().url },
 ];
 </script>
 
 <template>
-    <Head title="Berufsbereiche" />
+    <Head title="Berufe" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-6">
@@ -103,7 +115,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <Input
                     v-model="search"
                     class="w-64"
-                    placeholder="Berufsbereich suchen…"
+                    placeholder="Beruf suchen…"
                 />
 
                 <Button @click="isCreateOpen = true">Neu erstellen</Button>
@@ -114,7 +126,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     @click="
                         () => {
                             search = '';
-                            fetchProfessionalAreas(1);
+                            fetchProfessions(1);
                         }
                     "
                 >
@@ -135,24 +147,24 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </TableHeader>
                     <TableBody>
                         <TableRow
-                            v-for="professionalArea in professionalAreas.data"
-                            :key="professionalArea.id"
+                            v-for="profession in professions.data"
+                            :key="profession.id"
                         >
                             <TableCell class="whitespace-normal">
-                                {{ professionalArea.name }}
+                                {{ profession.name }}
                             </TableCell>
                             <TableCell class="whitespace-normal">
-                                {{ professionalArea.description }}
+                                {{ profession.description }}
                             </TableCell>
                             <TableCell class="break-all whitespace-normal">
                                 <div
                                     v-if="
-                                        professionalArea.instructors &&
-                                        professionalArea.instructors.length > 0
+                                        profession.instructors &&
+                                        profession.instructors.length > 0
                                     "
                                 >
                                     <Badge
-                                        v-for="teacher in professionalArea.instructors"
+                                        v-for="teacher in profession.instructors"
                                         :key="teacher.id"
                                         class="mt-1 mr-2 mb-1"
                                     >
@@ -165,12 +177,10 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     <Tooltip>
                                         <TooltipTrigger as-child>
                                             <Button
-                                                size="icon-sm"
                                                 class="mr-2"
+                                                size="icon-sm"
                                                 @click="
-                                                    editProfessionalArea(
-                                                        professionalArea,
-                                                    )
+                                                    editProfession(profession)
                                                 "
                                             >
                                                 <Pencil />
@@ -189,8 +199,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                                                 size="icon-sm"
                                                 variant="destructive"
                                                 @click="
-                                                    askDeleteProfessionalArea(
-                                                        professionalArea,
+                                                    askDeleteProfession(
+                                                        profession,
                                                     )
                                                 "
                                             >
@@ -205,12 +215,12 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </TableCell>
                         </TableRow>
 
-                        <TableRow v-if="professionalAreas.data.length === 0">
+                        <TableRow v-if="professions.data.length === 0">
                             <TableCell
                                 class="h-24 text-center text-muted-foreground"
                                 colspan="4"
                             >
-                                Keine Berufsbereiche gefunden.
+                                Keine Berufe gefunden.
                             </TableCell>
                         </TableRow>
                     </TableBody>
@@ -219,26 +229,26 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <!-- Pagination -->
             <PaginationBar
-                :current-page="professionalAreas.current_page"
-                :per-page="professionalAreas.per_page"
-                :total="professionalAreas.total"
+                :current-page="professions.current_page"
+                :per-page="professions.per_page"
+                :total="professions.total"
                 @page-change="handlePageChange"
             />
         </div>
 
         <!-- Modals -->
-        <ProfessionalAreaCreate v-model:open="isCreateOpen" />
+        <ProfessionCreate v-model:open="isCreateOpen" />
 
-        <ProfessionalAreaEdit
-            v-if="editingProfessionalArea"
+        <ProfessionEdit
+            v-if="editingProfession"
             v-model:open="isEditOpen"
-            :professionalArea="editingProfessionalArea"
+            :profession="editingProfession"
         />
 
-        <ProfessionalAreaDeleteAlert
-            v-if="deletingProfessionalArea"
+        <ProfessionDeleteAlert
+            v-if="deletingProfession"
             v-model:open="isDeleteOpen"
-            :professionalArea="deletingProfessionalArea"
+            :profession="deletingProfession"
         />
     </AppLayout>
 </template>

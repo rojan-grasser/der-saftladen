@@ -2,7 +2,13 @@
 import { useForm } from '@inertiajs/vue3';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,7 +32,7 @@ function close() {
 }
 
 function submit() {
-    form.post(admin.professionalArea.store().url, {
+    form.post(admin.profession.store().url, {
         preserveScroll: true,
         onSuccess: () => {
             emit('created');
@@ -40,9 +46,9 @@ function submit() {
     <Dialog :open="open" @update:open="(v) => (v ? (open = true) : close())">
         <DialogContent class="sm:max-w-2xl">
             <DialogHeader>
-                <DialogTitle>Berufsbereich erstellen</DialogTitle>
+                <DialogTitle>Beruf erstellen</DialogTitle>
                 <DialogDescription>
-                    Lege einen neuen Berufsbereich an.
+                    Hier können Sie einen neuen Beruf erstellen.
                 </DialogDescription>
             </DialogHeader>
 

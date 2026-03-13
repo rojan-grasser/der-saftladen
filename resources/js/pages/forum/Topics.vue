@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { router } from '@inertiajs/vue3';
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import debounce from 'debounce';
 import { ref, watch } from 'vue';
 
@@ -8,14 +7,14 @@ import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import CreateTopic from '@/pages/forum/components/CreateTopic.vue';
 import TopicsMapper from '@/pages/forum/components/TopicsMapper.vue';
-import { MinimalTopic, ProfessionalArea } from '@/pages/forum/types';
+import { MinimalTopic, Profession } from '@/pages/forum/types';
 import { areas } from '@/routes/forum';
 import { index as topicIndex } from '@/routes/topics';
 import { BreadcrumbItem, PaginatedResponse } from '@/types';
 
 type Props = {
     topics: PaginatedResponse<MinimalTopic>;
-    area: ProfessionalArea;
+    area: Profession;
     query?: string;
 };
 
@@ -23,7 +22,7 @@ const { area, topics, query: initialQuery } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Berufsbereiche',
+        title: 'Berufe',
         href: areas().url,
     },
     {
@@ -36,7 +35,10 @@ const search = ref(initialQuery ?? '');
 
 const debouncedSearch = debounce((value: string) => {
     router.get(
-        topicIndex({ areaId: area.id }, { query: value ? { query: value } : undefined }).url,
+        topicIndex(
+            { areaId: area.id },
+            { query: value ? { query: value } : undefined },
+        ).url,
         {},
         { preserveState: true, replace: true },
     );

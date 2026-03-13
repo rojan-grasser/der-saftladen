@@ -3,22 +3,23 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ProfessionalArea;
+use App\Models\Profession;
 use Exception;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
-class ProfessionalAreaController extends Controller
+class ProfessionController extends Controller
 {
     /**
      * Takes name and description as parameters, returns success (always) and message (sometimes).
      *
      * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(Request $request)
     {
@@ -30,23 +31,23 @@ class ProfessionalAreaController extends Controller
         $name = trim($validated['name']);
 
         try {
-            ProfessionalArea::create([
+            Profession::create([
                 'name' => $name,
                 'description' => trim($validated['description']),
             ]);
 
-            return back()->with('success', 'Professional area created successfully.');
+            return back()->with('success', 'Profession created successfully.');
         } catch (Exception $exception) {
             // Error code 23000 -> Unique violation on the name
             if ($exception instanceof QueryException && $exception->errorInfo[0] === '23000') {
                 throw ValidationException::withMessages([
-                    'name' => 'The professional area "' . $name . '" already exists.',
+                    'name' => 'The profession "' . $name . '" already exists.',
                 ]);
             }
 
             Log::error($exception);
 
-            return back()->with('error', 'There was an unexpected error while creating the professional area. Please try again later.');
+            return back()->with('error', 'There was an unexpected error while creating the profession. Please try again later.');
         }
     }
 
@@ -59,21 +60,21 @@ class ProfessionalAreaController extends Controller
             'instructor_ids.*' => ['integer', 'distinct', 'exists:users,id'],
         ]);
 
-        $professionalArea = ProfessionalArea::query()->findOrFail($id);
+        $profession = Profession::query()->findOrFail($id);
 
         $updateData = [
-            'name' => array_key_exists('name', $validated) ? trim($validated['name']) : $professionalArea->name,
-            'description' => array_key_exists('description', $validated) ? trim($validated['description']) : $professionalArea->description,
+            'name' => array_key_exists('name', $validated) ? trim($validated['name']) : $profession->name,
+            'description' => array_key_exists('description', $validated) ? trim($validated['description']) : $profession->description,
         ];
 
         $instructorIds = $validated['instructor_ids'] ?? null;
 
         try {
-            DB::transaction(function () use ($professionalArea, $updateData, $instructorIds) {
-                $professionalArea->update($updateData);
+            DB::transaction(function () use ($profession, $updateData, $instructorIds) {
+                $profession->update($updateData);
 
                 if (is_array($instructorIds)) {
-                    $professionalArea->instructors()->sync($instructorIds);
+                    $profession->instructors()->sync($instructorIds);
                 }
             });
 
@@ -98,7 +99,7 @@ class ProfessionalAreaController extends Controller
     public function destroy(Request $request, string $id)
     {
         try {
-            ProfessionalArea::destroy($id);
+            Profession::destroy($id);
 
             return back()->with('success', 'Professional area deleted successfully.');
         } catch (Exception $exception) {
@@ -114,7 +115,7 @@ class ProfessionalAreaController extends Controller
             'query' => ['sometimes', 'string', 'max:255'],
         ]);
 
-        $queryBuilder = ProfessionalArea::query()
+        $queryBuilder = Profession::query()
             ->select('id', 'name', 'description')
             ->with(['instructors']);
 
@@ -130,8 +131,8 @@ class ProfessionalAreaController extends Controller
             });
         }
 
-        return Inertia::render('admin/ProfessionalAreas', [
-            'professionalAreas' => $queryBuilder
+        return Inertia::render('admin/Professions', [
+            'professions' => $queryBuilder
                 ->orderBy('name')
                 ->paginate(20)
                 ->withQueryString(),
@@ -142,6 +143,6 @@ class ProfessionalAreaController extends Controller
 
     public function getInstructors(Request $request, string $id)
     {
-        return ProfessionalArea::findOrFail($id)->instructors;
+        return Profession::findOrFail($id)->instructors;
     }
 }

@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import {Calendar, LayoutGrid, ShieldCheck, MessageSquare } from 'lucide-vue-next';
+import {
+    Calendar,
+    LayoutGrid,
+    MessageSquare,
+    ShieldCheck,
+} from 'lucide-vue-next';
 
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -51,8 +56,8 @@ if (user.roles?.find((u) => u.role === 'admin')) {
                 href: admin.users(),
             },
             {
-                title: 'Berufsbereiche',
-                href: admin.professionalArea(),
+                title: 'Berufe',
+                href: admin.profession(),
             },
         ],
     });

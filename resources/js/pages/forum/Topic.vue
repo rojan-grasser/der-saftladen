@@ -5,16 +5,16 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import CreatePost from '@/pages/forum/components/CreatePost.vue';
 import PostsMapper from '@/pages/forum/components/PostsMapper.vue';
 import TopicPost from '@/pages/forum/components/TopicPost.vue';
-import { ProfessionalArea, Topic } from '@/pages/forum/types';
+import { Profession, Topic } from '@/pages/forum/types';
 import { areas } from '@/routes/forum';
-import { show, index as topicIndex } from '@/routes/topics';
+import { index as topicIndex, show } from '@/routes/topics';
 import { BreadcrumbItem } from '@/types';
 
-const { topic, area } = defineProps<{ area: ProfessionalArea; topic: Topic }>();
+const { topic, area } = defineProps<{ area: Profession; topic: Topic }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Berufsbereiche',
+        title: 'Berufe',
         href: areas().url,
     },
     {
@@ -34,7 +34,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     <AppLayout :breadcrumbs="breadcrumbs">
         <CreatePost :area-id="area.id" :topic-id="topic.id" />
 
-        <div class="px-2 md:px-10 pt-4">
+        <div class="px-2 pt-4 md:px-10">
             <TopicPost :topic="topic" class="mb-10" :area-id="area.id" />
 
             <PostsMapper

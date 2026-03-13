@@ -9,22 +9,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class InstructorToProfessionalAreaController extends Controller
+class InstructorToProfessionController extends Controller
 {
     public function index(Request $request, string $instructorId, string $areaId)
     {
         $instructor = Instructor::findOrFail($instructorId);
 
         // Instructor already allowed to see professional area
-        if ($instructor->professionalAreas()->where('professional_areas.id', $areaId)->exists()) {
+        if ($instructor->professions()->where('professions.id', $areaId)->exists()) {
             return [
                 'success' => false,
                 'message' => 'The Instructor already is allowed to see this professional area',
             ];
         }
 
-        DB::table('user_to_professional_area')->insert([
-            'professional_area_id' => $areaId,
+        DB::table('user_to_profession')->insert([
+            'profession_id' => $areaId,
             'user_id' => $instructorId,
         ]);
 
@@ -34,9 +34,9 @@ class InstructorToProfessionalAreaController extends Controller
     public function destroy(Request $request, string $instructorId, string $areaId)
     {
         try {
-            DB::table('user_to_professional_area')
+            DB::table('user_to_profession')
                 ->where('user_id', '=', $instructorId)
-                ->where('professional_area_id', '=', $areaId)
+                ->where('profession_id', '=', $areaId)
                 ->delete();
 
             return ['success' => true];

@@ -1,5 +1,3 @@
-import { UserRole } from '@/types';
-
 export type User = {
     id: string;
     name: string;
@@ -40,7 +38,7 @@ export type MinimalTopic = {
     }
 };
 
-export type ProfessionalArea = {
+export type Profession = {
     id: number;
     name: string;
     description: string;

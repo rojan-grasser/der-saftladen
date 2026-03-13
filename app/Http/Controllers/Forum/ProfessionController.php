@@ -4,23 +4,23 @@ namespace App\Http\Controllers\Forum;
 
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
-use App\Models\ProfessionalArea;
+use App\Models\Profession;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class ProfessionalAreaController extends Controller
+class ProfessionController extends Controller
 {
     private function getQueryForInstructor(string $instructorId)
     {
-        return ProfessionalArea::join('user_to_professional_area as utpa', function ($join) use ($instructorId) {
-            $join->on('utpa.professional_area_id', '=', 'professional_areas.id')
-                ->where('utpa.user_id', $instructorId);
+        return Profession::join('user_to_profession as utp', function ($join) use ($instructorId) {
+            $join->on('utp.profession_id', '=', 'professions.id')
+                ->where('utp.user_id', $instructorId);
         });
     }
 
     private function getQueryForTeacher()
     {
-        return ProfessionalArea::query();
+        return Profession::query();
     }
 
     /**
@@ -40,7 +40,7 @@ class ProfessionalAreaController extends Controller
                 ];
             });
 
-        return Inertia::render('forum/ProfessionalAreas', [
+        return Inertia::render('forum/Professions', [
             'areas' => $areas,
         ]);
     }

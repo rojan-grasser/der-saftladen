@@ -8,13 +8,13 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { MinimalTopic, ProfessionalArea } from '@/pages/forum/types';
+import { MinimalTopic, Profession } from '@/pages/forum/types';
 import topicsApi, { show } from '@/routes/topics';
 import { PaginatedResponse } from '@/types';
 
 interface Props {
     topics: PaginatedResponse<MinimalTopic>;
-    area: ProfessionalArea;
+    area: Profession;
 }
 
 const { topics, area } = defineProps<Props>();

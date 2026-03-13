@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Forum;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\Instructor;
-use App\Models\ProfessionalArea;
+use App\Models\Profession;
 use App\Models\Topic;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -23,10 +23,10 @@ class TopicController extends Controller
             'query' => ['nullable', 'string', 'min:1', 'max:50']
         ]);
 
-        $area = ProfessionalArea::findOrFail($areaId);
+        $area = Profession::findOrFail($areaId);
 
         $query = Topic::with('user')
-            ->where('topics.professional_area_id', '=', $areaId)
+            ->where('topics.profession_id', '=', $areaId)
             ->orderBy('topics.created_at', 'desc');
 
         $limit = $validated['limit'] ?? 15;
@@ -87,11 +87,11 @@ class TopicController extends Controller
         }
 
         // Check existence
-        ProfessionalArea::findOrFail($areaId);
+        Profession::findOrFail($areaId);
 
         $topic = Topic::create([
             ...$validated,
-            'professional_area_id' => $areaId,
+            'profession_id' => $areaId,
             'user_id' => auth()->id(),
         ]);
 
@@ -105,7 +105,7 @@ class TopicController extends Controller
     {
         $currentUserId = $request->user()->id;
 
-        $area = ProfessionalArea::findOrFail($areaId);
+        $area = Profession::findOrFail($areaId);
 
         $topic = Topic::with([
             'posts' => function ($query) {
@@ -124,12 +124,12 @@ class TopicController extends Controller
                 $query->where('user_id', $currentUserId);
             },
         ])
-            ->where('topics.professional_area_id', '=', $areaId)
+            ->where('topics.profession_id', '=', $areaId)
             ->findOrFail($topicId);
 
         if (
             $request->user()->hasRole(Role::INSTRUCTOR) &&
-            !Instructor::find($request->user()->id)->hasAccess($topic->professional_area_id)
+            !Instructor::find($request->user()->id)->hasAccess($topic->profession_id)
         ) {
             return back()->with('error', 'Du hast keinen zugriff auf dieses Thema');
         }

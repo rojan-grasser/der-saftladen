@@ -1,15 +1,14 @@
 <?php
 
-use App\Http\Controllers\Admin\InstructorToProfessionalAreaController;
 use App\Http\Controllers\Admin\InstructorController;
-use App\Http\Controllers\Admin\ProfessionalAreaController;
-use App\Http\Controllers\Forum\ProfessionalAreaController as ForumProfessionalAreaController;
+use App\Http\Controllers\Admin\InstructorToProfessionController;
+use App\Http\Controllers\Admin\ProfessionController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Forum\PostController;
 use App\Http\Controllers\Calender\AppointmentController;
+use App\Http\Controllers\Forum\PostController;
 use App\Http\Controllers\Forum\PostReactionController;
+use App\Http\Controllers\Forum\ProfessionController as ForumProfessionController;
 use App\Http\Controllers\Forum\TopicController;
-use App\Http\Middleware\EnsureInstructorHasAccess;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -41,14 +40,14 @@ Route::middleware(['request-logging', 'auth', 'verified', 'active', 'role:admin'
         Route::put('/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
         Route::get('/instructors', [InstructorController::class, 'index'])->name('admin.instructors');
-        Route::get('/professional-areas', [ProfessionalAreaController::class, 'index'])->name('admin.professional-area');
-        Route::post('/professional-area', [ProfessionalAreaController::class, 'store'])->name('admin.professional-area.store');
-        Route::put('/professional-area/{id}', [ProfessionalAreaController::class, 'update'])->name('admin.professional-area.update');
-        Route::delete('/professional-area/{id}', [ProfessionalAreaController::class, 'destroy'])->name('admin.professional-area.destroy');
-        Route::get('/professional-area/{id}/instructors', [ProfessionalAreaController::class, 'getInstructors'])->name('admin.professional-area.instructors');
+        Route::get('/professions', [ProfessionController::class, 'index'])->name('admin.profession');
+        Route::post('/profession', [ProfessionController::class, 'store'])->name('admin.profession.store');
+        Route::put('/profession/{id}', [ProfessionController::class, 'update'])->name('admin.profession.update');
+        Route::delete('/profession/{id}', [ProfessionController::class, 'destroy'])->name('admin.profession.destroy');
+        Route::get('/profession/{id}/instructors', [ProfessionController::class, 'getInstructors'])->name('admin.profession.instructors');
 
-        Route::post('/instructors-to-area/{instructorId}/{areaId}', [InstructorToProfessionalAreaController::class, 'index'])->name('admin.instructors-to-area.add');
-        Route::delete('/instructors-to-area/{instructorId}/{areaId}', [InstructorToProfessionalAreaController::class, 'destroy'])->name('admin.instructors-to-area.destroy');
+        Route::post('/instructors-to-profession/{instructorId}/{areaId}', [InstructorToProfessionController::class, 'index'])->name('admin.instructors-to-profession.add');
+        Route::delete('/instructors-to-profession/{instructorId}/{areaId}', [InstructorToProfessionController::class, 'destroy'])->name('admin.instructors-to-profession.destroy');
 
         // Add any other admin routes here
     });
@@ -56,7 +55,7 @@ Route::middleware(['request-logging', 'auth', 'verified', 'active', 'role:admin'
 Route::middleware(['auth', 'verified', 'active'])
     ->prefix('forum')
     ->group(function () {
-        Route::get('areas', [ForumProfessionalAreaController::class, 'index'])->name('forum.areas');
+        Route::get('areas', [ForumProfessionController::class, 'index'])->name('forum.areas');
 
         // Route::resource('area', TopicController::class);
         Route::get('area/{areaId}', [TopicController::class, 'index'])->name('topics.index');

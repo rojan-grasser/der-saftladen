@@ -7,10 +7,10 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { ProfessionalArea } from '@/pages/forum/types';
+import { Profession } from '@/pages/forum/types';
 import { index } from '@/routes/topics';
 
-defineProps<{ areas: Array<ProfessionalArea> }>();
+defineProps<{ areas: Array<Profession> }>();
 </script>
 
 <template>
