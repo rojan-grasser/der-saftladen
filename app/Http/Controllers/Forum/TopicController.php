@@ -46,8 +46,6 @@ class TopicController extends Controller
                         'created_at' => $topic->created_at,
                         'user' => [
                             'id' => $topic->user?->id ?? 0,
-                            'first_name' => $topic->user?->first_name ?? User::$deletedUserName,
-                            'last_name' => $topic->user?->last_name ?? '',
                             'name' => $topic->user?->name ?? User::$deletedUserName,
                             'email' => $topic->user?->email ?? '',
                         ],
@@ -147,8 +145,6 @@ class TopicController extends Controller
                 'isOwnPost' => $topic->user_id === $request->user()->id,
                 'owner' => [
                     'id' => $owner?->id ?? 0,
-                    'first_name' => $owner?->first_name ?? User::$deletedUserName,
-                    'last_name' => $owner?->last_name ?? '',
                     'name' => $owner?->name ?? User::$deletedUserName,
                     'email' => $owner?->email ?? '',
                 ],
@@ -165,8 +161,6 @@ class TopicController extends Controller
                         'edited' => !!$post->edited,
                         'user' => [
                             'id' => $post->creator?->id ?? 0,
-                            'first_name' => $post->creator?->first_name ?? User::$deletedUserName,
-                            'last_name' => $post->creator?->last_name ?? '',
                             'name' => $post->creator?->name ?? User::$deletedUserName,
                             'email' => $post->creator?->email ?? '',
                         ],
