@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\ProfessionalArea;
+use App\Models\Profession;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,7 +22,7 @@ class TopicFactory extends Factory
             'title' => fake()->sentence(6),
             'description' => fake()->paragraph(3),
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
-            'professional_area_id' => ProfessionalArea::inRandomOrder()->first()?->id ?? ProfessionalArea::factory(),
+            'profession_id' => Profession::inRandomOrder()->first()?->id ?? Profession::factory(),
         ];
     }
 }

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { useForm } from '@inertiajs/vue3';
 
 import {
@@ -12,7 +12,7 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import admin from '@/routes/admin';
-import type { ProfessionalArea } from '@/types';
+import type { Profession } from '@/types';
 
 const open = defineModel<boolean>('open', { required: true });
 
@@ -21,22 +21,19 @@ const emit = defineEmits<{
 }>();
 
 const props = defineProps<{
-    professionalArea: ProfessionalArea;
+    profession: Profession;
 }>();
 
 const deleteForm = useForm({});
 
 const submit = () => {
-    deleteForm.delete(
-        admin.professionalArea.destroy(props.professionalArea.id).url,
-        {
-            preserveScroll: true,
-            onSuccess: async () => {
-                emit('deleted');
-                close();
-            },
+    deleteForm.delete(admin.profession.destroy(props.profession.id).url, {
+        preserveScroll: true,
+        onSuccess: async () => {
+            emit('deleted');
+            close();
         },
-    );
+    });
 };
 
 function close() {
@@ -59,10 +56,10 @@ function close() {
                         <span class="shrink-0">Möchten Sie</span>
 
                         <span
+                            :title="props.profession.name"
                             class="font-medium break-all"
-                            :title="props.professionalArea.name"
                         >
-                            {{ props.professionalArea.name }}
+                            {{ props.profession.name }}
                         </span>
 
                         <span class="shrink-0">wirklich löschen?</span>

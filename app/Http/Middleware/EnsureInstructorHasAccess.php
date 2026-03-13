@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use App\Models\Instructor;
-use App\Models\Topic;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,13 +16,13 @@ class EnsureInstructorHasAccess
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $areaId = $request->route('areaId');
+        $professionId = $request->route('professionId');
 
         $instructor = Instructor::find($request->user()->id);
 
         if (
             $instructor &&
-            !$instructor->hasAccess($areaId)
+            !$instructor->hasAccess($professionId)
         ) {
             return back()->with('error', 'Du hast keinen zugriff auf dieses Thema');
         }

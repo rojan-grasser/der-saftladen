@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
 
+import DeleteUserButton from '@/components/DeleteUserButton.vue';
 import { Button } from '@/components/ui/button';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 
@@ -44,6 +45,7 @@ const isPending = user.status === 'pending';
                         Abmelden
                     </Link>
                 </Button>
+                <DeleteUserButton />
             </div>
         </div>
     </AuthLayout>

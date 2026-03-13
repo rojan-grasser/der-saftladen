@@ -137,7 +137,7 @@ class UserController extends Controller
             $user->update(collect($validated)->except('roles')->toArray());
 
             if (($validated['status'] ?? null) != UserStatus::ACTIVE->value) {
-                DB::table('user_to_professional_area')
+                DB::table('user_to_profession')
                     ->where('user_id', $user->id)
                     ->delete();
             }
@@ -159,6 +159,10 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        $user->delete();
+
+        return back()->with('success', 'Der benutzer wurde gelöscht');
     }
 }

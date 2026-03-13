@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\ProfessionalArea;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -20,7 +19,8 @@ class DatabaseSeeder extends Seeder
         $this->call(TestUserSeeder::class);
         User::factory()->count(250)->create();
         $this->call(AppointmentSeeder::class);
-        ProfessionalArea::factory()->count(250)->create();
+        // Profession::factory()->count(250)->create();
+
         $this->call(TopicSeeder::class);
     }
 }

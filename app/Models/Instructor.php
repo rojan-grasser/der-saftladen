@@ -17,20 +17,20 @@ class Instructor extends User
         });
     }
 
-    public function professionalAreas(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function professions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(
-            ProfessionalArea::class,
-            'user_to_professional_area',
+            Profession::class,
+            'user_to_profession',
             'user_id',
-            'professional_area_id'
+            'profession_id'
         )->withTimestamps();
     }
 
-    public function hasAccess(int $professionalAreaId): bool
+    public function hasAccess(string $professionId)
     {
-        return $this->professionalAreas()
-            ->where('professional_area_id', $professionalAreaId)
+        return $this->professions()
+            ->where('profession_id', $professionId)
             ->exists();
     }
 }

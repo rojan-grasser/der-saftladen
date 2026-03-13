@@ -15,7 +15,7 @@ const navItems: NavItem[] = [
     },
     {
         title: 'Berufsbereiche',
-        href: admin.professionalArea().url,
+        href: admin.profession().url,
         icon: Briefcase,
     },
 ];
