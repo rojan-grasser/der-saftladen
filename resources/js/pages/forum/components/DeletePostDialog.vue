@@ -14,8 +14,8 @@ import {
 import { Post } from '@/pages/forum/types';
 import posts from '@/routes/posts';
 
-const { post, areaId, topicId } = defineProps<{
-    areaId: number;
+const { post, professionId, topicId } = defineProps<{
+    professionId: number;
     topicId: number;
     post: Post;
 }>();
@@ -23,7 +23,7 @@ const { post, areaId, topicId } = defineProps<{
 const open = defineModel<boolean>('open', { default: false });
 
 const deletePost = () => {
-    router.delete(posts.destroy({ post: post.id, topicId, areaId }).url, {
+    router.delete(posts.destroy({ post: post.id, topicId, professionId }).url, {
         preserveScroll: true,
     });
 };
@@ -33,13 +33,17 @@ const deletePost = () => {
     <AlertDialog :open="open" @update:open="(o) => (open = o)">
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>Sind sie sich absolut sicher?</AlertDialogTitle>
+                <AlertDialogTitle
+                    >Sind sie sich absolut sicher?</AlertDialogTitle
+                >
                 <AlertDialogDescription>
                     Der kommentar kann danach nicht wieder hergestellt werden.
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel @click="open = false">Abbrechen</AlertDialogCancel>
+                <AlertDialogCancel @click="open = false"
+                    >Abbrechen</AlertDialogCancel
+                >
                 <AlertDialogAction :onclick="deletePost">
                     Löschen
                 </AlertDialogAction>

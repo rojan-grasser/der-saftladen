@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\ProfessionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ProfessionalArea extends Model
+class Profession extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProfessionalAreaFactory> */
+    /** @use HasFactory<ProfessionFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -21,8 +22,8 @@ class ProfessionalArea extends Model
     {
         return $this->belongsToMany(
             Instructor::class,
-            'user_to_professional_area',
-            'professional_area_id',
+            'user_to_profession',
+            'profession_id',
             'user_id',
         )->select([
             'users.id',

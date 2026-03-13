@@ -3,20 +3,19 @@
 namespace Database\Seeders;
 
 use App\Models\ForumPost;
-use App\Models\ProfessionalArea;
+use App\Models\Profession;
 use App\Models\Topic;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class TopicSeeder extends Seeder
 {
     public function run(): void
     {
-        $areas = ProfessionalArea::factory(5)->create();
+        $professions = Profession::factory(5)->create();
 
-        foreach ($areas as $area) {
+        foreach ($professions as $profession) {
             $topics = Topic::factory(100)->create([
-                'professional_area_id' => $area->id,
+                'profession_id' => $profession->id,
             ]);
 
             foreach ($topics as $topic) {

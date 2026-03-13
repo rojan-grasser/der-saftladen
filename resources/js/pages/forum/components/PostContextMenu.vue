@@ -13,8 +13,8 @@ import DeletePostDialog from '@/pages/forum/components/DeletePostDialog.vue';
 import EditPostDialog from '@/pages/forum/components/EditPostDialog.vue';
 import { Post } from '@/pages/forum/types';
 
-const { post, areaId, topicId } = defineProps<{
-    areaId: number;
+const { post, professionId, topicId } = defineProps<{
+    professionId: number;
     topicId: number;
     post: Post;
 }>();
@@ -24,8 +24,18 @@ const deleteOpen = ref(false);
 </script>
 
 <template>
-    <EditPostDialog v-model:open="editOpen" :area-id="areaId" :topic-id="topicId" :post="post" />
-    <DeletePostDialog v-model:open="deleteOpen" :area-id="areaId" :topic-id="topicId" :post="post" />
+    <EditPostDialog
+        v-model:open="editOpen"
+        :post="post"
+        :profession-id="professionId"
+        :topic-id="topicId"
+    />
+    <DeletePostDialog
+        v-model:open="deleteOpen"
+        :post="post"
+        :profession-id="professionId"
+        :topic-id="topicId"
+    />
 
     <ContextMenu>
         <ContextMenuTrigger as-child>

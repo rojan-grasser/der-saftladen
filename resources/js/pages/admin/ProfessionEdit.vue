@@ -5,17 +5,23 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import MultiCombobox from '@/components/MultiCombobox.vue';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import admin from '@/routes/admin';
-import { Instructor, PaginatedCursorResponse, type ProfessionalArea } from '@/types';
+import { Instructor, PaginatedCursorResponse, type Profession } from '@/types';
 
 const open = defineModel<boolean>('open', { required: true });
 
 const props = defineProps<{
-    professionalArea: ProfessionalArea;
+    profession: Profession;
 }>();
 
 const emit = defineEmits<{
@@ -108,8 +114,8 @@ function onInstructorSearch(q: string) {
     debouncedLoadFirstPage(q);
 }
 
-const selectedFromArea = computed<Instructor[]>(() =>
-    (props.professionalArea.instructors ?? []).map((u) => ({
+const selectedFromProfession = computed<Instructor[]>(() =>
+    (props.profession.instructors ?? []).map((u) => ({
         id: u.id,
         first_name: u.first_name,
         last_name: u.last_name,
@@ -124,7 +130,7 @@ const mergedInstructorOptions = computed<Instructor[]>(() => {
         const cached = instructorCache.value.get(id);
         if (cached) map.set(id, cached);
     }
-    for (const o of selectedFromArea.value) map.set(o.id, o);
+    for (const o of selectedFromProfession.value) map.set(o.id, o);
     for (const o of instructorOptions.value) map.set(o.id, o);
     return Array.from(map.values());
 });
@@ -138,13 +144,13 @@ const instructorItems = computed(() =>
 );
 
 const form = useForm({
-    name: props.professionalArea.name,
-    description: props.professionalArea.description,
-    instructor_ids: props.professionalArea.instructors?.map((u) => u.id) ?? [],
+    name: props.profession.name,
+    description: props.profession.description,
+    instructor_ids: props.profession.instructors?.map((u) => u.id) ?? [],
 });
 
 watch(
-    () => props.professionalArea,
+    () => props.profession,
     (u) => {
         form.name = u.name;
         form.description = u.description;
@@ -162,11 +168,10 @@ watch(
             })),
         );
     },
-    { immediate: true },
 );
 
 onMounted(() => {
-    cacheInstructors(selectedFromArea.value);
+    cacheInstructors(selectedFromProfession.value);
     loadFirstPage('');
 });
 
@@ -184,7 +189,7 @@ function close() {
 }
 
 const submit = () => {
-    form.put(admin.professionalArea.update(props.professionalArea.id).url, {
+    form.put(admin.profession.update(props.profession.id).url, {
         preserveScroll: true,
         onSuccess: async () => {
             emit('updated');

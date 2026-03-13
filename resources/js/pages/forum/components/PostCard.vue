@@ -13,7 +13,7 @@ import { Post } from '@/pages/forum/types';
 defineProps<{
     post: Post;
     topicId: number;
-    areaId: number;
+    professionId: number;
 }>();
 </script>
 
@@ -39,12 +39,14 @@ defineProps<{
                 <TopicDescription :description="post.content" />
             </CardDescription>
 
-            <span class="text-xs text-foreground/60" v-if="post.edited">(Bearbeitet)</span>
+            <span v-if="post.edited" class="text-xs text-foreground/60"
+                >(Bearbeitet)</span
+            >
 
             <ReactionButtonGroup
                 :post="post"
                 :topicId="topicId"
-                :area-id="areaId"
+                :profession-id="professionId"
             />
         </CardHeader>
     </Card>

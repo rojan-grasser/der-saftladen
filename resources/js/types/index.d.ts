@@ -59,7 +59,7 @@ export interface Instructor {
     email: string;
 }
 
-export interface ProfessionalArea {
+export interface Profession {
     id: number;
     name: string;
     description: string;

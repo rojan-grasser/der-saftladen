@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Forum;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\Instructor;
-use App\Models\ProfessionalArea;
+use App\Models\Profession;
 use App\Models\Topic;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -16,17 +16,17 @@ class TopicController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, string $areaId)
+    public function index(Request $request, string $professionId)
     {
         $validated = $request->validate([
             'limit' => ['nullable', 'integer', 'min:1', 'max:100'],
             'query' => ['nullable', 'string', 'min:1', 'max:50']
         ]);
 
-        $area = ProfessionalArea::findOrFail($areaId);
+        $profession = Profession::findOrFail($professionId);
 
         $query = Topic::with('user')
-            ->where('topics.professional_area_id', '=', $areaId)
+            ->where('topics.profession_id', '=', $professionId)
             ->orderBy('topics.created_at', 'desc');
 
         $limit = $validated['limit'] ?? 15;
@@ -53,10 +53,10 @@ class TopicController extends Controller
                         ],
                     ];
                 }),
-                'area' => [
-                    'id' => $area->id,
-                    'name' => $area->name,
-                    'description' => $area->description,
+                'profession' => [
+                    'id' => $profession->id,
+                    'name' => $profession->name,
+                    'description' => $profession->description,
                 ],
                 'query' => $validated['query'] ?? null,
             ]
@@ -74,7 +74,7 @@ class TopicController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, string $areaId)
+    public function store(Request $request, string $professionId)
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'min:1', 'max:255'],
@@ -83,31 +83,31 @@ class TopicController extends Controller
 
         if (
             $request->user()->hasRole(Role::INSTRUCTOR) &&
-            !Instructor::find($request->user()->id)->hasAccess($areaId)
+            !Instructor::find($request->user()->id)->hasAccess($professionId)
         ) {
             return back()->with('error', 'Du hast keinen zugriff auf das ausgewählte professionelle Fachgebiet.');
         }
 
         // Check existence
-        ProfessionalArea::findOrFail($areaId);
+        Profession::findOrFail($professionId);
 
         $topic = Topic::create([
             ...$validated,
-            'professional_area_id' => $areaId,
+            'profession_id' => $professionId,
             'user_id' => auth()->id(),
         ]);
 
-        return redirect("/forum/area/$areaId/topics/" . $topic->id);
+        return redirect("/forum/profession/$professionId/topics/" . $topic->id);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, string $areaId, string $topicId)
+    public function show(Request $request, string $professionId, string $topicId)
     {
         $currentUserId = $request->user()->id;
 
-        $area = ProfessionalArea::findOrFail($areaId);
+        $profession = Profession::findOrFail($professionId);
 
         $topic = Topic::with([
             'posts' => function ($query) {
@@ -126,12 +126,12 @@ class TopicController extends Controller
                 $query->where('user_id', $currentUserId);
             },
         ])
-            ->where('topics.professional_area_id', '=', $areaId)
+            ->where('topics.profession_id', '=', $professionId)
             ->findOrFail($topicId);
 
         if (
             $request->user()->hasRole(Role::INSTRUCTOR) &&
-            !Instructor::find($request->user()->id)->hasAccess($topic->professional_area_id)
+            !Instructor::find($request->user()->id)->hasAccess($topic->profession_id)
         ) {
             return back()->with('error', 'Du hast keinen zugriff auf dieses Thema');
         }
@@ -174,10 +174,10 @@ class TopicController extends Controller
                 }),
                 'createdAt' => $topic->created_at,
             ],
-            'area' => [
-                'id' => $area->id,
-                'name' => $area->name,
-                'description' => $area->description,
+            'profession' => [
+                'id' => $profession->id,
+                'name' => $profession->name,
+                'description' => $profession->description,
             ],
         ]);
     }
