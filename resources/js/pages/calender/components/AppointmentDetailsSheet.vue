@@ -127,7 +127,7 @@ const handleEdit = () => {
                     v-if="appointment.description"
                     class="flex min-h-0 flex-1 flex-col space-y-2"
                 >
-                    <h4 class="text-sm font-medium text-muted-foreground">
+                    <h4 class="text-sm font-medium text-muted-foreground pl-3">
                         Beschreibung
                     </h4>
                     <div
@@ -142,7 +142,7 @@ const handleEdit = () => {
 
                 <div
                     v-if="canEdit || canDelete"
-                    class="flex flex-shrink-0 gap-5 border-t pt-4 pb-6 pl-4"
+                    class="flex flex-shrink-0 gap-5 border-t pt-4 pb-6 pl-3"
                 >
                     <Button
                         v-if="canEdit"
