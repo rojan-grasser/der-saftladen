@@ -12,7 +12,7 @@ deployment:
           - name: WAIT_FOR_MINIO
             value: "true"
           - name: APP_PORT
-            value: "9000"
+            value: "8000"
           # App
           - name: APP_KEY
             value: base64:r9EkUOISRfHacEdhgcXKaND0ZcdYFgmhIUnUrjYzoow=
