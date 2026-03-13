@@ -28,7 +28,7 @@ const {
 
             <div>
                 <span class="text-xs italic">
-                    {{ topic.owner.name }}
+                    {{ topic.owner.first_name }} {{ topic.owner.last_name }}
                     <span class="text-sm font-normal text-foreground/70">
                         {{ topic.owner.email }}
                     </span>

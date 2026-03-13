@@ -123,9 +123,9 @@ class ProfessionalAreaController extends Controller
 
             $queryBuilder->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    //->orWhere('description', 'like', "%{$search}%")
                     ->orWhereHas('instructors', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
+                        $q->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%");
                     });
             });
         }

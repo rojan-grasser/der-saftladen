@@ -156,7 +156,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         :key="teacher.id"
                                         class="mt-1 mr-2 mb-1"
                                     >
-                                        {{ teacher.name }}
+                                        {{ teacher.first_name }} {{ teacher.last_name }}
                                     </Badge>
                                 </div>
                             </TableCell>

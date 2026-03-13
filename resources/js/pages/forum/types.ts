@@ -1,7 +1,7 @@
-import { UserRole } from '@/types';
-
 export type User = {
     id: string;
+    first_name: string;
+    last_name: string;
     name: string;
     email: string;
 };
@@ -35,6 +35,8 @@ export type MinimalTopic = {
     description: string;
     user: {
         id: number;
+        first_name: string;
+        last_name: string;
         name: string;
         email: string;
     }

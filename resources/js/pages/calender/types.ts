@@ -10,6 +10,8 @@ export interface Appointment {
     user_id: number;
     creator?: {
         id: number;
+        first_name: string;
+        last_name: string;
         name: string;
     } | null;
 }

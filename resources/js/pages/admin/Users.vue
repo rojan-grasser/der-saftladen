@@ -183,7 +183,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             :key="user.id"
                         >
                             <TableCell class="font-medium">
-                                {{ user.name }}
+                                {{ user.first_name }} {{ user.last_name }}
                             </TableCell>
                             <TableCell class="text-muted-foreground">
                                 {{ user.email }}

@@ -111,6 +111,8 @@ function onInstructorSearch(q: string) {
 const selectedFromArea = computed<Instructor[]>(() =>
     (props.professionalArea.instructors ?? []).map((u) => ({
         id: u.id,
+        first_name: u.first_name,
+        last_name: u.last_name,
         name: u.name,
         email: u.email,
     })),
@@ -130,7 +132,7 @@ const mergedInstructorOptions = computed<Instructor[]>(() => {
 const instructorItems = computed(() =>
     mergedInstructorOptions.value.map((u) => ({
         id: u.id,
-        label: u.name,
+        label: `${u.first_name} ${u.last_name}`.trim(),
         subLabel: u.email,
     })),
 );
@@ -153,6 +155,8 @@ watch(
         cacheInstructors(
             (u.instructors ?? []).map((x) => ({
                 id: x.id,
+                first_name: x.first_name,
+                last_name: x.last_name,
                 name: x.name,
                 email: x.email,
             })),

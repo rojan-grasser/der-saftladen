@@ -41,15 +41,16 @@ class UserController extends Controller
         if (!empty($validated['search'])) {
             $search = $validated['search'];
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%");
             });
             if (!empty($validated['priority'])) {
                 if ($validated['priority'] === 'firstname') {
                     $query->orderByRaw("
                         CASE
-                            WHEN name LIKE ? THEN 1
-                            WHEN name LIKE ? THEN 2
+                            WHEN first_name LIKE ? THEN 1
+                            WHEN first_name LIKE ? THEN 2
                             ELSE 3
                         END
                     ", [
@@ -60,13 +61,13 @@ class UserController extends Controller
                 if ($validated['priority'] === 'lastname') {
                     $query->orderByRaw("
                         CASE
-                            WHEN name LIKE ? THEN 1
-                            WHEN name LIKE ? THEN 2
+                            WHEN last_name LIKE ? THEN 1
+                            WHEN last_name LIKE ? THEN 2
                             ELSE 3
                         END
                     ", [
-                        "% {$search}%",
-                        "{$search}%"
+                        "{$search}%",
+                        "% {$search}%"
                     ]);
                 }
                 if ($validated['priority'] === 'email') {
@@ -83,7 +84,8 @@ class UserController extends Controller
         }
 
         $users = $query
-            ->orderBy('name')
+            ->orderBy('first_name')
+            ->orderBy('last_name')
             ->paginate(20)
             ->withQueryString();
 
@@ -124,7 +126,8 @@ class UserController extends Controller
     public function update(Request $request, string $id)
     {
         $validated = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
+            'first_name' => ['sometimes', 'string', 'max:255'],
+            'last_name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'email', 'max:255'],
             'status' => ['sometimes', new Enum(UserStatus::class)],
             'roles' => ['sometimes', 'array'],

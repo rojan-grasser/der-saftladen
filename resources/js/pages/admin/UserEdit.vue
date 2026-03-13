@@ -27,7 +27,8 @@ const roleLabels: Record<string, string> = {
 };
 
 const form = useForm({
-    name: props.user.name,
+    first_name: props.user.first_name,
+    last_name: props.user.last_name,
     email: props.user.email,
     roles: props.user.roles?.map((r) => r.role) ?? [],
     status: props.user.status,
@@ -54,7 +55,8 @@ const rolesSummary = computed(() => {
 watch(
     () => props.user,
     (u) => {
-        form.name = u.name;
+        form.first_name = u.first_name;
+        form.last_name = u.last_name;
         form.email = u.email;
         form.roles = u.roles?.map((r) => r.role) ?? [];
         form.status = u.status;
@@ -92,11 +94,20 @@ const submit = () => {
             </DialogHeader>
 
             <form class="space-y-4" @submit.prevent="submit">
-                <div class="grid gap-2">
-                    <Label for="name">Name</Label>
-                    <Input id="name" v-model="form.name" />
-                    <div v-if="form.errors.name" class="text-sm text-red-600">
-                        {{ form.errors.name }}
+                <div class="flex gap-4">
+                    <div class="grid min-w-0 flex-1 gap-2">
+                        <Label for="first_name">Vorname</Label>
+                        <Input id="first_name" v-model="form.first_name" />
+                        <div v-if="form.errors.first_name" class="text-sm text-red-600">
+                            {{ form.errors.first_name }}
+                        </div>
+                    </div>
+                    <div class="grid min-w-0 flex-1 gap-2">
+                        <Label for="last_name">Nachname</Label>
+                        <Input id="last_name" v-model="form.last_name" />
+                        <div v-if="form.errors.last_name" class="text-sm text-red-600">
+                            {{ form.errors.last_name }}
+                        </div>
                     </div>
                 </div>
 
@@ -119,9 +130,7 @@ const submit = () => {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="admin">Admin</SelectItem>
-                                <SelectItem value="instructor"
-                                    >Ausbilder</SelectItem
-                                >
+                                <SelectItem value="instructor">Ausbilder</SelectItem>
                                 <SelectItem value="teacher">Lehrer</SelectItem>
                             </SelectContent>
                         </Select>
@@ -135,24 +144,15 @@ const submit = () => {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="active">Aktiv</SelectItem>
-                                <SelectItem value="pending"
-                                    >Ausstehend</SelectItem
-                                >
-                                <SelectItem value="inactive"
-                                    >Inaktiv</SelectItem
-                                >
+                                <SelectItem value="pending">Ausstehend</SelectItem>
+                                <SelectItem value="inactive">Inaktiv</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4">
-                    <Button
-                        :disabled="form.processing"
-                        type="button"
-                        variant="outline"
-                        @click="close"
-                    >
+                    <Button :disabled="form.processing" type="button" variant="outline" @click="close">
                         Abbrechen
                     </Button>
                     <Button :disabled="form.processing" type="submit">
