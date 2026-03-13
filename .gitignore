@@ -26,3 +26,5 @@ yarn-error.log
 /.zed
 rr
 .rr.yaml
+.claude
+
