@@ -77,9 +77,12 @@ class PostController extends Controller
             return back()->with('error', 'Du kannst nur deine eigenen posts bearbeiten!');
         }
 
-        $post->update($validated);
+        $post->update([
+            ...$validated,
+            'edited' => true,
+        ]);
 
-        return redirect("/forum/area/$areaId/topics/$topicId/posts/" . $post->id);
+        return redirect("/forum/area/$areaId/topics/$topicId")->with('success', 'Der Kommentar wurde aktualisiert');
     }
 
     /**
