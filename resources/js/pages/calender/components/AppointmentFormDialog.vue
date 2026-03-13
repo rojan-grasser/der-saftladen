@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Bell, Calendar as CalendarIcon, MapPin, Palette, Plus, Trash2, Type } from 'lucide-vue-next';
+import {
+    Bell,
+    Calendar as CalendarIcon,
+    MapPin,
+    Palette,
+    Plus,
+    Trash2,
+    Type,
+} from 'lucide-vue-next';
 
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -117,6 +125,7 @@ const reminderOptions = [
     { label: '30 Minuten vorher', value: 30 },
     { label: '1 Stunde vorher', value: 60 },
     { label: '2 Stunden vorher', value: 120 },
+    { label: '3 Stunde vorher', value: 180 },
     { label: '1 Tag vorher', value: 1440 },
     { label: '1 Woche vorher', value: 10080 },
 ];
@@ -130,7 +139,9 @@ const selectedNewReminder = computed({
     set: (val: string) => {
         const num = Number(val);
         if (num && !props.form.reminders.includes(num)) {
-            props.form.reminders = [...props.form.reminders, num].sort((a, b) => a - b);
+            props.form.reminders = [...props.form.reminders, num].sort(
+                (a, b) => a - b,
+            );
         }
     },
 });
