@@ -272,7 +272,7 @@ const formatReminderLabel = (minutes: number) => {
                             <Label for="color">Farbe</Label>
                         </div>
                         <Select v-model="form.color">
-                            <SelectTrigger id="color">
+                            <SelectTrigger id="color" class="w-full">
                                 <span class="flex items-center gap-2">
                                     <span
                                         class="h-3 w-3 rounded-full"
