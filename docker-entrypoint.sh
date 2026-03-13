@@ -1,7 +1,12 @@
 #!/bin/bash
 set -e
 
-if [[ "$RUNMODE" == 'server' ]]; then
+if [[ "$RUNMODE" == 'terraform' ]]; then
+    cd terraform
+    terraform init
+    terraform plan
+    terraform apply -auto-approve
+else [[ "$RUNMODE" == 'server' ]]; then
     # Run migrations
     php artisan migrate --force
 
@@ -14,9 +19,4 @@ if [[ "$RUNMODE" == 'server' ]]; then
 
     # Start Octane
     php artisan octane:start --host=0.0.0.0 --port=9000 --server=roadrunner
-elif [[ "$RUNMODE" == 'terraform' ]]; then
-    cd terraform
-    terraform init
-    terraform plan
-    terraform apply -auto-approve
 fi
