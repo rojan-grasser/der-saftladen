@@ -60,8 +60,7 @@ const deleteUser = () => {
                 >
                 <AlertDialogDescription>
                     Diese Aktion kann nicht rückgängig gemacht werden. Der
-                    nutzer wird permanent gelöscht und alle daten werden von
-                    unseren servern entfernt werden.
+                    Nutzer wird permanent gelöscht.
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
