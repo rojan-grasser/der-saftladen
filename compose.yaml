@@ -14,5 +14,42 @@ services:
         ports:
             - "5432:5432"
 
+    minio:
+        image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
+        container_name: minio
+        restart: always
+        command: server /data --console-address ":9001"
+        environment:
+            MINIO_ROOT_USER: minio
+            MINIO_ROOT_PASSWORD: miniopassword
+        volumes:
+            - minio_data:/data
+        ports:
+            - "9000:9000"   # S3 API
+            - "9001:9001"   # Web Console
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+            interval: 5s
+            timeout: 5s
+            retries: 10
+
+    terraform:
+        image: hashicorp/terraform:latest
+        container_name: terraform-minio
+        depends_on:
+            minio:
+                condition: service_healthy
+        volumes:
+            - ./terraform:/terraform
+            - ./.env.s3:/.env.s3
+        working_dir: /terraform
+        environment:
+            TF_VAR_minio_host: "minio:9000"
+            TF_VAR_minio_user: minio
+            TF_VAR_minio_password: miniopassword
+        entrypoint: ["/bin/sh", "-c", "terraform init && terraform apply -auto-approve"]
+        restart: on-failure
+
 volumes:
-    postgres_data: {}
+    postgres_data:
+    minio_data:

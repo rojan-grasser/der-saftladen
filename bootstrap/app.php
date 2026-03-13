@@ -6,11 +6,16 @@ use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\HandleRequestLogging;
 use App\Http\Middleware\RoleMiddleware;
+use Dotenv\Dotenv;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Symfony\Component\HttpFoundation\Request;
+
+if (file_exists(dirname(__DIR__).'/.env.s3')) {
+    Dotenv::createMutable(dirname(__DIR__), '.env.s3')->load();
+}
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -30,7 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => EnsureUserIsActive::class,
             'request-logging' => HandleRequestLogging::class,
             'instructor-has-access' => EnsureInstructorHasAccess::class,
-            'role' => RoleMiddleware::class
+            'role' => RoleMiddleware::class,
         ]);
         $middleware->trustProxies(
             at: '*',

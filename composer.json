@@ -16,6 +16,7 @@
         "laravel/octane": "^2.13",
         "laravel/tinker": "^2.10.1",
         "laravel/wayfinder": "^0.1.9",
+        "league/flysystem-aws-s3-v3": "^3.32",
         "spiral/roadrunner-cli": "^2.6.0",
         "spiral/roadrunner-http": "^3.3.0"
     },
@@ -72,6 +73,12 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "minio": [
+            "cd terraform",
+            "terraform init",
+            "TF_VAR_minio_host=\"localhost:9000\" TF_VAR_minio_user=\"minio\" TF_VAR_minio_password=\"miniopassword\" terraform plan",
+            "TF_VAR_minio_host=\"localhost:9000\" TF_VAR_minio_user=\"minio\" TF_VAR_minio_password=\"miniopassword\" terraform apply"
         ]
     },
     "extra": {
