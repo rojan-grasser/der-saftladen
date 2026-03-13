@@ -78,34 +78,34 @@ class ProfessionController extends Controller
                 }
             });
 
-            return back()->with('success', 'Professional area updated successfully.');
+            return back()->with('success', 'profession updated successfully.');
         } catch (Exception $exception) {
             // Error code 23000 -> Unique violation on the name (SQLite/MySQL etc.)
             if ($exception instanceof QueryException && ($exception->errorInfo[0] ?? null) === '23000') {
                 throw ValidationException::withMessages([
-                    'name' => 'The professional area "' . $updateData['name'] . '" already exists.',
+                    'name' => 'The profession "' . $updateData['name'] . '" already exists.',
                 ]);
             }
 
             Log::error($exception);
 
-            return back()->with('error', 'There was an unexpected error while updating the professional area. Please try again later.');
+            return back()->with('error', 'There was an unexpected error while updating the profession. Please try again later.');
         }
     }
 
     /**
-     * Deletes a professional area by its id.
+     * Deletes a profession by its id.
      */
     public function destroy(Request $request, string $id)
     {
         try {
             Profession::destroy($id);
 
-            return back()->with('success', 'Professional area deleted successfully.');
+            return back()->with('success', 'profession deleted successfully.');
         } catch (Exception $exception) {
             Log::error($exception);
 
-            return back()->with('error', 'There was a unexpected error while deleting the professional area, please try again later');
+            return back()->with('error', 'There was a unexpected error while deleting the profession, please try again later');
         }
     }
 

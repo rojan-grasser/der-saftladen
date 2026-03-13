@@ -15,11 +15,11 @@ class InstructorToProfessionController extends Controller
     {
         $instructor = Instructor::findOrFail($instructorId);
 
-        // Instructor already allowed to see professional area
+        // Instructor already allowed to see profession
         if ($instructor->professions()->where('professions.id', $areaId)->exists()) {
             return [
                 'success' => false,
-                'message' => 'The Instructor already is allowed to see this professional area',
+                'message' => 'The Instructor already is allowed to see this profession',
             ];
         }
 
