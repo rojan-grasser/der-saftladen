@@ -8,7 +8,6 @@ function tf-runmode() {
             echo "MinIO not ready yet, retrying in 2s..."
             sleep 2
         done
-        echo "MinIO is ready."
     fi
 
     cd terraform

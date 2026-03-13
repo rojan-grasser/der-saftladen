@@ -64,6 +64,13 @@ deployment:
             value: "http://127.0.0.1:9000"
           - name: AWS_USE_PATH_STYLE_ENDPOINT
             value: "true"
+          # Terraform vars
+          - name: TF_VAR_minio_host
+            value: 127.0.0.1:9000
+          - name: TF_VAR_minio_user
+            value: minio
+          - name: TF_VAR_minio_password
+            value: miniopassword
         resources:
           requests:
             cpu: "200m"
