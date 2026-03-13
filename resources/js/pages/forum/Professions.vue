@@ -12,14 +12,14 @@ defineProps<{ areas: Array<Profession> }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Berufe',
+        title: 'Berufsbereiche',
         href: areasShow().url,
     },
 ];
 </script>
 
 <template>
-    <Head title="Berufe" />
+    <Head title="Berufsbereiche" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div v-if="areas.length" class="px-10 pt-4">

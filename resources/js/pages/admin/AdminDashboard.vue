@@ -14,7 +14,7 @@ const navItems: NavItem[] = [
         icon: Users,
     },
     {
-        title: 'Berufe',
+        title: 'Berufsbereiche',
         href: admin.profession().url,
         icon: Briefcase,
     },

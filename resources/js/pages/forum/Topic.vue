@@ -14,7 +14,7 @@ const { topic, area } = defineProps<{ area: Profession; topic: Topic }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Berufe',
+        title: 'Berufsbereiche',
         href: areas().url,
     },
     {

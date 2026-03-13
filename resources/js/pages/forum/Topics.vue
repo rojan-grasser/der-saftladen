@@ -22,7 +22,7 @@ const { area, topics, query: initialQuery } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Berufe',
+        title: 'Berufsbereiche',
         href: areas().url,
     },
     {

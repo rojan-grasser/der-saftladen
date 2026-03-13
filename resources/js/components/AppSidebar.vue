@@ -56,7 +56,7 @@ if (user.roles?.find((u) => u.role === 'admin')) {
                 href: admin.users(),
             },
             {
-                title: 'Berufe',
+                title: 'Berufsbereiche',
                 href: admin.profession(),
             },
         ],

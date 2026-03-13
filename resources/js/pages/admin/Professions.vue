@@ -101,12 +101,12 @@ const handlePageChange = (page: number) => {
 // --------------------------------------------------
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Admin Dashboard', href: admin.dashboard().url },
-    { title: 'Berufe', href: admin.profession().url },
+    { title: 'Berufsbereiche', href: admin.profession().url },
 ];
 </script>
 
 <template>
-    <Head title="Berufe" />
+    <Head title="Berufsbereiche" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex flex-col gap-6 p-6">
@@ -220,7 +220,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 class="h-24 text-center text-muted-foreground"
                                 colspan="4"
                             >
-                                Keine Berufe gefunden.
+                                Keine Berufsbereiche gefunden.
                             </TableCell>
                         </TableRow>
                     </TableBody>
