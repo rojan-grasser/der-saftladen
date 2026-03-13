@@ -34,7 +34,7 @@ class ProfessionController extends Controller
             ->get()
             ->map(function ($profession) {
                 return [
-                    'id' => $profession->id,
+                    'id' => $profession->profession_id ?? $profession->id,
                     'name' => $profession->name,
                     'description' => $profession->description,
                 ];
