@@ -29,8 +29,10 @@ RUN apk add --no-cache wget unzip \
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 8000
-
+ENV APP_PORT 9000
 ENV RUNMODE server
+
+EXPOSE $APP_PORT
+
 
 ENTRYPOINT ["docker-entrypoint.sh"]
