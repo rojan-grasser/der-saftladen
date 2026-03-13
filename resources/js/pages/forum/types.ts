@@ -1,5 +1,3 @@
-import { UserRole } from '@/types';
-
 export type User = {
     id: string;
     name: string;
@@ -15,7 +13,9 @@ export type Post = {
     likesCount: number;
     dislikesCount: number;
     user: User;
-}
+    isOwnPost: boolean;
+    edited: boolean;
+};
 
 export type Topic = {
     id: number;
@@ -38,7 +38,7 @@ export type MinimalTopic = {
     }
 };
 
-export type ProfessionalArea = {
+export type Profession = {
     id: number;
     name: string;
     description: string;

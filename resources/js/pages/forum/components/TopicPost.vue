@@ -6,11 +6,11 @@ import { Topic } from '@/pages/forum/types';
 const {
     topic,
     class: className,
-    areaId,
+    professionId,
 } = defineProps<{
     topic: Topic;
     class?: string;
-    areaId: number;
+    professionId: number;
 }>();
 </script>
 
@@ -22,7 +22,7 @@ const {
                 <EditTopic
                     :topic="topic"
                     v-if="topic.isOwnPost"
-                    :area-id="areaId"
+                    :profession-id="professionId"
                 />
             </div>
 

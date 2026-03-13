@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
+import { Form, Head, Link } from '@inertiajs/vue3';
 
-import TextLink from '@/components/TextLink.vue';
+import DeleteUserButton from '@/components/DeleteUserButton.vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import AuthLayout from '@/layouts/AuthLayout.vue';
@@ -23,14 +23,14 @@ defineProps<{
         <div
             v-if="status === 'verification-link-sent'"
             class="mb-4 text-center text-sm font-medium text-green-600"
-        >         
-            Ein neuer Bestätigungslink wurde an die E-Mail-Adresse gesendet, die Sie
-            bei der Registrierung angegeben haben.
+        >
+            Ein neuer Bestätigungslink wurde an die E-Mail-Adresse gesendet, die
+            Sie bei der Registrierung angegeben haben.
         </div>
 
         <Form
             v-bind="send.form()"
-            class="space-y-6 text-center"
+            class="flex flex-col gap-4"
             v-slot="{ processing }"
         >
             <Button :disabled="processing" variant="secondary">
@@ -38,13 +38,10 @@ defineProps<{
                 Bestätigungs-E-Mail erneut senden
             </Button>
 
-            <TextLink
-                :href="logout()"
-                as="button"
-                class="mx-auto block text-sm"
-            >
-                Abmelden
-            </TextLink>
+            <Button as-child variant="outline">
+                <Link :href="logout()" as="button"> Abmelden </Link>
+            </Button>
+            <DeleteUserButton />
         </Form>
     </AuthLayout>
 </template>

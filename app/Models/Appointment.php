@@ -19,6 +19,7 @@ class Appointment extends Model
         'start_time',
         'end_time',
         'user_id',
+        'reminders',
     ];
 
     protected function casts(): array
@@ -27,6 +28,7 @@ class Appointment extends Model
             'color' => AppointmentColor::class,
             'start_time' => 'datetime',
             'end_time' => 'datetime',
+            'reminders' => 'array',
         ];
     }
 

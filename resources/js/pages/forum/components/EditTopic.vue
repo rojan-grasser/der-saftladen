@@ -18,7 +18,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Topic } from '@/pages/forum/types';
 import topics from '@/routes/topics';
 
-const { topic, areaId } = defineProps<{ topic: Topic; areaId: number }>();
+const { topic, professionId } = defineProps<{
+    topic: Topic;
+    professionId: number;
+}>();
 
 const open = ref(false);
 
@@ -28,7 +31,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put(topics.update({ topicId: topic.id, areaId }).url, {
+    form.put(topics.update({ topicId: topic.id, professionId }).url, {
         onSuccess: () => {
             form.defaults({ title: form.title, description: form.description });
             open.value = false;

@@ -88,6 +88,8 @@ class AppointmentController extends Controller
             'color' => ['nullable', new Enum(AppointmentColor::class)],
             'start_time' => 'required',
             'end_time' => 'required',
+            'reminders' => 'nullable|array',
+            'reminders.*' => 'integer|min:0|max:10080',
         ]);
 
         $start = $this->parseAppointmentTime($validated['start_time']);
@@ -169,6 +171,13 @@ class AppointmentController extends Controller
         $validated = $this->validateAppointment($request);
 
         $appointment->update($validated);
+
+        // Reset sent reminders if start_time or reminders changed
+        if ($appointment->wasChanged(['start_time', 'reminders'])) {
+            \DB::table('appointment_reminder_sent')
+                ->where('appointment_id', $appointment->id)
+                ->delete();
+        }
 
         return back()->with('success', 'Termin erfolgreich aktualisiert!');
     }

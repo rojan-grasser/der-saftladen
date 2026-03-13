@@ -15,7 +15,7 @@ class Topic extends Model
     protected $fillable = [
         'title',
         'description',
-        'professional_area_id',
+        'profession_id',
         'user_id',
     ];
 

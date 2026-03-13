@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Calendar as CalendarIcon, Clock, MapPin, Palette, Type } from 'lucide-vue-next';
+import { Bell, Calendar as CalendarIcon, MapPin, Palette, Plus, Trash2, Type } from 'lucide-vue-next';
 
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,7 @@ const props = defineProps<{
         color: AppointmentColor;
         start_time: string;
         end_time: string;
+        reminders: number[];
         errors: Record<string, string>;
         processing: boolean;
     };
@@ -108,6 +109,43 @@ const selectedColorOption = computed(() => {
         appointmentColorMap[defaultAppointmentColor]
     );
 });
+
+const reminderOptions = [
+    { label: '5 Minuten vorher', value: 5 },
+    { label: '10 Minuten vorher', value: 10 },
+    { label: '15 Minuten vorher', value: 15 },
+    { label: '30 Minuten vorher', value: 30 },
+    { label: '1 Stunde vorher', value: 60 },
+    { label: '2 Stunden vorher', value: 120 },
+    { label: '1 Tag vorher', value: 1440 },
+    { label: '1 Woche vorher', value: 10080 },
+];
+
+const availableReminderOptions = computed(() =>
+    reminderOptions.filter((opt) => !props.form.reminders.includes(opt.value)),
+);
+
+const selectedNewReminder = computed({
+    get: () => '',
+    set: (val: string) => {
+        const num = Number(val);
+        if (num && !props.form.reminders.includes(num)) {
+            props.form.reminders = [...props.form.reminders, num].sort((a, b) => a - b);
+        }
+    },
+});
+
+const removeReminder = (offset: number) => {
+    props.form.reminders = props.form.reminders.filter((r) => r !== offset);
+};
+
+const formatReminderLabel = (minutes: number) => {
+    const opt = reminderOptions.find((o) => o.value === minutes);
+    if (opt) return opt.label;
+    if (minutes < 60) return `${minutes} Min. vorher`;
+    if (minutes < 1440) return `${minutes / 60} Std. vorher`;
+    return `${minutes / 1440} Tag(e) vorher`;
+};
 </script>
 
 <template>
@@ -263,6 +301,52 @@ const selectedColorOption = computed(() => {
                         placeholder="Notizen oder Details hinzufügen..."
                     />
                     <InputError :message="form.errors.description" />
+                </div>
+
+                <!-- Erinnerungen -->
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <Bell class="h-4 w-4 text-muted-foreground" />
+                        <Label>Erinnerungen</Label>
+                    </div>
+
+                    <div v-if="form.reminders.length > 0" class="space-y-1">
+                        <div
+                            v-for="offset in form.reminders"
+                            :key="offset"
+                            class="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                        >
+                            <span>{{ formatReminderLabel(offset) }}</span>
+                            <button
+                                type="button"
+                                class="text-muted-foreground transition-colors hover:text-destructive"
+                                @click="removeReminder(offset)"
+                            >
+                                <Trash2 class="h-3.5 w-3.5" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <Select
+                        v-if="availableReminderOptions.length > 0"
+                        v-model="selectedNewReminder"
+                    >
+                        <SelectTrigger class="text-muted-foreground">
+                            <span class="flex items-center gap-2">
+                                <Plus class="h-3.5 w-3.5" />
+                                Erinnerung hinzufügen
+                            </span>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem
+                                v-for="opt in availableReminderOptions"
+                                :key="opt.value"
+                                :value="String(opt.value)"
+                            >
+                                {{ opt.label }}
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <DialogFooter class="gap-2 sm:gap-0">

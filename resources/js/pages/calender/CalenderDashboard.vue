@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { Bell, BellOff, ChevronLeft, ChevronRight, Plus } from 'lucide-vue-next';
+import { computed, onMounted, ref } from 'vue';
+
+import { usePushNotifications } from '@/composables/usePushNotifications';
 
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -166,6 +168,20 @@ const handleSelectDay = (date: Date) => {
     selectDay(date);
 };
 
+const { isSupported: pushSupported, isSubscribed: pushSubscribed, isLoading: pushLoading, checkSubscriptionStatus, requestPermissionAndSubscribe, unsubscribe: unsubscribePush } = usePushNotifications();
+
+onMounted(() => {
+    checkSubscriptionStatus();
+});
+
+const togglePushNotifications = async () => {
+    if (pushSubscribed.value) {
+        await unsubscribePush();
+    } else {
+        await requestPermissionAndSubscribe();
+    }
+};
+
 const startCreate = () => {
     if (!canCreateAppointments.value) return;
     openCreate();
@@ -240,6 +256,19 @@ const getEventBgClass = (appointment: Appointment) => {
                     @prev-month="goPrevMonth"
                     @next-month="goNextMonth"
                 />
+
+                <!-- Push-Benachrichtigungen -->
+                <Button
+                    v-if="pushSupported"
+                    variant="outline"
+                    class="w-full gap-2"
+                    :disabled="pushLoading"
+                    @click="togglePushNotifications"
+                >
+                    <BellOff v-if="pushSubscribed" class="h-4 w-4" />
+                    <Bell v-else class="h-4 w-4" />
+                    {{ pushSubscribed ? 'Benachrichtigungen aus' : 'Benachrichtigungen an' }}
+                </Button>
 
                 <!-- Termine am ausgewählten Tag -->
                 <div v-if="selectedAppointments.length > 0" class="space-y-2">
