@@ -8,20 +8,8 @@ import PaginationBar from '@/components/PaginationBar.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import AppLayout from '@/layouts/AppLayout.vue';
 import ProfessionCreate from '@/pages/admin/ProfessionCreate.vue';
 import ProfessionDeleteAlert from '@/pages/admin/ProfessionDeleteAlert.vue';
@@ -115,7 +103,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <Input
                     v-model="search"
                     class="w-64"
-                    placeholder="Beruf suchen…"
+                    placeholder="Berufsbereich suchen…"
                 />
 
                 <Button @click="isCreateOpen = true">Neu erstellen</Button>

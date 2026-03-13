@@ -48,7 +48,7 @@ function close() {
     >
         <AlertDialogContent>
             <AlertDialogHeader>
-                <AlertDialogTitle>Beruf löschen?</AlertDialogTitle>
+                <AlertDialogTitle>Berufsbereich löschen?</AlertDialogTitle>
                 <AlertDialogDescription class="space-y-1">
                     <p>Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
 

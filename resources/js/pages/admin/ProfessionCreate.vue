@@ -46,9 +46,9 @@ function submit() {
     <Dialog :open="open" @update:open="(v) => (v ? (open = true) : close())">
         <DialogContent class="sm:max-w-2xl">
             <DialogHeader>
-                <DialogTitle>Beruf erstellen</DialogTitle>
+                <DialogTitle>Berufsbereich erstellen</DialogTitle>
                 <DialogDescription>
-                    Hier können Sie einen neuen Beruf erstellen.
+                    Hier können Sie einen neuen Berufsbereich erstellen.
                 </DialogDescription>
             </DialogHeader>
 

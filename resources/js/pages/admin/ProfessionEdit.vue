@@ -199,9 +199,9 @@ const submit = () => {
     <Dialog :open="open" @update:open="(v) => (v ? (open = true) : close())">
         <DialogContent class="max-h-[90%] w-full overflow-y-auto sm:max-w-2xl">
             <DialogHeader>
-                <DialogTitle>Beruf bearbeiten</DialogTitle>
+                <DialogTitle>Berufsbereich bearbeiten</DialogTitle>
                 <DialogDescription>
-                    Hier können Sie den Beruf bearbeiten und Ausbilder
+                    Hier können Sie den Berufsbereich bearbeiten und Ausbilder
                     hinzufügen.
                 </DialogDescription>
             </DialogHeader>
