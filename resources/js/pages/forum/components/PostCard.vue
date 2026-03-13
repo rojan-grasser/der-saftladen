@@ -23,7 +23,7 @@ defineProps<{
             <CardTitle>
                 <div class="flex justify-between">
                     <span class="italic">
-                        {{ post.user.first_name }} {{ post.user.last_name }}
+                        {{ post.user.name }}
                     </span>
                     <span class="text-sm font-normal text-foreground/70">
                         {{ formatDate(post.created_at) }}&nbsp;&nbsp;&nbsp;{{

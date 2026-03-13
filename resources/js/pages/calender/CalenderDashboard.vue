@@ -86,7 +86,7 @@ const {
 
 const getOwnerName = (appointment: Appointment) => {
     if (!appointment.creator) return 'Unbekannt';
-    return `${appointment.creator.first_name} ${appointment.creator.last_name}`.trim() || 'Unbekannt';
+    return appointment.creator.name || 'Unbekannt';
 };
 
 const truncateWords = (value: string, maxWords = 100) => {

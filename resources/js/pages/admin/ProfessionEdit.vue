@@ -138,7 +138,7 @@ const mergedInstructorOptions = computed<Instructor[]>(() => {
 const instructorItems = computed(() =>
     mergedInstructorOptions.value.map((u) => ({
         id: u.id,
-        label: `${u.first_name} ${u.last_name}`.trim(),
+        label: u.name,
         subLabel: u.email,
     })),
 );

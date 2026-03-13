@@ -47,7 +47,7 @@ const handlePageChange = (page: number) => {
                         <div class="flex flex-col justify-between gap-2">
                             <span>{{ topic.title }}</span>
                             <span class="text-xs italic">
-                                {{ topic.user.first_name }} {{ topic.user.last_name }}
+                                {{ topic.user.name }}
                                 <span
                                     class="text-sm font-normal text-foreground/70"
                                 >

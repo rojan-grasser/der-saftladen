@@ -248,12 +248,12 @@ const rightNavItems: NavItem[] = [
                                     <AvatarImage
                                         v-if="auth.user.avatar"
                                         :src="auth.user.avatar"
-                                        :alt="`${auth.user.first_name} ${auth.user.last_name}`"
+                                        :alt="auth.user.name"
                                     />
                                     <AvatarFallback
                                         class="rounded-lg bg-neutral-200 font-semibold text-black dark:bg-neutral-700 dark:text-white"
                                     >
-                                        {{ getInitials(`${auth.user?.first_name} ${auth.user?.last_name}`) }}
+                                        {{ getInitials(auth.user?.name) }}
                                     </AvatarFallback>
                                 </Avatar>
                             </Button>
