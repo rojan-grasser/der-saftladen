@@ -64,10 +64,10 @@ const deleteUser = () => {
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction :onclick="deleteUser"
-                    >Continue</AlertDialogAction
-                >
+                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                <AlertDialogAction :onclick="deleteUser">
+                    Löschen
+                </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
