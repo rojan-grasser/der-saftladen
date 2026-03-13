@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { Calendar, Clock, MapPin, Pencil, Trash2, User } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 import MarkdownContent from '@/components/MarkdownContent.vue';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,9 @@ import {
     SheetTitle,
 } from '@/components/ui/sheet';
 
-import AppoitmentDeleteAlert from './AppoitmentDeleteAlert.vue';
 import type { Appointment } from '../types';
+
+import AppoitmentDeleteAlert from './AppoitmentDeleteAlert.vue';
 
 const props = defineProps<{
     open: boolean;
