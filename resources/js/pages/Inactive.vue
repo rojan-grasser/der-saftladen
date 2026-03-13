@@ -3,6 +3,7 @@ import { Head, Link, usePage } from '@inertiajs/vue3';
 
 import { Button } from '@/components/ui/button';
 import AuthLayout from '@/layouts/AuthLayout.vue';
+import DeleteUserButton from '@/components/DeleteUserButton.vue';
 
 const page = usePage();
 const user = page.props.auth.user;
@@ -44,6 +45,7 @@ const isPending = user.status === 'pending';
                         Abmelden
                     </Link>
                 </Button>
+                <DeleteUserButton />
             </div>
         </div>
     </AuthLayout>
