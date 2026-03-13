@@ -23,17 +23,70 @@ const hours = computed(() => {
     });
 });
 
+const overlapLayout = computed(() => {
+    const appointments = props.selectedAppointments;
+    if (appointments.length === 0) return new Map<number, { col: number; totalCols: number }>();
+
+    const withTimes = appointments.map((appt) => ({
+        appt,
+        start: parseDate(appt.start_time)?.getTime() ?? 0,
+        end: parseDate(appt.end_time)?.getTime() ?? 0,
+    }));
+
+    const sorted = [...withTimes].sort((a, b) => a.start - b.start);
+
+    // Greedy column assignment
+    const colEndTimes: number[] = [];
+    const colAssign = new Map<number, number>();
+    for (const item of sorted) {
+        let col = colEndTimes.findIndex((endTime) => endTime <= item.start);
+        if (col === -1) {
+            col = colEndTimes.length;
+            colEndTimes.push(item.end);
+        } else {
+            colEndTimes[col] = item.end;
+        }
+        colAssign.set(item.appt.id, col);
+    }
+
+    // Compute totalCols: for each appointment, find max col index among all overlapping appointments
+    const layout = new Map<number, { col: number; totalCols: number }>();
+    for (const item of withTimes) {
+        const col = colAssign.get(item.appt.id) ?? 0;
+        let maxCol = col;
+        for (const other of withTimes) {
+            if (other.appt.id !== item.appt.id && other.start < item.end && other.end > item.start) {
+                maxCol = Math.max(maxCol, colAssign.get(other.appt.id) ?? 0);
+            }
+        }
+        layout.set(item.appt.id, { col, totalCols: maxCol + 1 });
+    }
+
+    return layout;
+});
+
 const getAppointmentPosition = (appointment: Appointment) => {
     const startDate = parseDate(appointment.start_time);
     const endDate = parseDate(appointment.end_time);
-    if (!startDate || !endDate) return { top: '0px', height: '24px' };
+    if (!startDate || !endDate) return { top: '0px', height: '24px', left: '2px', width: 'calc(100% - 4px)', right: 'auto' };
     const startHour = startDate.getHours() + startDate.getMinutes() / 60;
     const endHour = endDate.getHours() + endDate.getMinutes() / 60;
     const duration = Math.max(endHour - startHour, 0.5);
 
+    const { col, totalCols } = overlapLayout.value.get(appointment.id) ?? { col: 0, totalCols: 1 };
+    const gapPx = 2;
+    const marginPx = 2;
+    const totalSpacePx = 2 * marginPx + (totalCols - 1) * gapPx;
+    const colWidth = `calc((100% - ${totalSpacePx}px) / ${totalCols})`;
+    const colLeft =
+        col === 0 ? `${marginPx}px` : `calc(${marginPx}px + ${col} * (${colWidth} + ${gapPx}px))`;
+
     return {
         top: `${startHour * 48}px`,
         height: `${duration * 48}px`,
+        left: colLeft,
+        width: colWidth,
+        right: 'auto',
     };
 };
 </script>
@@ -78,7 +131,7 @@ const getAppointmentPosition = (appointment: Appointment) => {
                             v-for="appointment in selectedAppointments"
                             :key="appointment.id"
                             type="button"
-                            class="absolute left-1 right-1 flex flex-col gap-0.5 overflow-hidden rounded-lg px-3 py-2 text-left text-white shadow-sm transition-opacity hover:opacity-90"
+                            class="absolute flex flex-col gap-0.5 overflow-hidden rounded-lg px-3 py-2 text-left text-white shadow-sm transition-opacity hover:opacity-90"
                             :class="getEventBgClass(appointment)"
                             :style="getAppointmentPosition(appointment)"
                             @click="emit('open-details', appointment)"
