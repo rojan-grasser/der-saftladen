@@ -53,9 +53,14 @@ const getAppointmentPosition = (appointment: Appointment) => {
                     <div
                         v-for="hour in hours"
                         :key="hour.value"
-                        class="h-12 border-b border-r pr-2 text-right text-[10px] text-muted-foreground"
+                        class="relative h-12 border-b border-r"
                     >
-                        {{ hour.label }}
+                        <span
+                            v-if="hour.value > 0"
+                            class="absolute -top-2 right-2 text-[10px] text-muted-foreground"
+                        >
+                            {{ hour.label }}
+                        </span>
                     </div>
                 </div>
 

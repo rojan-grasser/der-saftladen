@@ -27,6 +27,19 @@ const formatDayHeader = (date: Date) => {
         weekday: 'short',
     }).format(date);
 };
+
+const getAppointmentPosition = (appointment: Appointment) => {
+    const startDate = new Date(appointment.start_time);
+    const endDate = new Date(appointment.end_time);
+    const startHour = startDate.getHours() + startDate.getMinutes() / 60;
+    const endHour = endDate.getHours() + endDate.getMinutes() / 60;
+    const duration = Math.max(endHour - startHour, 0.5);
+
+    return {
+        top: `${startHour * 48}px`,
+        height: `${duration * 48}px`,
+    };
+};
 </script>
 
 <template>
@@ -56,11 +69,16 @@ const formatDayHeader = (date: Date) => {
             <div class="grid grid-cols-[60px_repeat(7,1fr)]">
                 <div class="sticky left-0 bg-background">
                     <div
-                        v-for="hour in hours"
+                        v-for="(hour, index) in hours"
                         :key="hour"
-                        class="h-12 border-b border-r pr-2 text-right text-[10px] text-muted-foreground"
+                        class="relative h-12 border-b border-r"
                     >
-                        {{ hour }}
+                        <span
+                            v-if="index > 0"
+                            class="absolute -top-2 right-2 text-[10px] text-muted-foreground"
+                        >
+                            {{ hour }}
+                        </span>
                     </div>
                 </div>
 
@@ -76,19 +94,20 @@ const formatDayHeader = (date: Date) => {
                         class="h-12 border-b"
                     />
 
-                    <div class="absolute inset-0 p-0.5">
+                    <div class="absolute inset-0">
                         <button
                             v-for="appointment in day.appointments"
                             :key="appointment.id"
                             type="button"
-                            class="mb-0.5 flex w-full items-start gap-1 rounded px-1 py-0.5 text-left text-[10px] text-white transition-opacity hover:opacity-80"
+                            class="absolute left-0.5 right-0.5 overflow-hidden rounded px-1 py-0.5 text-left text-[10px] text-white transition-opacity hover:opacity-80"
                             :class="getEventBgClass(appointment)"
+                            :style="getAppointmentPosition(appointment)"
                             @click="emit('open-details', appointment)"
                         >
-                            <span class="font-medium">
+                            <span class="block font-medium leading-tight">
                                 {{ formatTime(appointment.start_time) }}
                             </span>
-                            <span class="truncate">
+                            <span class="block truncate leading-tight">
                                 {{ appointment.title }}
                             </span>
                         </button>
