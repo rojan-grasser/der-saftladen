@@ -1,3 +1,5 @@
+{{ $minioConsolePort := 9001 }}
+
 deployment:
   spec:
     containers:
@@ -5,6 +7,11 @@ deployment:
         image: ghcr.io/rojan-grasser/der-saftladen:{{ .CommitId }}
         imagePullPolicy: IfNotPresent
         env:
+          - name: RUNMODE
+            value: all
+          - name: WAIT_FOR_MINIO
+            value: "true"
+          # App
           - name: APP_KEY
             value: base64:r9EkUOISRfHacEdhgcXKaND0ZcdYFgmhIUnUrjYzoow=
           - name: APP_NAME
@@ -50,6 +57,13 @@ deployment:
             value: "der.saftladen01@gmail.com"
           - name: MAIL_FROM_NAME
             value: "Der Saftladen"
+          # Object storage
+          - name: AWS_ENDPOINT
+            value: "http://127.0.0.1:9000"
+          - name: AWS_URL
+            value: "http://127.0.0.1:9000"
+          - name: AWS_USE_PATH_STYLE_ENDPOINT
+            value: "true"
         resources:
           requests:
             cpu: "200m"
@@ -74,9 +88,23 @@ deployment:
           limits:
             cpu: "250m"
             memory: "512Mi"
+      - name: minio
+        image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
+        args:
+          - server
+          - /data
+          - --console-address
+          - ":{{ $minioConsolePort }}"
+        env:
+          - name: MINIO_ROOT_USER
+            value: minio
+          - name: MINIO_ROOT_PASSWORD
+            value: miniopassword
+        ports:
+          - containerPort: 9000
+          - containerPort: {{ $minioConsolePort }}
     volumes: []
     restartPolicy: Always
-
 
 service:
   enabled: true
@@ -89,14 +117,43 @@ virtualService:
     gateways:
       - {{ .Gateway }}
     hosts:
-        - "{{ .Host }}.{{ .BaseDomain }}"
+      - "{{ .Host }}.{{ .BaseDomain }}"
+      - "{{ .MinioHost }}.{{ .BaseDomain }}"
     http:
       - match:
           - headers:
               cookie:
                 regex: ".*feature={{ .BranchName }}.*"
+            authority:
+              exact: "{{ .MinioHost }}.{{ .BaseDomain }}"
         route:
           - destination:
-              port:
-                number: {{ .Port }}
               host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
+              port:
+                number: {{ $minioConsolePort }}
+      - match:
+          - uri:
+              prefix: /assets/
+            headers:
+              cookie:
+                regex: ".*feature={{ .BranchName }}.*"
+            authority:
+              exact: "{{ .MinioHost }}.{{ .BaseDomain }}"
+        route:
+          - destination:
+              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
+              port:
+                number: 9000
+        rewrite:
+          uri: /
+      - match:
+          - headers:
+              cookie:
+                regex: ".*feature={{ .BranchName }}.*"
+            authority:
+              exact: "{{ .Host }}.{{ .BaseDomain }}"
+        route:
+          - destination:
+            port:
+              number: {{ .Port }}
+            host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
