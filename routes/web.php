@@ -10,7 +10,7 @@ Route::get('/', function () {
 })->name('home')->middleware('request-logging');
 
 Route::get('dashboard', function () {
-    return redirect()->route('appointments.index');
+    return Inertia::render('Dashboard');
 })->middleware(['request-logging', 'auth', 'verified', 'active'])->name('dashboard');
 
 require __DIR__ . '/admin.php';
