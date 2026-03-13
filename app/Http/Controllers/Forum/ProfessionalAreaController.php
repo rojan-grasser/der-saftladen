@@ -34,7 +34,7 @@ class ProfessionalAreaController extends Controller
             ->get()
             ->map(function ($area) {
                 return [
-                    'id' => $area->id,
+                    'id' => $area->professional_area_id ?? $area->id,
                     'name' => $area->name,
                     'description' => $area->description,
                 ];
