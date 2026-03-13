@@ -85,7 +85,7 @@ const getAppointmentPosition = (appointment: Appointment) => {
                 <div
                     v-for="day in weekDays"
                     :key="`grid-${day.key}`"
-                    class="relative border-r last:border-r-0"
+                    class="relative overflow-hidden border-r last:border-r-0"
                     :class="day.isSelected ? 'bg-primary/5' : ''"
                 >
                     <div
@@ -99,7 +99,7 @@ const getAppointmentPosition = (appointment: Appointment) => {
                             v-for="appointment in day.appointments"
                             :key="appointment.id"
                             type="button"
-                            class="absolute left-0.5 right-0.5 overflow-hidden rounded px-1 py-0.5 text-left text-[10px] text-white transition-opacity hover:opacity-80"
+                            class="absolute left-1 right-1 overflow-hidden rounded px-1 py-0.5 text-left text-[10px] text-white transition-opacity hover:opacity-80"
                             :class="getEventBgClass(appointment)"
                             :style="getAppointmentPosition(appointment)"
                             @click="emit('open-details', appointment)"

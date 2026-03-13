@@ -64,14 +64,14 @@ const getAppointmentPosition = (appointment: Appointment) => {
                     </div>
                 </div>
 
-                <div class="relative">
+                <div class="relative overflow-hidden">
                     <div
                         v-for="hour in hours"
                         :key="`grid-${hour.value}`"
                         class="h-12 border-b"
                     />
 
-                    <div class="absolute inset-0 p-1">
+                    <div class="absolute inset-0">
                         <button
                             v-for="appointment in selectedAppointments"
                             :key="appointment.id"
