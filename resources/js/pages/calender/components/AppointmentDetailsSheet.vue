@@ -142,12 +142,12 @@ const handleEdit = () => {
 
                 <div
                     v-if="canEdit || canDelete"
-                    class="flex flex-shrink-0 gap-2 border-t pt-4 pb-6"
+                    class="flex flex-shrink-0 gap-5 border-t pt-4 pb-6 pl-4"
                 >
                     <Button
                         v-if="canEdit"
                         variant="outline"
-                        class="flex-1 gap-2"
+                        class="flex-1 gap-5"
                         @click="handleEdit"
                     >
                         <Pencil class="h-4 w-4" />
