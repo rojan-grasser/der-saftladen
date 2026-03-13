@@ -33,7 +33,7 @@ onMounted(() => {
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     </Head>
 
-    <div class="bg-background text-foreground font-sans overflow-x-hidden min-h-screen flex flex-col relative selection:bg-primary selection:text-primary-foreground">
+    <div class="bg-background text-foreground font-sans overflow-x-auto min-h-screen relative selection:bg-primary selection:text-primary-foreground">
         <!-- Background Effects -->
         <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
             <div class="absolute inset-0 bg-dot-pattern opacity-[0.2] mask-corners"></div>
@@ -43,8 +43,8 @@ onMounted(() => {
         </div>
 
         <!-- Header -->
-        <header class="fixed top-0 left-0 right-0 z-50 w-full pt-6 pb-4 px-6 md:px-12 transition-all duration-300 backdrop-blur-sm">
-            <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <header class="relative top-0 left-0 w-full z-50 pt-6 pb-4 px-4 sm:px-6 md:px-12 transition-all duration-300 backdrop-blur-sm">
+            <div class="max-w-7xl mx-auto flex items-center justify-between min-w-[320px]">
                 <div class="flex items-center gap-3">
                     <AppLogo></AppLogo>
                 </div>
@@ -55,7 +55,7 @@ onMounted(() => {
                         </Link>
                     </template>
                     <template v-else>
-                        <Link :href="login()" class="hidden md:inline-block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                        <Link :href="login()" class="inline-block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                             Anmelden
                         </Link>
                         <Link v-if="canRegister" :href="register()" class="inline-flex h-9 items-center justify-center rounded-lg bg-secondary hover:bg-secondary/80 px-4 text-sm font-semibold text-secondary-foreground transition-colors border border-border">
@@ -67,22 +67,22 @@ onMounted(() => {
         </header>
 
         <!-- Main Content -->
-        <main class="relative z-10 flex-grow flex flex-col">
+        <main class="relative z-10 flex flex-col min-w-[320px]">
             <!-- Hero Section -->
-            <section class="min-h-screen flex flex-col items-center justify-center px-6 text-center pt-20">
+            <section class="flex flex-col items-center justify-center px-4 sm:px-6 text-center pt-40">
                 <div class="max-w-5xl mx-auto flex flex-col items-center gap-10">
                     <div class="space-y-6">
-                        <h1 class="text-6xl md:text-8xl font-extrabold tracking-tight text-foreground pb-2">
+                        <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-foreground leading-tight break-words">
                             Ausbilderportal
                         </h1>
-                        <p class="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                        <p class="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl sm:max-w-2xl mx-auto leading-relaxed">
                             Die zentrale Schnittstelle für Ausbildung, Projektmanagement und Kommunikation. Effizient, übersichtlich und sicher.
                         </p>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row gap-4 w-full justify-center mt-6">
+                    <div class="flex flex-col sm:flex-row gap-4 w-full max-w-sm sm:max-w-none justify-center mt-6">
                         <template v-if="$page.props.auth.user">
-                             <Link :href="dashboard()" class="inline-flex h-12 md:h-14 min-w-[180px] cursor-pointer items-center justify-center rounded-lg bg-primary px-8 text-base font-bold text-primary-foreground shadow-lg hover:shadow-xl hover:bg-primary/90 transition-all transform hover:-translate-y-0.5">
+                            <Link :href="dashboard()" class="inline-flex h-12 md:h-14 min-w-[180px] cursor-pointer items-center justify-center rounded-lg bg-primary px-8 text-base font-bold text-primary-foreground shadow-lg hover:shadow-xl hover:bg-primary/90 transition-all transform hover:-translate-y-0.5">
                                 Zum Dashboard
                             </Link>
                         </template>
@@ -107,7 +107,7 @@ onMounted(() => {
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full text-left">
-                        <!-- Feature 1
+                        < Feature 1
                         <div class="group relative rounded-xl border border-border bg-card p-6 hover:bg-accent/50 hover:border-primary/50 transition-all duration-300">
                             <div class="mb-4 inline-flex size-10 items-center justify-center rounded-lg bg-secondary text-muted-foreground group-hover:text-primary transition-colors">
                                 <span class="material-symbols-outlined" style="font-size: 24px;">lock</span>
