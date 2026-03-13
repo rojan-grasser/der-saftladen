@@ -137,7 +137,7 @@ class UserController extends Controller
             $user->update(collect($validated)->except('roles')->toArray());
 
             if (($validated['status'] ?? null) != UserStatus::ACTIVE->value) {
-                DB::table('user_to_professional_area')
+                DB::table('user_to_profession')
                     ->where('user_id', $user->id)
                     ->delete();
             }

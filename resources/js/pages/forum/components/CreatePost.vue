@@ -17,7 +17,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import posts from '@/routes/posts';
 
-const { areaId, topicId } = defineProps<{ areaId: number; topicId: number }>();
+const { professionId, topicId } = defineProps<{
+    professionId: number;
+    topicId: number;
+}>();
 
 const open = ref(false);
 
@@ -26,10 +29,10 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(posts.store({ areaId, topicId }).url, {
+    form.post(posts.store({ professionId, topicId }).url, {
         onSuccess: () => {
             open.value = false;
-        }
+        },
     });
 };
 

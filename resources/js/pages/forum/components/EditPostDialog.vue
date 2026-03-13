@@ -15,8 +15,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Post } from '@/pages/forum/types';
 import posts from '@/routes/posts';
 
-const { areaId, topicId, post } = defineProps<{
-    areaId: number;
+const { professionId, topicId, post } = defineProps<{
+    professionId: number;
     topicId: number;
     post: Post;
 }>();
@@ -28,7 +28,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.put(posts.update({ areaId, topicId, post: post.id }).url, {
+    form.put(posts.update({ professionId, topicId, post: post.id }).url, {
         onSuccess: () => {
             open.value = false;
         },
@@ -43,7 +43,8 @@ const submit = () => {
                 <DialogHeader>
                     <DialogTitle>Kommentar Bearbeiten</DialogTitle>
                     <DialogDescription>
-                        Bearbeite hier einen Kommentar. Um es zu speichern drücke "Speichern"
+                        Bearbeite hier einen Kommentar. Um es zu speichern
+                        drücke "Speichern"
                     </DialogDescription>
                 </DialogHeader>
                 <div class="my-5 grid gap-4">

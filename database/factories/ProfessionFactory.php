@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\Profession;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ProfessionalArea>
+ * @extends Factory<Profession>
  */
-class ProfessionalAreaFactory extends Factory
+class ProfessionFactory extends Factory
 {
     /**
      * Define the model's default state.

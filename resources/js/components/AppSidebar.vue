@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import {Calendar, LayoutGrid, ShieldCheck, MessageSquare } from 'lucide-vue-next';
+import {
+    Calendar,
+    LayoutGrid,
+    MessageSquare,
+    ShieldCheck,
+} from 'lucide-vue-next';
 
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -15,7 +20,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import admin from '@/routes/admin';
-import { areas } from '@/routes/forum';
+import { professions } from '@/routes/forum';
 import { type NavItem } from '@/types';
 
 import AppLogo from './AppLogo.vue';
@@ -36,7 +41,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Forum',
-        href: areas(),
+        href: professions(),
         icon: MessageSquare,
     },
 ];
@@ -52,7 +57,7 @@ if (user.roles?.find((u) => u.role === 'admin')) {
             },
             {
                 title: 'Berufsbereiche',
-                href: admin.professionalArea(),
+                href: admin.profession(),
             },
         ],
     });

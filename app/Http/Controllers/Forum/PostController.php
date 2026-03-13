@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers\Forum;
 
-use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\ForumPost;
-use App\Models\Instructor;
 use App\Models\Topic;
-use App\Models\User;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -15,7 +12,7 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(string $areaId, string $topicId)
+    public function index(string $professionId, string $topicId)
     {
         return Topic::findOrFail($topicId)->posts()->paginate(25);
     }
@@ -23,7 +20,7 @@ class PostController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request, string $areaId, string $topicId)
+    public function create(Request $request, string $professionId, string $topicId)
     {
         //
     }
@@ -31,7 +28,7 @@ class PostController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, string $areaId, string $topicId)
+    public function store(Request $request, string $professionId, string $topicId)
     {
         $validated = $request->validate([
             'content' => ['required', 'string'],
@@ -49,7 +46,7 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $areaId, string $topicId, string $postId)
+    public function show(string $professionId, string $topicId, string $postId)
     {
         return ForumPost::findOrFail($postId);
     }
@@ -65,7 +62,7 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $areaId, string $topicId, string $postId)
+    public function update(Request $request, string $professionId, string $topicId, string $postId)
     {
         $validated = $request->validate([
             'content' => ['required', 'string'],
@@ -82,13 +79,13 @@ class PostController extends Controller
             'edited' => true,
         ]);
 
-        return redirect("/forum/area/$areaId/topics/$topicId")->with('success', 'Der Kommentar wurde aktualisiert');
+        return redirect("/forum/profession/$professionId/topics/$topicId")->with('success', 'Der Kommentar wurde aktualisiert');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, string $areaId, string $topicId, $postId)
+    public function destroy(Request $request, string $professionId, string $topicId, $postId)
     {
         $post = ForumPost::findOrFail($postId);
 
@@ -98,6 +95,6 @@ class PostController extends Controller
 
         $post->delete();
 
-        return redirect("/forum/area/$areaId/topics/$topicId");
+        return redirect("/forum/profession/$professionId/topics/$topicId");
     }
 }
