@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { roleLabels, statusLabels, statusVariants } from '@/constants/user';
 import AppLayout from '@/layouts/AppLayout.vue';
+import DeleteUser from '@/pages/admin/DeleteUser.vue';
 import UserEdit from '@/pages/admin/UserEdit.vue';
 import admin from '@/routes/admin';
 import { type BreadcrumbItem, type PaginatedResponse, type User, type UserStatus } from '@/types';
@@ -211,7 +212,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     }}
                                 </Badge>
                             </TableCell>
-                            <TableCell>
+                            <TableCell class="flex gap-2">
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger as-child>
@@ -228,6 +229,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         >
                                     </Tooltip>
                                 </TooltipProvider>
+
+                                <DeleteUser :user="user" />
                             </TableCell>
                         </TableRow>
                         <TableRow v-if="props.users.data.length === 0">

@@ -39,6 +39,7 @@ Route::middleware(['request-logging', 'auth', 'verified', 'active', 'role:admin'
 
         Route::get('/users', [UserController::class, 'index'])->name('admin.users');
         Route::put('/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
+        Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
         Route::get('/instructors', [InstructorController::class, 'index'])->name('admin.instructors');
         Route::get('/professional-areas', [ProfessionalAreaController::class, 'index'])->name('admin.professional-area');
         Route::post('/professional-area', [ProfessionalAreaController::class, 'store'])->name('admin.professional-area.store');
