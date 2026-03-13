@@ -40,6 +40,7 @@ export const useAppointmentForm = () => {
         color: defaultAppointmentColor,
         start_time: '',
         end_time: '',
+        reminders: [] as number[],
     });
 
     const isAllDay = ref(false);
@@ -116,6 +117,7 @@ export const useAppointmentForm = () => {
         form.reset();
         form.clearErrors();
         form.color = defaultAppointmentColor;
+        form.reminders = [];
         isAllDay.value = false;
 
         const now = new Date();
@@ -143,6 +145,7 @@ export const useAppointmentForm = () => {
         form.description = appointment.description ?? '';
         form.location = appointment.location ?? '';
         form.color = appointment.color ?? defaultAppointmentColor;
+        form.reminders = appointment.reminders ?? [];
 
         const start = parseDate(appointment.start_time);
         const end = parseDate(appointment.end_time) ?? start;

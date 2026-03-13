@@ -21,6 +21,7 @@ export interface Appointment {
     start_time: number | string;
     end_time: number | string;
     user_id: number;
+    reminders?: number[] | null;
     creator?: {
         id: number;
         name: string;
