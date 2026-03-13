@@ -85,7 +85,7 @@ class SendAppointmentReminders extends Command
         $label = $this->formatOffset($offsetMinutes);
         $payload = json_encode([
             'title' => 'Terminerinnerung',
-            'body' => "„{$appointment->title}" beginnt in {$label}",
+            'body' => "\"{$appointment->title}\" beginnt in {$label}",
             'appointmentId' => $appointment->id,
         ]);
 
