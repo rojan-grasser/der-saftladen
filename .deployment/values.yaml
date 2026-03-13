@@ -163,4 +163,4 @@ virtualService:
           - destination:
               host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
               port:
-                number: {{ .Port }}
+                number: 8000
