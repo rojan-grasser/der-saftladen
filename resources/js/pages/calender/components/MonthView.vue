@@ -235,13 +235,12 @@ const getHiddenCount = (segments: EventSegment[], dayIndex: number) => {
                     class="absolute z-10 flex items-center overflow-hidden text-[11px] text-white transition-opacity hover:opacity-90"
                     :class="[
                         getEventBgClass(segment.appointment),
-                        segment.isStart ? 'ml-0.5 rounded-l' : '',
-                        segment.isEnd ? 'mr-0.5 rounded-r' : '',
-                        !segment.isStart && !segment.isEnd ? '' : '',
+                        segment.isStart ? 'rounded-l' : '',
+                        segment.isEnd ? 'rounded-r' : '',
                     ]"
                     :style="{
-                        left: `calc(${(segment.startCol / 7) * 100}% + ${segment.isStart ? '2px' : '0px'})`,
-                        width: `calc(${(segment.span / 7) * 100}% - ${(segment.isStart ? 2 : 0) + (segment.isEnd ? 2 : 0)}px)`,
+                        left: `calc(${(segment.startCol / 7) * 100}% + ${segment.isStart ? '4px' : '0px'})`,
+                        width: `calc(${(segment.span / 7) * 100}% - ${(segment.isStart ? 4 : 0) + (segment.isEnd ? 4 : 0)}px)`,
                         top: `${32 + segment.lane * 22}px`,
                         height: '20px',
                     }"
