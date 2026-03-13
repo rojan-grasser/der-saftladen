@@ -242,7 +242,7 @@ const getHiddenCount = (segments: EventSegment[], dayIndex: number) => {
                     :style="{
                         left: `calc(${(segment.startCol / 7) * 100}% + ${segment.isStart ? '2px' : '0px'})`,
                         width: `calc(${(segment.span / 7) * 100}% - ${(segment.isStart ? 2 : 0) + (segment.isEnd ? 2 : 0)}px)`,
-                        top: `${28 + segment.lane * 22}px`,
+                        top: `${32 + segment.lane * 22}px`,
                         height: '20px',
                     }"
                     @click.stop="emit('open-details', segment.appointment)"
