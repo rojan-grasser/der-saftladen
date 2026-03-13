@@ -50,7 +50,7 @@ const handleEdit = () => {
 
 <template>
     <Sheet :open="open" @update:open="emit('update:open', $event)">
-        <SheetContent class="w-full sm:max-w-md flex flex-col">
+        <SheetContent class="flex w-full flex-col sm:max-w-md">
             <SheetHeader v-if="appointment" class="space-y-4 pr-4">
                 <div class="flex items-start justify-between gap-4">
                     <div class="flex items-center gap-3">
@@ -69,43 +69,70 @@ const handleEdit = () => {
                 </SheetDescription>
             </SheetHeader>
 
-            <div v-if="appointment" class="mt-6 flex flex-1 flex-col space-y-6 overflow-hidden pr-4">
+            <div
+                v-if="appointment"
+                class="mt-6 flex flex-1 flex-col space-y-6 overflow-hidden pr-4"
+            >
                 <div class="space-y-4 pl-2">
                     <div class="flex items-center gap-3 text-sm">
-                        <Calendar class="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+                        <Calendar
+                            class="h-5 w-5 flex-shrink-0 text-muted-foreground"
+                        />
                         <span>
                             {{
                                 formatDate(
-                                    parseDate(appointment.start_time) || new Date()
+                                    parseDate(appointment.start_time) ||
+                                        new Date(),
+                                )
+                            }}
+                            -
+                            {{
+                                formatDate(
+                                    parseDate(appointment.end_time) ||
+                                        new Date(),
                                 )
                             }}
                         </span>
                     </div>
 
                     <div class="flex items-center gap-3 text-sm">
-                        <Clock class="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+                        <Clock
+                            class="h-5 w-5 flex-shrink-0 text-muted-foreground"
+                        />
                         <span>
                             {{ formatTime(appointment.start_time) }} -
                             {{ formatTime(appointment.end_time) }}
                         </span>
                     </div>
 
-                    <div v-if="appointment.location" class="flex items-center gap-3 text-sm">
-                        <MapPin class="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+                    <div
+                        v-if="appointment.location"
+                        class="flex items-center gap-3 text-sm"
+                    >
+                        <MapPin
+                            class="h-5 w-5 flex-shrink-0 text-muted-foreground"
+                        />
                         <span>{{ appointment.location }}</span>
                     </div>
 
                     <div class="flex items-center gap-3 text-sm">
-                        <User class="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+                        <User
+                            class="h-5 w-5 flex-shrink-0 text-muted-foreground"
+                        />
                         <span>{{ getOwnerName(appointment) }}</span>
                     </div>
                 </div>
 
-                <div v-if="appointment.description" class="flex min-h-0 flex-1 flex-col space-y-2">
+                <div
+                    v-if="appointment.description"
+                    class="flex min-h-0 flex-1 flex-col space-y-2"
+                >
                     <h4 class="text-sm font-medium text-muted-foreground">
                         Beschreibung
                     </h4>
-                    <div class="flex-1 overflow-y-auto rounded-md border bg-muted/30 p-3">
+                    <div
+                        class="flex-1 overflow-y-auto rounded-md border bg-muted/30 p-3"
+                    >
                         <MarkdownContent
                             :content="appointment.description"
                             class="text-sm"
@@ -113,7 +140,10 @@ const handleEdit = () => {
                     </div>
                 </div>
 
-                <div v-if="canEdit || canDelete" class="flex flex-shrink-0 gap-2 border-t pb-6 pt-4">
+                <div
+                    v-if="canEdit || canDelete"
+                    class="flex flex-shrink-0 gap-2 border-t pt-4 pb-6"
+                >
                     <Button
                         v-if="canEdit"
                         variant="outline"
