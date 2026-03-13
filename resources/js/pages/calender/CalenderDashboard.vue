@@ -184,7 +184,7 @@ const togglePushNotifications = async () => {
 
 const startCreate = () => {
     if (!canCreateAppointments.value) return;
-    openCreate();
+    openCreate(new Date(selectedDate.value));
 };
 
 const startEdit = (appointment: Appointment) => {

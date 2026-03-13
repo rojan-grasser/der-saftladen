@@ -110,7 +110,7 @@ export const useAppointmentForm = () => {
         form.end_time = `${date}T${time}`;
     };
 
-    const openCreate = () => {
+    const openCreate = (initialDate?: Date) => {
         isEditMode.value = false;
         editingAppointmentId.value = null;
         isCreateOpen.value = true;
@@ -120,12 +120,15 @@ export const useAppointmentForm = () => {
         form.reminders = [];
         isAllDay.value = false;
 
+        const base = initialDate ?? new Date();
         const now = new Date();
+        // Keep current time-of-day but use the selected date
+        base.setHours(now.getHours(), now.getMinutes(), 0, 0);
 
-        form.start_time = toInputDateTime(now);
-        form.end_time = toInputDateTime(addMinutes(now, 60));
-        allDayStart.value = toInputDate(now);
-        allDayEnd.value = toInputDate(now);
+        form.start_time = toInputDateTime(base);
+        form.end_time = toInputDateTime(addMinutes(base, 60));
+        allDayStart.value = toInputDate(base);
+        allDayEnd.value = toInputDate(base);
         syncDateTimeFields();
     };
 
