@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { Head, Link, usePage } from '@inertiajs/vue3';
 
+import DeleteUserButton from '@/components/DeleteUserButton.vue';
 import { Button } from '@/components/ui/button';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import DeleteUserButton from '@/components/DeleteUserButton.vue';
 
 const page = usePage();
 const user = page.props.auth.user;
