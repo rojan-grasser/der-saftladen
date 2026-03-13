@@ -161,6 +161,6 @@ virtualService:
               exact: "{{ .Host }}.{{ .BaseDomain }}"
         route:
           - destination:
-            port:
-              number: {{ .Port }}
-            host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
+              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
+              port:
+                number: {{ .Port }}
