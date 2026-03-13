@@ -73,6 +73,8 @@ deployment:
             value: minio
           - name: TF_VAR_minio_password
             value: miniopassword
+          - name: AWS_DEFAULT_REGION
+            value: us-west-2
         resources:
           requests:
             cpu: "200m"

@@ -2,6 +2,9 @@ FROM php:8.4-fpm-alpine
 
 WORKDIR /var/www/html
 
+# To make sure the terraform directory is also there in case its not mounted (e.g. feature deployments)
+RUN mkdir -p /terraform
+
 RUN apk add --no-cache bash libpng libpng-dev oniguruma-dev icu-dev libxml2-dev libpq-dev \
     && docker-php-ext-install pdo_mysql mbstring intl xml opcache pdo_pgsql pcntl
 
@@ -29,8 +32,8 @@ RUN apk add --no-cache wget unzip \
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-ENV APP_PORT 9000
-ENV RUNMODE server
+ENV APP_PORT=9000
+ENV RUNMODE=server
 
 EXPOSE $APP_PORT
 

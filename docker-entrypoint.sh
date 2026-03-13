@@ -12,7 +12,9 @@ function tf-runmode() {
 
     cd terraform
 
-    terraform init
+    export TF_DATA_DIR=/terraform/.terraform
+
+    terraform init -backend-config="path=/terraform/terraform.tfstate"
     terraform plan
     terraform apply -auto-approve
 
