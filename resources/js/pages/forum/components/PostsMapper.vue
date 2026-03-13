@@ -6,7 +6,7 @@ import { Topic } from '@/pages/forum/types';
 const { posts, topicId } = defineProps<{
     posts: Topic['posts'];
     topicId: number;
-    areaId: number;
+    professionId: number;
 }>();
 </script>
 
@@ -16,15 +16,19 @@ const { posts, topicId } = defineProps<{
             <PostContextMenu
                 v-if="post.isOwnPost"
                 :topic-id="topicId"
-                :area-id="areaId"
                 :post="post"
+                :profession-id="professionId"
             >
-                <PostCard :post="post" :topic-id="topicId" :area-id="areaId" />
+                <PostCard
+                    :post="post"
+                    :profession-id="professionId"
+                    :topic-id="topicId"
+                />
             </PostContextMenu>
             <PostCard
                 :post="post"
                 :topic-id="topicId"
-                :area-id="areaId"
+                :profession-id="professionId"
                 v-if="!post.isOwnPost"
             />
         </div>

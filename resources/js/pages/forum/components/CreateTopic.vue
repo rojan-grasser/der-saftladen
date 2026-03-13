@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import topics from '@/routes/topics';
 
-const { areaId } = defineProps<{ areaId: number }>();
+const { professionId } = defineProps<{ professionId: number }>();
 
 const open = ref(false);
 
@@ -28,7 +28,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(topics.store({ areaId: areaId }).url, {
+    form.post(topics.store({ professionId: professionId }).url, {
         onSuccess: () => {
             open.value = false;
         },

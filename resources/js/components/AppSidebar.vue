@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import admin from '@/routes/admin';
-import { areas } from '@/routes/forum';
+import { professions } from '@/routes/forum';
 import { type NavItem } from '@/types';
 
 import AppLogo from './AppLogo.vue';
@@ -41,7 +41,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Forum',
-        href: areas(),
+        href: professions(),
         icon: MessageSquare,
     },
 ];

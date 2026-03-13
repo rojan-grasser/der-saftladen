@@ -14,14 +14,14 @@ import { PaginatedResponse } from '@/types';
 
 interface Props {
     topics: PaginatedResponse<MinimalTopic>;
-    area: Profession;
+    profession: Profession;
 }
 
-const { topics, area } = defineProps<Props>();
+const { topics, profession } = defineProps<Props>();
 
 const handlePageChange = (page: number) => {
     router.get(
-        topicsApi.index({ areaId: area.id }).url,
+        topicsApi.index({ professionId: profession.id }).url,
         {
             page: page,
         },
@@ -36,7 +36,7 @@ const handlePageChange = (page: number) => {
 <template>
     <div v-for="topic in topics.data" :key="`topic-${topic.id}`">
         <Link
-            :href="show.url({ topicId: topic.id, areaId: area.id })"
+            :href="show.url({ topicId: topic.id, professionId: profession.id })"
             class="block"
         >
             <Card

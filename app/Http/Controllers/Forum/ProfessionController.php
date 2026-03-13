@@ -28,20 +28,20 @@ class ProfessionController extends Controller
      */
     public function index(Request $request)
     {
-        $areas = ($request->user()->hasRole(Role::INSTRUCTOR) ?
+        $professions = ($request->user()->hasRole(Role::INSTRUCTOR) ?
             $this->getQueryForInstructor($request->user()->id) :
             $this->getQueryForTeacher())
             ->get()
-            ->map(function ($area) {
+            ->map(function ($profession) {
                 return [
-                    'id' => $area->id,
-                    'name' => $area->name,
-                    'description' => $area->description,
+                    'id' => $profession->id,
+                    'name' => $profession->name,
+                    'description' => $profession->description,
                 ];
             });
 
         return Inertia::render('forum/Professions', [
-            'areas' => $areas,
+            'professions' => $professions,
         ]);
     }
 }

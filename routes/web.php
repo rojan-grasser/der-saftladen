@@ -46,8 +46,8 @@ Route::middleware(['request-logging', 'auth', 'verified', 'active', 'role:admin'
         Route::delete('/profession/{id}', [ProfessionController::class, 'destroy'])->name('admin.profession.destroy');
         Route::get('/profession/{id}/instructors', [ProfessionController::class, 'getInstructors'])->name('admin.profession.instructors');
 
-        Route::post('/instructors-to-profession/{instructorId}/{areaId}', [InstructorToProfessionController::class, 'index'])->name('admin.instructors-to-profession.add');
-        Route::delete('/instructors-to-profession/{instructorId}/{areaId}', [InstructorToProfessionController::class, 'destroy'])->name('admin.instructors-to-profession.destroy');
+        Route::post('/instructors-to-profession/{instructorId}/{professionId}', [InstructorToProfessionController::class, 'index'])->name('admin.instructors-to-profession.add');
+        Route::delete('/instructors-to-profession/{instructorId}/{professionId}', [InstructorToProfessionController::class, 'destroy'])->name('admin.instructors-to-profession.destroy');
 
         // Add any other admin routes here
     });
@@ -55,14 +55,14 @@ Route::middleware(['request-logging', 'auth', 'verified', 'active', 'role:admin'
 Route::middleware(['auth', 'verified', 'active'])
     ->prefix('forum')
     ->group(function () {
-        Route::get('areas', [ForumProfessionController::class, 'index'])->name('forum.areas');
+        Route::get('professions', [ForumProfessionController::class, 'index'])->name('forum.professions');
 
-        // Route::resource('area', TopicController::class);
-        Route::get('area/{areaId}', [TopicController::class, 'index'])->name('topics.index');
-        Route::post('area/{areaId}/topics', [TopicController::class, 'store'])->name('topics.store');
+        // Route::resource('profession', TopicController::class);
+        Route::get('profession/{professionId}', [TopicController::class, 'index'])->name('topics.index');
+        Route::post('profession/{professionId}/topics', [TopicController::class, 'store'])->name('topics.store');
 
         Route::middleware([])
-            ->prefix('area/{areaId}')
+            ->prefix('profession/{professionId}')
             ->group(function () {
                 Route::get('/topics/{topicId}', [TopicController::class, 'show'])->name('topics.show');
                 Route::put('/topics/{topicId}', [TopicController::class, 'update'])->name('topics.update');

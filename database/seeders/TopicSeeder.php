@@ -11,11 +11,11 @@ class TopicSeeder extends Seeder
 {
     public function run(): void
     {
-        $areas = Profession::factory(5)->create();
+        $professions = Profession::factory(5)->create();
 
-        foreach ($areas as $area) {
+        foreach ($professions as $profession) {
             $topics = Topic::factory(100)->create([
-                'profession_id' => $area->id,
+                'profession_id' => $profession->id,
             ]);
 
             foreach ($topics as $topic) {

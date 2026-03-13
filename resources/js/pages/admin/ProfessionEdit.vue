@@ -114,7 +114,7 @@ function onInstructorSearch(q: string) {
     debouncedLoadFirstPage(q);
 }
 
-const selectedFromArea = computed<Instructor[]>(() =>
+const selectedFromProfession = computed<Instructor[]>(() =>
     (props.profession.instructors ?? []).map((u) => ({
         id: u.id,
         name: u.name,
@@ -128,7 +128,7 @@ const mergedInstructorOptions = computed<Instructor[]>(() => {
         const cached = instructorCache.value.get(id);
         if (cached) map.set(id, cached);
     }
-    for (const o of selectedFromArea.value) map.set(o.id, o);
+    for (const o of selectedFromProfession.value) map.set(o.id, o);
     for (const o of instructorOptions.value) map.set(o.id, o);
     return Array.from(map.values());
 });
@@ -167,7 +167,7 @@ watch(
 );
 
 onMounted(() => {
-    cacheInstructors(selectedFromArea.value);
+    cacheInstructors(selectedFromProfession.value);
     loadFirstPage('');
 });
 
