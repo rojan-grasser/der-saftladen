@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { Head, router, usePage } from '@inertiajs/vue3';
-import appointments from '@/routes/appointments';
 import { Bell, BellOff, ChevronLeft, ChevronRight, Keyboard, Plus, X } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-import { usePushNotifications } from '@/composables/usePushNotifications';
-
 import { Button } from '@/components/ui/button';
+import { usePushNotifications } from '@/composables/usePushNotifications';
 import AppLayout from '@/layouts/AppLayout.vue';
+import appointments from '@/routes/appointments';
 import { type AppPageProps, type BreadcrumbItem } from '@/types';
 
 import AgendaView from './components/AgendaView.vue';
@@ -17,12 +16,12 @@ import DayView from './components/DayView.vue';
 import MiniCalendar from './components/MiniCalendar.vue';
 import MonthView from './components/MonthView.vue';
 import WeekView from './components/WeekView.vue';
+import { useAppointmentForm } from './composables/useAppointmentForm';
+import { useCalendarAppointments } from './composables/useCalendarAppointments';
 import {
     appointmentColorMap,
     defaultAppointmentColor,
 } from './constants';
-import { useAppointmentForm } from './composables/useAppointmentForm';
-import { useCalendarAppointments } from './composables/useCalendarAppointments';
 import type {
     Appointment,
     CalendarPermissions,
@@ -81,7 +80,6 @@ const {
     weekDays,
     selectedAppointments,
     selectedAppointment,
-    upcomingAppointments,
     selectDay,
     selectAppointment,
 } = useCalendarAppointments({
