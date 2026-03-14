@@ -87,6 +87,8 @@ const getAppointmentPosition = (appointment: Appointment) => {
         left: colLeft,
         width: colWidth,
         right: 'auto',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
     };
 };
 </script>

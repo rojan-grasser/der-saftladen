@@ -101,6 +101,10 @@ const getAppointmentPosition = (appointment: Appointment, dayKey: string) => {
         left: colLeft,
         width: colWidth,
         right: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
     };
 };
 </script>
