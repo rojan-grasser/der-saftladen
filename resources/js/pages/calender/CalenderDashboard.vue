@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { Bell, BellOff, ChevronLeft, ChevronRight, Keyboard, Plus, X } from 'lucide-vue-next';
+import appointments from '@/routes/appointments';
+import { Bell, BellOff, CalendarDays, CalendarRange, ChevronLeft, ChevronRight, Keyboard, LayoutGrid, List, Plus, X } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-import { Button } from '@/components/ui/button';
 import { usePushNotifications } from '@/composables/usePushNotifications';
+
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
-import appointments from '@/routes/appointments';
 import { type AppPageProps, type BreadcrumbItem } from '@/types';
 
 import AgendaView from './components/AgendaView.vue';
@@ -14,14 +15,15 @@ import AppointmentDetailsSheet from './components/AppointmentDetailsSheet.vue';
 import AppointmentFormDialog from './components/AppointmentFormDialog.vue';
 import DayView from './components/DayView.vue';
 import MiniCalendar from './components/MiniCalendar.vue';
+import MobileMonthView from './components/MobileMonthView.vue';
 import MonthView from './components/MonthView.vue';
 import WeekView from './components/WeekView.vue';
-import { useAppointmentForm } from './composables/useAppointmentForm';
-import { useCalendarAppointments } from './composables/useCalendarAppointments';
 import {
     appointmentColorMap,
     defaultAppointmentColor,
 } from './constants';
+import { useAppointmentForm } from './composables/useAppointmentForm';
+import { useCalendarAppointments } from './composables/useCalendarAppointments';
 import type {
     Appointment,
     CalendarPermissions,
@@ -80,6 +82,7 @@ const {
     weekDays,
     selectedAppointments,
     selectedAppointment,
+    upcomingAppointments,
     selectDay,
     selectAppointment,
 } = useCalendarAppointments({
@@ -135,6 +138,14 @@ const formatFullDate = (value: Date) => {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
+    }).format(value);
+};
+
+const formatMobileSelectedDate = (value: Date) => {
+    return new Intl.DateTimeFormat('de-DE', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
     }).format(value);
 };
 
@@ -356,13 +367,201 @@ const getEventBgClass = (appointment: Appointment) => {
     };
     return colorMap[color] ?? colorMap[defaultAppointmentColor];
 };
+
+// ── Mobile: Bottom-Nav Items ──────────────────────────────────────────────────
+const mobileNavItems = [
+    { mode: 'day' as ViewMode, label: 'Tag' },
+    { mode: 'week' as ViewMode, label: 'Woche' },
+    { mode: 'month' as ViewMode, label: 'Monat' },
+    { mode: 'agenda' as ViewMode, label: 'Agenda' },
+] as const;
 </script>
 
 <template>
     <Head title="Kalender" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-[calc(100vh-8rem)] gap-4 p-4">
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- MOBILE LAYOUT (sichtbar unter lg)                              -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <div class="flex flex-col lg:hidden h-[calc(100svh-4rem)] overflow-hidden bg-background">
+
+            <!-- Mobile Header -->
+            <div class="flex items-center gap-1 border-b bg-card px-2 py-2 shrink-0">
+                <button
+                    class="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold text-primary transition-colors hover:bg-muted/60"
+                    title="Heute"
+                    @click="goToday"
+                >
+                    {{ new Date().getDate() }}
+                </button>
+
+                <div class="flex flex-1 items-center justify-center gap-1">
+                    <button
+                        class="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted/60"
+                        @click="goPrev"
+                    >
+                        <ChevronLeft class="h-4 w-4" />
+                    </button>
+                    <h2 class="min-w-[140px] text-center text-base font-semibold">
+                        {{ monthLabel }}
+                    </h2>
+                    <button
+                        class="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted/60"
+                        @click="goNext"
+                    >
+                        <ChevronRight class="h-4 w-4" />
+                    </button>
+                </div>
+
+                <button
+                    v-if="pushSupported"
+                    class="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/60"
+                    :disabled="pushLoading"
+                    @click="togglePushNotifications"
+                >
+                    <BellOff v-if="pushSubscribed" class="h-4 w-4" />
+                    <Bell v-else class="h-4 w-4" />
+                </button>
+            </div>
+
+            <!-- Content-Bereich -->
+            <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+
+                <!-- MONATSANSICHT: Kompaktes Raster + Terminliste -->
+                <template v-if="viewMode === 'month'">
+                    <!-- Kompaktes Monatsraster -->
+                    <div class="shrink-0 border-b bg-card">
+                        <MobileMonthView
+                            :day-labels="dayLabels"
+                            :calendar-days="calendarDays"
+                            :selected-date="selectedDate"
+                            :get-event-bg-class="getEventBgClass"
+                            @select-day="handleSelectDay"
+                            @open-details="openDetails"
+                        />
+                    </div>
+
+                    <!-- Terminliste fuer ausgewaehlten Tag -->
+                    <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+                        <!-- Datumsleiste -->
+                        <div class="flex shrink-0 items-center justify-between border-b bg-muted/20 px-4 py-2">
+                            <span class="text-sm font-medium text-foreground">
+                                {{ formatMobileSelectedDate(selectedDate) }}
+                            </span>
+                            <button
+                                v-if="canCreateAppointments"
+                                class="flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                                @click="startCreate"
+                            >
+                                <Plus class="h-3 w-3" />
+                                Neu
+                            </button>
+                        </div>
+
+                        <!-- Terminliste -->
+                        <div class="flex-1 overflow-y-auto">
+                            <div
+                                v-if="selectedAppointments.length === 0"
+                                class="flex h-full items-center justify-center p-8 text-center"
+                            >
+                                <p class="text-sm text-muted-foreground">Keine Termine</p>
+                            </div>
+                            <div v-else class="divide-y">
+                                <button
+                                    v-for="apt in selectedAppointments"
+                                    :key="apt.id"
+                                    type="button"
+                                    class="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/40 active:bg-muted/60"
+                                    @click="openDetails(apt)"
+                                >
+                                    <div
+                                        class="w-1 shrink-0 self-stretch rounded-full"
+                                        :class="getEventBgClass(apt)"
+                                    />
+                                    <div class="min-w-0 flex-1">
+                                        <p class="truncate text-sm font-medium">{{ apt.title }}</p>
+                                        <p class="text-xs text-muted-foreground">
+                                            {{ formatTime(apt.start_time) }} &ndash; {{ formatTime(apt.end_time) }}<span v-if="apt.location"> &middot; {{ apt.location }}</span>
+                                        </p>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- WOCHENANSICHT -->
+                <WeekView
+                    v-if="viewMode === 'week'"
+                    :week-days="weekDays"
+                    :day-labels="dayLabels"
+                    :format-time="formatTime"
+                    :get-event-bg-class="getEventBgClass"
+                    :can-edit-appointment="canEditAppointment"
+                    @select-day="handleSelectDay"
+                    @open-details="openDetails"
+                    @move-appointment="handleMoveAppointment"
+                />
+
+                <!-- TAGESANSICHT -->
+                <DayView
+                    v-if="viewMode === 'day'"
+                    :selected-date="selectedDate"
+                    :selected-appointments="selectedAppointments"
+                    :format-time="formatTime"
+                    :format-full-date="formatFullDate"
+                    :get-event-bg-class="getEventBgClass"
+                    :can-edit-appointment="canEditAppointment"
+                    @open-details="openDetails"
+                    @move-appointment="handleMoveAppointment"
+                />
+
+                <!-- AGENDA -->
+                <AgendaView
+                    v-if="viewMode === 'agenda'"
+                    :appointments="props.appointments"
+                    :format-time="formatTime"
+                    :get-event-bg-class="getEventBgClass"
+                    :get-owner-name="getOwnerName"
+                    @open-details="openDetails"
+                />
+            </div>
+
+            <!-- Mobile Bottom Navigation -->
+            <nav class="flex shrink-0 border-t bg-card">
+                <button
+                    v-for="item in mobileNavItems"
+                    :key="item.mode"
+                    type="button"
+                    class="flex flex-1 flex-col items-center gap-1 py-2 transition-colors"
+                    :class="viewMode === item.mode ? 'text-primary' : 'text-muted-foreground hover:text-foreground'"
+                    @click="viewMode = item.mode"
+                >
+                    <CalendarDays v-if="item.mode === 'day'" class="h-5 w-5" />
+                    <CalendarRange v-else-if="item.mode === 'week'" class="h-5 w-5" />
+                    <LayoutGrid v-else-if="item.mode === 'month'" class="h-5 w-5" />
+                    <List v-else class="h-5 w-5" />
+                    <span class="text-[10px] font-medium leading-none">{{ item.label }}</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- FAB (nur mobil, nur wenn Erstellen erlaubt) -->
+        <button
+            v-if="canCreateAppointments"
+            type="button"
+            class="fixed bottom-[4.5rem] right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95 lg:hidden"
+            @click="startCreate"
+        >
+            <Plus class="h-6 w-6" />
+        </button>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- DESKTOP LAYOUT (sichtbar ab lg)                                -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <div class="hidden lg:flex h-[calc(100vh-8rem)] gap-4 p-4">
             <!-- Linke Sidebar mit Mini-Kalender -->
             <aside class="hidden w-64 flex-shrink-0 space-y-4 lg:block">
                 <Button
@@ -561,7 +760,7 @@ const getEventBgClass = (appointment: Appointment) => {
                     />
                     <AgendaView
                         v-else
-                        :appointments="appointments"
+                        :appointments="props.appointments"
                         :format-time="formatTime"
                         :get-event-bg-class="getEventBgClass"
                         :get-owner-name="getOwnerName"
