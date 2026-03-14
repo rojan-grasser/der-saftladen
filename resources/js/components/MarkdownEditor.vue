@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue';
 import {
     Bold,
     Code2,
@@ -10,6 +9,7 @@ import {
     Quote,
     Strikethrough,
 } from 'lucide-vue-next';
+import { nextTick, ref } from 'vue';
 
 import MarkdownContent from './MarkdownContent.vue';
 
@@ -84,24 +84,23 @@ function handleKeydown(e: KeyboardEvent) {
 // ── Toolbar ──────────────────────────────────────────────────────────────────
 
 const inlineTools = [
-    { icon: Bold,          title: 'Fett (Strg+B)',     action: () => applyInlineFormat('**') },
+    { icon: Bold,          title: 'Fett (Strg+B)',      action: () => applyInlineFormat('**') },
     { icon: Italic,        title: 'Kursiv (Strg+I)',    action: () => applyInlineFormat('*') },
     { icon: Strikethrough, title: 'Durchgestrichen',    action: () => applyInlineFormat('~~') },
     { icon: Code2,         title: 'Inline-Code',        action: () => applyInlineFormat('`') },
 ];
 
 const blockTools = [
-    { icon: Heading2,     title: 'Überschrift',        action: () => applyLineFormat('## ') },
-    { icon: List,         title: 'Aufzählung',         action: () => applyLineFormat('- ') },
-    { icon: ListOrdered,  title: 'Nummerierte Liste',  action: () => applyLineFormat('1. ') },
-    { icon: Quote,        title: 'Zitat',              action: () => applyLineFormat('> ') },
+    { icon: Heading2,     title: 'Überschrift',         action: () => applyLineFormat('## ') },
+    { icon: List,         title: 'Aufzählung',          action: () => applyLineFormat('- ') },
+    { icon: ListOrdered,  title: 'Nummerierte Liste',   action: () => applyLineFormat('1. ') },
+    { icon: Quote,        title: 'Zitat',               action: () => applyLineFormat('> ') },
 ];
 </script>
 
 <template>
     <div class="md-editor overflow-hidden rounded-md border border-input bg-background focus-within:ring-1 focus-within:ring-ring">
 
-        <!-- ── Toolbar ───────────────────────────────────────────── -->
         <div class="flex items-center gap-1 border-b border-border bg-muted/30 px-2 py-1.5">
 
             <!-- Write / Preview tabs -->
@@ -181,6 +180,6 @@ const blockTools = [
 <style scoped>
 .md-textarea {
     min-height: 120px;
-    field-sizing: content; /* auto-grow with content where supported */
+    field-sizing: content;
 }
 </style>
