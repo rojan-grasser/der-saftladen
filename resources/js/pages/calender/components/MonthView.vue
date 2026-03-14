@@ -50,17 +50,26 @@ const weeks = computed<WeekRow[]>(() => {
 
         // Calculate segments for each appointment
         const segments: EventSegment[] = [];
-        const sortedAppointments = Array.from(appointmentsInWeek.values()).sort(
-            (a, b) => {
-                const aStart = parseDate(a.start_time)?.getTime() ?? 0;
-                const bStart = parseDate(b.start_time)?.getTime() ?? 0;
-                if (aStart !== bStart) return aStart - bStart;
-                // Longer events first
-                const aEnd = parseDate(a.end_time)?.getTime() ?? aStart;
-                const bEnd = parseDate(b.end_time)?.getTime() ?? bStart;
-                return bEnd - bStart - (aEnd - aStart);
-            },
-        );
+        // Sortierung: Längste Überschneidung mit dieser Wochenzeile zuerst (→ niedrigste Lane),
+        // dann nach Gesamtdauer, dann nach Startzeit.
+        // Dadurch bekommen Mehrtagestermine immer Vorrang vor Eintagesterminen,
+        // auch wenn sie in der vorherigen Woche gestartet sind.
+        const weekStartMs = weekStart.getTime();
+        const weekEndMs = weekEnd.getTime() + 86400000; // exklusives Ende (Montag der nächsten Woche)
+        const sortedAppointments = Array.from(appointmentsInWeek.values()).sort((a, b) => {
+            const aStart = parseDate(a.start_time)?.getTime() ?? 0;
+            const bStart = parseDate(b.start_time)?.getTime() ?? 0;
+            const aEnd = parseDate(a.end_time)?.getTime() ?? aStart;
+            const bEnd = parseDate(b.end_time)?.getTime() ?? bStart;
+            // 1. Überschneidung mit dieser Woche (mehr Tage = höhere Priorität)
+            const aWeekSpan = Math.max(0, Math.min(aEnd, weekEndMs) - Math.max(aStart, weekStartMs));
+            const bWeekSpan = Math.max(0, Math.min(bEnd, weekEndMs) - Math.max(bStart, weekStartMs));
+            if (bWeekSpan !== aWeekSpan) return bWeekSpan - aWeekSpan;
+            // 2. Gesamtdauer (länger = höhere Priorität)
+            if (bEnd - bStart !== aEnd - aStart) return (bEnd - bStart) - (aEnd - aStart);
+            // 3. Früherer Starttermin zuerst
+            return aStart - bStart;
+        });
 
         // Track lane usage per day (0-6)
         const lanesPerDay: number[][] = [[], [], [], [], [], [], []];
