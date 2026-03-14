@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import appointments from '@/routes/appointments';
 import { Bell, BellOff, ChevronLeft, ChevronRight, Keyboard, Plus, X } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
@@ -295,6 +296,33 @@ const handleKeyDown = (e: KeyboardEvent) => {
     }
 };
 
+// ── Drag & Drop: Termin per API verschieben ───────────────────────────────────
+const handleMoveAppointment = ({
+    appointment,
+    newStart,
+    newEnd,
+}: {
+    appointment: Appointment;
+    newStart: Date;
+    newEnd: Date;
+}) => {
+    if (!canEditAppointment(appointment)) return;
+
+    router.put(
+        appointments.update(appointment.id).url,
+        {
+            title: appointment.title,
+            description: appointment.description ?? '',
+            location: appointment.location ?? '',
+            color: appointment.color ?? 'peacock',
+            reminders: appointment.reminders ?? [],
+            start_time: Math.floor(newStart.getTime() / 1000),
+            end_time: Math.floor(newEnd.getTime() / 1000),
+        },
+        { preserveScroll: true },
+    );
+};
+
 const startEdit = (appointment: Appointment) => {
     if (!canEditAppointment(appointment)) return;
     detailsOpen.value = false;
@@ -506,8 +534,10 @@ const getEventBgClass = (appointment: Appointment) => {
                         :calendar-days="calendarDays"
                         :format-time="formatTime"
                         :get-event-bg-class="getEventBgClass"
+                        :can-edit-appointment="canEditAppointment"
                         @select-day="handleSelectDay"
                         @open-details="openDetails"
+                        @move-appointment="handleMoveAppointment"
                     />
                     <WeekView
                         v-else-if="viewMode === 'week'"
@@ -515,8 +545,10 @@ const getEventBgClass = (appointment: Appointment) => {
                         :day-labels="dayLabels"
                         :format-time="formatTime"
                         :get-event-bg-class="getEventBgClass"
+                        :can-edit-appointment="canEditAppointment"
                         @select-day="handleSelectDay"
                         @open-details="openDetails"
+                        @move-appointment="handleMoveAppointment"
                     />
                     <DayView
                         v-else-if="viewMode === 'day'"
@@ -525,7 +557,9 @@ const getEventBgClass = (appointment: Appointment) => {
                         :format-time="formatTime"
                         :format-full-date="formatFullDate"
                         :get-event-bg-class="getEventBgClass"
+                        :can-edit-appointment="canEditAppointment"
                         @open-details="openDetails"
+                        @move-appointment="handleMoveAppointment"
                     />
                     <AgendaView
                         v-else

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, reactive } from 'vue';
 
 import type { Appointment, CalendarDay } from '../types';
 import { parseDate, toDayStart } from '../utils/date';
@@ -9,11 +9,13 @@ const props = defineProps<{
     calendarDays: CalendarDay[];
     formatTime: (value: string | number) => string;
     getEventBgClass: (appointment: Appointment) => string;
+    canEditAppointment: (appointment: Appointment) => boolean;
 }>();
 
 const emit = defineEmits<{
     (e: 'select-day', date: Date): void;
     (e: 'open-details', appointment: Appointment): void;
+    (e: 'move-appointment', payload: { appointment: Appointment; newStart: Date; newEnd: Date }): void;
 }>();
 
 interface EventSegment {
@@ -175,6 +177,60 @@ const getHiddenCount = (segments: EventSegment[], dayIndex: number) => {
     });
     return hidden.length;
 };
+
+// ── Drag & Drop (Termin auf anderen Tag verschieben, Uhrzeit bleibt) ──────────
+const drag = reactive({
+    appointment: null as Appointment | null,
+    durationMs: 0,
+    overDayKey: null as string | null,
+});
+
+const startSegmentDrag = (e: DragEvent, appointment: Appointment) => {
+    const start = parseDate(appointment.start_time);
+    const end = parseDate(appointment.end_time);
+    if (!start || !end) return;
+
+    drag.appointment = appointment;
+    drag.durationMs = end.getTime() - start.getTime();
+    e.dataTransfer!.effectAllowed = 'move';
+};
+
+const onDayCellDragOver = (e: DragEvent, day: CalendarDay) => {
+    if (!drag.appointment) return;
+    e.preventDefault();
+    e.dataTransfer!.dropEffect = 'move';
+    drag.overDayKey = day.key;
+};
+
+const onDayCellDragLeave = (e: DragEvent) => {
+    const el = e.currentTarget as HTMLElement;
+    const related = e.relatedTarget as HTMLElement | null;
+    if (related && el.contains(related)) return;
+    drag.overDayKey = null;
+};
+
+const onDayCellDrop = (e: DragEvent, day: CalendarDay) => {
+    e.preventDefault();
+    if (!drag.appointment) return;
+
+    const origStart = parseDate(drag.appointment.start_time);
+    if (!origStart) return;
+
+    // Uhrzeit des Originals beibehalten, nur das Datum ändern
+    const newStart = new Date(day.date);
+    newStart.setHours(origStart.getHours(), origStart.getMinutes(), 0, 0);
+    const newEnd = new Date(newStart.getTime() + drag.durationMs);
+
+    emit('move-appointment', { appointment: drag.appointment, newStart, newEnd });
+    drag.appointment = null;
+    drag.overDayKey = null;
+};
+
+const resetMonthDrag = () => {
+    drag.appointment = null;
+    drag.durationMs = 0;
+    drag.overDayKey = null;
+};
 </script>
 
 <template>
@@ -204,8 +260,12 @@ const getHiddenCount = (segments: EventSegment[], dayIndex: number) => {
                     :class="[
                         !day.isCurrentMonth ? 'bg-muted/20' : '',
                         day.isSelected ? 'bg-primary/5' : '',
+                        drag.appointment && drag.overDayKey === day.key ? 'bg-primary/10 ring-2 ring-inset ring-primary/40' : '',
                     ]"
                     @click="emit('select-day', day.date)"
+                    @dragover="(e) => onDayCellDragOver(e, day)"
+                    @dragleave="onDayCellDragLeave"
+                    @drop="(e) => onDayCellDrop(e, day)"
                 >
                     <div class="flex items-center justify-center">
                         <span
@@ -241,11 +301,14 @@ const getHiddenCount = (segments: EventSegment[], dayIndex: number) => {
                     v-for="segment in getVisibleSegments(week.eventSegments)"
                     :key="`${segment.appointment.id}-${segment.startCol}`"
                     type="button"
+                    :draggable="canEditAppointment(segment.appointment)"
                     class="absolute z-10 flex items-center overflow-hidden text-[11px] text-white transition-opacity hover:opacity-90"
                     :class="[
                         getEventBgClass(segment.appointment),
                         segment.isStart ? 'rounded-l' : '',
                         segment.isEnd ? 'rounded-r' : '',
+                        drag.appointment?.id === segment.appointment.id ? 'opacity-40' : '',
+                        canEditAppointment(segment.appointment) ? 'cursor-grab active:cursor-grabbing' : '',
                     ]"
                     :style="{
                         left: `calc(${(segment.startCol / 7) * 100}% + ${segment.isStart ? '4px' : '0px'})`,
@@ -254,6 +317,8 @@ const getHiddenCount = (segments: EventSegment[], dayIndex: number) => {
                         height: '20px',
                     }"
                     @click.stop="emit('open-details', segment.appointment)"
+                    @dragstart="(e) => startSegmentDrag(e, segment.appointment)"
+                    @dragend="resetMonthDrag"
                 >
                     <span
                         v-if="segment.isStart"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, reactive } from 'vue';
 
 import type { Appointment, WeekDay } from '../types';
 import { parseDate } from '../utils/date';
@@ -9,11 +9,13 @@ const props = defineProps<{
     dayLabels: string[];
     formatTime: (value: string | number) => string;
     getEventBgClass: (appointment: Appointment) => string;
+    canEditAppointment: (appointment: Appointment) => boolean;
 }>();
 
 const emit = defineEmits<{
     (e: 'select-day', date: Date): void;
     (e: 'open-details', appointment: Appointment): void;
+    (e: 'move-appointment', payload: { appointment: Appointment; newStart: Date; newEnd: Date }): void;
 }>();
 
 const hours = computed(() => {
@@ -121,6 +123,75 @@ const getAppointmentPosition = (appointment: Appointment, dayKey: string) => {
         alignItems: 'flex-start',
     };
 };
+
+// ── Drag & Drop ───────────────────────────────────────────────────────────────
+const drag = reactive({
+    appointment: null as Appointment | null,
+    durationMs: 0,
+    grabOffsetMinutes: 0,
+    overDayKey: null as string | null,
+    previewStartMinutes: null as number | null,
+});
+
+const startDrag = (e: DragEvent, appointment: Appointment) => {
+    const start = parseDate(appointment.start_time);
+    const end = parseDate(appointment.end_time);
+    if (!start || !end) return;
+
+    drag.appointment = appointment;
+    drag.durationMs = end.getTime() - start.getTime();
+    // Grab-Offset: wie viele Minuten vom Terminkopf hat der User geklickt?
+    drag.grabOffsetMinutes = Math.round((e.offsetY / 48) * 60);
+    e.dataTransfer!.effectAllowed = 'move';
+};
+
+const onColumnDragOver = (e: DragEvent, day: WeekDay) => {
+    if (!drag.appointment) return;
+    e.preventDefault();
+    e.dataTransfer!.dropEffect = 'move';
+    drag.overDayKey = day.key;
+
+    // Position relativ zum absoluten Beginn der Spalte berechnen
+    // (getBoundingClientRect liefert viewport-relative Koordinaten, die bereits
+    //  den Scroll berücksichtigen, da die Spalte overflow-hidden hat)
+    const el = e.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    const relativeY = e.clientY - rect.top;
+
+    const rawMinutes = Math.round((relativeY / 48) * 60) - drag.grabOffsetMinutes;
+    const snapped = Math.round(rawMinutes / 15) * 15;
+    const maxStartMinutes = 24 * 60 - Math.ceil(drag.durationMs / 60000);
+    drag.previewStartMinutes = Math.max(0, Math.min(snapped, maxStartMinutes));
+};
+
+const onColumnDragLeave = (e: DragEvent) => {
+    // Nicht zurücksetzen wenn der Mauszeiger noch innerhalb der Spalte ist
+    const el = e.currentTarget as HTMLElement;
+    const related = e.relatedTarget as HTMLElement | null;
+    if (related && el.contains(related)) return;
+    drag.overDayKey = null;
+    drag.previewStartMinutes = null;
+};
+
+const onColumnDrop = (e: DragEvent, day: WeekDay) => {
+    e.preventDefault();
+    if (!drag.appointment || drag.previewStartMinutes === null) return;
+
+    const newStart = new Date(day.date);
+    newStart.setHours(0, drag.previewStartMinutes, 0, 0);
+    const newEnd = new Date(newStart.getTime() + drag.durationMs);
+
+    emit('move-appointment', { appointment: drag.appointment, newStart, newEnd });
+    resetDrag();
+};
+
+const resetDrag = () => {
+    drag.appointment = null;
+    drag.durationMs = 0;
+    drag.grabOffsetMinutes = 0;
+    drag.overDayKey = null;
+    drag.previewStartMinutes = null;
+};
 </script>
 
 <template>
@@ -166,8 +237,14 @@ const getAppointmentPosition = (appointment: Appointment, dayKey: string) => {
                 <div
                     v-for="day in weekDays"
                     :key="`grid-${day.key}`"
-                    class="relative overflow-hidden border-r last:border-r-0"
-                    :class="day.isSelected ? 'bg-primary/5' : ''"
+                    class="relative overflow-hidden border-r transition-colors last:border-r-0"
+                    :class="[
+                        day.isSelected ? 'bg-primary/5' : '',
+                        drag.appointment && drag.overDayKey === day.key ? 'bg-primary/5' : '',
+                    ]"
+                    @dragover="(e) => onColumnDragOver(e, day)"
+                    @dragleave="onColumnDragLeave"
+                    @drop="(e) => onColumnDrop(e, day)"
                 >
                     <div
                         v-for="hour in hours"
@@ -176,14 +253,33 @@ const getAppointmentPosition = (appointment: Appointment, dayKey: string) => {
                     />
 
                     <div class="absolute inset-0">
+                        <!-- Drop-Vorschau: zeigt wo der Termin landen würde -->
+                        <div
+                            v-if="drag.appointment && drag.overDayKey === day.key && drag.previewStartMinutes !== null"
+                            class="pointer-events-none absolute left-0.5 right-0.5 rounded border-2 border-dashed border-primary bg-primary/15"
+                            :style="{
+                                top: `${(drag.previewStartMinutes / 60) * 48}px`,
+                                height: `${Math.max((drag.durationMs / 3600000) * 48, 24)}px`,
+                            }"
+                        />
+
                         <button
                             v-for="appointment in day.appointments"
                             :key="appointment.id"
                             type="button"
-                            class="absolute overflow-hidden rounded px-1 py-0.5 text-left text-[10px] text-white transition-opacity hover:opacity-80"
-                            :class="getEventBgClass(appointment)"
+                            :draggable="canEditAppointment(appointment)"
+                            class="absolute overflow-hidden rounded px-1 py-0.5 text-left text-[10px] text-white transition-opacity"
+                            :class="[
+                                getEventBgClass(appointment),
+                                drag.appointment?.id === appointment.id
+                                    ? 'opacity-40'
+                                    : 'hover:opacity-80',
+                                canEditAppointment(appointment) ? 'cursor-grab active:cursor-grabbing' : '',
+                            ]"
                             :style="getAppointmentPosition(appointment, day.key)"
                             @click="emit('open-details', appointment)"
+                            @dragstart="(e) => startDrag(e, appointment)"
+                            @dragend="resetDrag"
                         >
                             <span class="block font-medium leading-tight">
                                 {{ formatTime(appointment.start_time) }}

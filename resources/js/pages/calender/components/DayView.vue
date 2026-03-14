@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, reactive } from 'vue';
 
 import type { Appointment } from '../types';
 import { parseDate } from '../utils/date';
@@ -10,10 +10,12 @@ const props = defineProps<{
     formatTime: (value: string | number) => string;
     formatFullDate: (value: Date) => string;
     getEventBgClass: (appointment: Appointment) => string;
+    canEditAppointment: (appointment: Appointment) => boolean;
 }>();
 
 const emit = defineEmits<{
     (e: 'open-details', appointment: Appointment): void;
+    (e: 'move-appointment', payload: { appointment: Appointment; newStart: Date; newEnd: Date }): void;
 }>();
 
 const hours = computed(() => {
@@ -105,6 +107,70 @@ const getAppointmentPosition = (appointment: Appointment) => {
         alignItems: 'flex-start',
     };
 };
+
+// ── Drag & Drop (nur Uhrzeit, gleicher Tag) ───────────────────────────────────
+const drag = reactive({
+    appointment: null as Appointment | null,
+    durationMs: 0,
+    grabOffsetMinutes: 0,
+    isDragOver: false,
+    previewStartMinutes: null as number | null,
+});
+
+const startDrag = (e: DragEvent, appointment: Appointment) => {
+    const start = parseDate(appointment.start_time);
+    const end = parseDate(appointment.end_time);
+    if (!start || !end) return;
+
+    drag.appointment = appointment;
+    drag.durationMs = end.getTime() - start.getTime();
+    drag.grabOffsetMinutes = Math.round((e.offsetY / 48) * 60);
+    e.dataTransfer!.effectAllowed = 'move';
+};
+
+const onGridDragOver = (e: DragEvent) => {
+    if (!drag.appointment) return;
+    e.preventDefault();
+    e.dataTransfer!.dropEffect = 'move';
+    drag.isDragOver = true;
+
+    const el = e.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    const relativeY = e.clientY - rect.top;
+
+    const rawMinutes = Math.round((relativeY / 48) * 60) - drag.grabOffsetMinutes;
+    const snapped = Math.round(rawMinutes / 15) * 15;
+    const maxStartMinutes = 24 * 60 - Math.ceil(drag.durationMs / 60000);
+    drag.previewStartMinutes = Math.max(0, Math.min(snapped, maxStartMinutes));
+};
+
+const onGridDragLeave = (e: DragEvent) => {
+    const el = e.currentTarget as HTMLElement;
+    const related = e.relatedTarget as HTMLElement | null;
+    if (related && el.contains(related)) return;
+    drag.isDragOver = false;
+    drag.previewStartMinutes = null;
+};
+
+const onGridDrop = (e: DragEvent) => {
+    e.preventDefault();
+    if (!drag.appointment || drag.previewStartMinutes === null) return;
+
+    const newStart = new Date(props.selectedDate);
+    newStart.setHours(0, drag.previewStartMinutes, 0, 0);
+    const newEnd = new Date(newStart.getTime() + drag.durationMs);
+
+    emit('move-appointment', { appointment: drag.appointment, newStart, newEnd });
+    resetDrag();
+};
+
+const resetDrag = () => {
+    drag.appointment = null;
+    drag.durationMs = 0;
+    drag.grabOffsetMinutes = 0;
+    drag.isDragOver = false;
+    drag.previewStartMinutes = null;
+};
 </script>
 
 <template>
@@ -135,7 +201,13 @@ const getAppointmentPosition = (appointment: Appointment) => {
                     </div>
                 </div>
 
-                <div class="relative overflow-hidden">
+                <div
+                    class="relative overflow-hidden transition-colors"
+                    :class="drag.appointment && drag.isDragOver ? 'bg-primary/5' : ''"
+                    @dragover="onGridDragOver"
+                    @dragleave="onGridDragLeave"
+                    @drop="onGridDrop"
+                >
                     <div
                         v-for="hour in hours"
                         :key="`grid-${hour.value}`"
@@ -143,14 +215,33 @@ const getAppointmentPosition = (appointment: Appointment) => {
                     />
 
                     <div class="absolute inset-0">
+                        <!-- Drop-Vorschau -->
+                        <div
+                            v-if="drag.appointment && drag.isDragOver && drag.previewStartMinutes !== null"
+                            class="pointer-events-none absolute left-1 right-1 rounded-lg border-2 border-dashed border-primary bg-primary/15"
+                            :style="{
+                                top: `${(drag.previewStartMinutes / 60) * 48}px`,
+                                height: `${Math.max((drag.durationMs / 3600000) * 48, 24)}px`,
+                            }"
+                        />
+
                         <button
                             v-for="appointment in selectedAppointments"
                             :key="appointment.id"
                             type="button"
-                            class="absolute flex flex-col gap-0.5 overflow-hidden rounded-lg px-3 py-2 text-left text-white shadow-sm transition-opacity hover:opacity-90"
-                            :class="getEventBgClass(appointment)"
+                            :draggable="canEditAppointment(appointment)"
+                            class="absolute flex flex-col gap-0.5 overflow-hidden rounded-lg px-3 py-2 text-left text-white shadow-sm transition-opacity"
+                            :class="[
+                                getEventBgClass(appointment),
+                                drag.appointment?.id === appointment.id
+                                    ? 'opacity-40'
+                                    : 'hover:opacity-90',
+                                canEditAppointment(appointment) ? 'cursor-grab active:cursor-grabbing' : '',
+                            ]"
                             :style="getAppointmentPosition(appointment)"
                             @click="emit('open-details', appointment)"
+                            @dragstart="(e) => startDrag(e, appointment)"
+                            @dragend="resetDrag"
                         >
                             <span class="text-sm font-semibold">
                                 {{ appointment.title }}
