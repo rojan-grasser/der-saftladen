@@ -142,17 +142,6 @@ virtualService:
       - "{{ .MinioHost }}.{{ .BaseDomain }}"
     http:
       - match:
-          - headers:
-              cookie:
-                regex: ".*feature={{ .BranchName }}.*"
-            authority:
-              exact: "{{ .MinioHost }}.{{ .BaseDomain }}"
-        route:
-          - destination:
-              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
-              port:
-                number: {{ $minioConsolePort }}
-      - match:
           - uri:
               prefix: /assets/
             headers:
@@ -167,6 +156,17 @@ virtualService:
                 number: 9000
         rewrite:
           uri: /
+      - match:
+          - headers:
+              cookie:
+                regex: ".*feature={{ .BranchName }}.*"
+            authority:
+              exact: "{{ .MinioHost }}.{{ .BaseDomain }}"
+        route:
+          - destination:
+              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
+              port:
+                number: {{ $minioConsolePort }}
       - match:
           - headers:
               cookie:
