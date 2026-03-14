@@ -1,3 +1,4 @@
+# Mainly for prod / feature deployment -> providing the env vars for authentication
 resource "null_resource" "export_env_vars" {
   triggers = {
     access_key   = minio_iam_service_account.s3_api_keys.access_key

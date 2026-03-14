@@ -1,3 +1,4 @@
+# For creating the .env.s3 file for local development
 resource "local_sensitive_file" "env" {
     filename = "${path.module}/../.env.s3"
     content  = <<-EOT
