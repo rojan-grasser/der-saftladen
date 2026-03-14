@@ -54,17 +54,31 @@ const computeDayOverlapLayout = (appointments: Appointment[]) => {
         colAssign.set(item.appt.id, col);
     }
 
-    // Compute totalCols: for each appointment, find max col among all overlapping appointments
+    // Compute totalCols via connected components (BFS):
+    // Direkt und transitiv überlappende Termine teilen dasselbe totalCols,
+    // damit kein Termin zu breit dargestellt wird (z. B. 50 % statt 33 %).
     const layout = new Map<number, { col: number; totalCols: number }>();
+    const visitedIds = new Set<number>();
     for (const item of withTimes) {
-        const col = colAssign.get(item.appt.id) ?? 0;
-        let maxCol = col;
-        for (const other of withTimes) {
-            if (other.appt.id !== item.appt.id && other.start < item.end && other.end > item.start) {
-                maxCol = Math.max(maxCol, colAssign.get(other.appt.id) ?? 0);
+        if (visitedIds.has(item.appt.id)) continue;
+        const component: typeof withTimes = [];
+        const queue: typeof withTimes = [item];
+        visitedIds.add(item.appt.id);
+        while (queue.length > 0) {
+            const current = queue.shift()!;
+            component.push(current);
+            for (const other of withTimes) {
+                if (!visitedIds.has(other.appt.id) && other.start < current.end && other.end > current.start) {
+                    visitedIds.add(other.appt.id);
+                    queue.push(other);
+                }
             }
         }
-        layout.set(item.appt.id, { col, totalCols: maxCol + 1 });
+        const maxCol = Math.max(...component.map((c) => colAssign.get(c.appt.id) ?? 0));
+        const totalCols = maxCol + 1;
+        for (const c of component) {
+            layout.set(c.appt.id, { col: colAssign.get(c.appt.id) ?? 0, totalCols });
+        }
     }
 
     return layout;
