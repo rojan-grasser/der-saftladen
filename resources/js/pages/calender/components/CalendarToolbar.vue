@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
 import { ChevronLeft, ChevronRight, Plus, Search } from 'lucide-vue-next';
 import { computed } from 'vue';
 
@@ -13,6 +14,8 @@ import {
 } from '@/components/ui/select';
 
 import type { ViewMode } from '../types';
+
+const page = usePage();
 
 const props = defineProps<{
     searchQuery: string;
@@ -90,7 +93,14 @@ const viewValue = computed({
                 </SelectContent>
             </Select>
 
-            <Button @click="emit('create')">
+            <Button
+                @click="emit('create')"
+                v-if="
+                    page.props.auth.user.roles?.find(
+                        ({ role }) => role !== 'instructor',
+                    )
+                "
+            >
                 <Plus class="h-4 w-4" />
                 Neuer Termin
             </Button>

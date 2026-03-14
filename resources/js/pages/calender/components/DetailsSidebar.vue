@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
 import { Calendar, Clock, MapPin, Plus, User } from 'lucide-vue-next';
 
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
 import type { Appointment, ViewMode } from '../types';
+
+const page = usePage();
 
 defineProps<{
     selectedDate: Date;
@@ -52,6 +55,11 @@ const emit = defineEmits<{
                         variant="outline"
                         class="w-full"
                         @click="emit('open-create')"
+                        v-if="
+                            page.props.auth.user.roles?.find(
+                                ({ role }) => role !== 'instructor',
+                            )
+                        "
                     >
                         <Plus class="h-4 w-4" />
                         Neuer Termin
@@ -74,7 +82,11 @@ const emit = defineEmits<{
                             Termindetails
                         </div>
                         <Button
-                            v-if="selectedAppointment"
+                            v-if="
+                                selectedAppointment &&
+                                selectedAppointment.creator?.id ===
+                                    page.props.auth.user.id
+                            "
                             variant="outline"
                             size="sm"
                             @click="emit('open-edit', selectedAppointment)"
@@ -94,11 +106,7 @@ const emit = defineEmits<{
                                 variant="outline"
                                 :class="getEventClass(selectedAppointment)"
                             >
-                                {{
-                                    formatTime(
-                                        selectedAppointment.start_time,
-                                    )
-                                }}
+                                {{ formatTime(selectedAppointment.start_time) }}
                             </Badge>
                         </div>
                         <div class="text-xs text-muted-foreground">
@@ -115,11 +123,7 @@ const emit = defineEmits<{
                         >
                             <div class="flex items-center gap-2">
                                 <Clock class="h-4 w-4" />
-                                {{
-                                    formatTime(
-                                        selectedAppointment.start_time,
-                                    )
-                                }}
+                                {{ formatTime(selectedAppointment.start_time) }}
                                 -
                                 {{ formatTime(selectedAppointment.end_time) }}
                             </div>
@@ -174,8 +178,7 @@ const emit = defineEmits<{
                     <Badge variant="outline" class="text-[10px]">
                         {{
                             formatDate(
-                                parseDate(appointment.start_time) ||
-                                    new Date(),
+                                parseDate(appointment.start_time) || new Date(),
                             )
                         }}
                     </Badge>
