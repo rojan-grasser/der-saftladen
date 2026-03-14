@@ -131,7 +131,7 @@ const getAppointmentPosition = (appointment: Appointment) => {
                             v-for="appointment in selectedAppointments"
                             :key="appointment.id"
                             type="button"
-                            class="absolute flex flex-col gap-0.5 overflow-hidden rounded-lg px-3 py-2 text-left text-white shadow-sm transition-opacity hover:opacity-90"
+                            class="absolute flex flex-col justify-start gap-0.5 overflow-hidden rounded-lg px-3 py-2 text-left text-white shadow-sm transition-opacity hover:opacity-90"
                             :class="getEventBgClass(appointment)"
                             :style="getAppointmentPosition(appointment)"
                             @click="emit('open-details', appointment)"
