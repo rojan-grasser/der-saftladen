@@ -14,7 +14,7 @@ import {
 
 import type { Appointment } from '../types';
 
-import AppoitmentDeleteAlert from './AppoitmentDeleteAlert.vue';
+import AppointmentDeleteAlert from './AppoitmentDeleteAlert.vue';
 
 const props = defineProps<{
     open: boolean;
@@ -173,7 +173,7 @@ const handleEdit = () => {
         </SheetContent>
     </Sheet>
 
-    <AppoitmentDeleteAlert
+    <AppointmentDeleteAlert
         v-if="appointment && canDelete"
         v-model:open="showDeleteAlert"
         :appointment="appointment"

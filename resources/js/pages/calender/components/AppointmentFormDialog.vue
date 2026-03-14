@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import {
     Bell,
     Calendar as CalendarIcon,
@@ -9,6 +8,7 @@ import {
     Trash2,
     Type,
 } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 import InputError from '@/components/InputError.vue';
 import MarkdownEditor from '@/components/MarkdownEditor.vue';

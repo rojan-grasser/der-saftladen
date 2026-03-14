@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import { Calendar, Clock, MapPin } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 import MarkdownContent from '@/components/MarkdownContent.vue';
+
 import type { Appointment } from '../types';
 import { parseDate, toDateKey } from '../utils/date';
 
