@@ -81,7 +81,7 @@ const overlapLayouts = computed(() => {
 const getAppointmentPosition = (appointment: Appointment, dayKey: string) => {
     const startDate = parseDate(appointment.start_time);
     const endDate = parseDate(appointment.end_time);
-    if (!startDate || !endDate) return { top: '0px', height: '24px', left: '2px', width: 'calc(100% - 4px)', right: 'auto' };
+    if (!startDate || !endDate) return { top: '0px', height: '24px', left: '2px', width: 'calc(100% - 4px)', right: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start' };
     const startHour = startDate.getHours() + startDate.getMinutes() / 60;
     const endHour = endDate.getHours() + endDate.getMinutes() / 60;
     const duration = Math.max(endHour - startHour, 0.5);
@@ -101,6 +101,10 @@ const getAppointmentPosition = (appointment: Appointment, dayKey: string) => {
         left: colLeft,
         width: colWidth,
         right: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
     };
 };
 </script>
@@ -162,7 +166,7 @@ const getAppointmentPosition = (appointment: Appointment, dayKey: string) => {
                             v-for="appointment in day.appointments"
                             :key="appointment.id"
                             type="button"
-                            class="absolute flex flex-col justify-start overflow-hidden rounded px-1 py-0.5 text-left text-[10px] text-white transition-opacity hover:opacity-80"
+                            class="absolute overflow-hidden rounded px-1 py-0.5 text-left text-[10px] text-white transition-opacity hover:opacity-80"
                             :class="getEventBgClass(appointment)"
                             :style="getAppointmentPosition(appointment, day.key)"
                             @click="emit('open-details', appointment)"
