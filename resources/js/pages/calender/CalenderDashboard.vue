@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, usePage } from '@inertiajs/vue3';
-import { Bell, BellOff, ChevronLeft, ChevronRight, Plus } from 'lucide-vue-next';
-import { computed, onMounted, ref } from 'vue';
+import { Bell, BellOff, ChevronLeft, ChevronRight, Keyboard, Plus, X } from 'lucide-vue-next';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 import { usePushNotifications } from '@/composables/usePushNotifications';
 
@@ -172,6 +172,11 @@ const { isSupported: pushSupported, isSubscribed: pushSubscribed, isLoading: pus
 
 onMounted(() => {
     checkSubscriptionStatus();
+    document.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('keydown', handleKeyDown);
 });
 
 const togglePushNotifications = async () => {
@@ -185,6 +190,109 @@ const togglePushNotifications = async () => {
 const startCreate = () => {
     if (!canCreateAppointments.value) return;
     openCreate(new Date(selectedDate.value));
+};
+
+// ── Kontextsensitive Navigation (←/→ je nach Ansicht) ────────────────────────
+const goPrev = () => {
+    if (viewMode.value === 'day') {
+        const d = new Date(selectedDate.value);
+        d.setDate(d.getDate() - 1);
+        handleSelectDay(d);
+    } else if (viewMode.value === 'week') {
+        const d = new Date(selectedDate.value);
+        d.setDate(d.getDate() - 7);
+        handleSelectDay(d);
+    } else {
+        goPrevMonth();
+    }
+};
+
+const goNext = () => {
+    if (viewMode.value === 'day') {
+        const d = new Date(selectedDate.value);
+        d.setDate(d.getDate() + 1);
+        handleSelectDay(d);
+    } else if (viewMode.value === 'week') {
+        const d = new Date(selectedDate.value);
+        d.setDate(d.getDate() + 7);
+        handleSelectDay(d);
+    } else {
+        goNextMonth();
+    }
+};
+
+// ── Tastatur-Shortcuts ────────────────────────────────────────────────────────
+const showShortcutsHelp = ref(false);
+
+const handleKeyDown = (e: KeyboardEvent) => {
+    // Nicht auslösen beim Tippen in Eingabefeldern oder mit Modifier-Tasten
+    const target = e.target as HTMLElement;
+    if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey
+    )
+        return;
+
+    // Escape schließt immer das Hilfe-Panel
+    if (e.key === 'Escape') {
+        if (showShortcutsHelp.value) {
+            e.preventDefault();
+            showShortcutsHelp.value = false;
+        }
+        return;
+    }
+
+    // Keine weiteren Shortcuts wenn Dialog/Sheet offen
+    if (isCreateOpen.value || detailsOpen.value) return;
+
+    switch (e.key) {
+        case 't':
+        case 'T':
+            e.preventDefault();
+            goToday();
+            break;
+        case 'd':
+        case 'D':
+            e.preventDefault();
+            viewMode.value = 'day';
+            break;
+        case 'w':
+        case 'W':
+            e.preventDefault();
+            viewMode.value = 'week';
+            break;
+        case 'm':
+        case 'M':
+            e.preventDefault();
+            viewMode.value = 'month';
+            break;
+        case 'a':
+        case 'A':
+            e.preventDefault();
+            viewMode.value = 'agenda';
+            break;
+        case 'n':
+        case 'N':
+            e.preventDefault();
+            startCreate();
+            break;
+        case 'ArrowLeft':
+            e.preventDefault();
+            goPrev();
+            break;
+        case 'ArrowRight':
+            e.preventDefault();
+            goNext();
+            break;
+        case '?':
+            e.preventDefault();
+            showShortcutsHelp.value = !showShortcutsHelp.value;
+            break;
+    }
 };
 
 const startEdit = (appointment: Appointment) => {
@@ -337,38 +445,55 @@ const getEventBgClass = (appointment: Appointment) => {
                         </h2>
                     </div>
 
-                    <div class="flex items-center gap-1 rounded-lg border p-1">
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1 rounded-lg border p-1">
+                            <Button
+                                :variant="viewMode === 'day' ? 'secondary' : 'ghost'"
+                                size="sm"
+                                class="rounded-md px-3"
+                                title="Tag (D)"
+                                @click="viewMode = 'day'"
+                            >
+                                Tag
+                            </Button>
+                            <Button
+                                :variant="viewMode === 'week' ? 'secondary' : 'ghost'"
+                                size="sm"
+                                class="rounded-md px-3"
+                                title="Woche (W)"
+                                @click="viewMode = 'week'"
+                            >
+                                Woche
+                            </Button>
+                            <Button
+                                :variant="viewMode === 'month' ? 'secondary' : 'ghost'"
+                                size="sm"
+                                class="rounded-md px-3"
+                                title="Monat (M)"
+                                @click="viewMode = 'month'"
+                            >
+                                Monat
+                            </Button>
+                            <Button
+                                :variant="viewMode === 'agenda' ? 'secondary' : 'ghost'"
+                                size="sm"
+                                class="rounded-md px-3"
+                                title="Agenda (A)"
+                                @click="viewMode = 'agenda'"
+                            >
+                                Agenda
+                            </Button>
+                        </div>
+
+                        <!-- Shortcuts-Hilfe -->
                         <Button
-                            :variant="viewMode === 'day' ? 'secondary' : 'ghost'"
-                            size="sm"
-                            class="rounded-md px-3"
-                            @click="viewMode = 'day'"
+                            variant="ghost"
+                            size="icon"
+                            class="h-8 w-8 text-muted-foreground"
+                            title="Tastaturkürzel anzeigen (?)"
+                            @click="showShortcutsHelp = !showShortcutsHelp"
                         >
-                            Tag
-                        </Button>
-                        <Button
-                            :variant="viewMode === 'week' ? 'secondary' : 'ghost'"
-                            size="sm"
-                            class="rounded-md px-3"
-                            @click="viewMode = 'week'"
-                        >
-                            Woche
-                        </Button>
-                        <Button
-                            :variant="viewMode === 'month' ? 'secondary' : 'ghost'"
-                            size="sm"
-                            class="rounded-md px-3"
-                            @click="viewMode = 'month'"
-                        >
-                            Monat
-                        </Button>
-                        <Button
-                            :variant="viewMode === 'agenda' ? 'secondary' : 'ghost'"
-                            size="sm"
-                            class="rounded-md px-3"
-                            @click="viewMode = 'agenda'"
-                        >
-                            Agenda
+                            <Keyboard class="h-4 w-4" />
                         </Button>
                     </div>
                 </div>
@@ -428,6 +553,86 @@ const getEventBgClass = (appointment: Appointment) => {
             @edit="startEdit"
             @deleted="handleAppointmentDeleted"
         />
+
+        <!-- Tastaturkürzel-Hilfe-Panel -->
+        <Transition
+            enter-active-class="transition ease-out duration-150"
+            enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-100"
+            leave-from-class="opacity-100 scale-100"
+            leave-to-class="opacity-0 scale-95"
+        >
+            <div
+                v-if="showShortcutsHelp"
+                class="fixed right-4 bottom-4 z-50 w-72 origin-bottom-right overflow-hidden rounded-xl border bg-popover shadow-xl"
+            >
+                <div class="flex items-center justify-between border-b px-4 py-3">
+                    <div class="flex items-center gap-2">
+                        <Keyboard class="h-4 w-4 text-muted-foreground" />
+                        <span class="text-sm font-semibold">Tastaturkürzel</span>
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        class="h-6 w-6"
+                        @click="showShortcutsHelp = false"
+                    >
+                        <X class="h-3.5 w-3.5" />
+                    </Button>
+                </div>
+                <div class="space-y-0.5 p-3">
+                    <p class="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Navigation</p>
+                    <div v-for="shortcut in [
+                        { keys: ['T'], label: 'Heute' },
+                        { keys: ['←'], label: 'Zurück (Tag / Woche / Monat)' },
+                        { keys: ['→'], label: 'Vor (Tag / Woche / Monat)' },
+                    ]" :key="shortcut.label" class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50">
+                        <span class="text-xs text-muted-foreground">{{ shortcut.label }}</span>
+                        <div class="flex gap-1">
+                            <kbd v-for="k in shortcut.keys" :key="k"
+                                class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium shadow-sm">
+                                {{ k }}
+                            </kbd>
+                        </div>
+                    </div>
+
+                    <p class="mb-2 mt-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Ansichten</p>
+                    <div v-for="shortcut in [
+                        { keys: ['D'], label: 'Tagesansicht' },
+                        { keys: ['W'], label: 'Wochenansicht' },
+                        { keys: ['M'], label: 'Monatsansicht' },
+                        { keys: ['A'], label: 'Agenda' },
+                    ]" :key="shortcut.label" class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50">
+                        <span class="text-xs text-muted-foreground">{{ shortcut.label }}</span>
+                        <div class="flex gap-1">
+                            <kbd v-for="k in shortcut.keys" :key="k"
+                                class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium shadow-sm">
+                                {{ k }}
+                            </kbd>
+                        </div>
+                    </div>
+
+                    <p class="mb-2 mt-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Aktionen</p>
+                    <div v-for="shortcut in [
+                        { keys: ['N'], label: 'Neuer Termin' },
+                        { keys: ['?'], label: 'Shortcuts anzeigen' },
+                        { keys: ['Esc'], label: 'Schließen' },
+                    ]" :key="shortcut.label" class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50">
+                        <span class="text-xs text-muted-foreground">{{ shortcut.label }}</span>
+                        <div class="flex gap-1">
+                            <kbd v-for="k in shortcut.keys" :key="k"
+                                class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium shadow-sm">
+                                {{ k }}
+                            </kbd>
+                        </div>
+                    </div>
+                </div>
+                <p class="border-t px-4 py-2 text-[10px] text-muted-foreground">
+                    Shortcuts sind deaktiviert wenn ein Dialog offen ist.
+                </p>
+            </div>
+        </Transition>
 
         <!-- Termin erstellen/bearbeiten Dialog -->
         <AppointmentFormDialog
