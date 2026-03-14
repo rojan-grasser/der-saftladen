@@ -82,7 +82,7 @@ const overlapLayout = computed(() => {
 const getAppointmentPosition = (appointment: Appointment) => {
     const startDate = parseDate(appointment.start_time);
     const endDate = parseDate(appointment.end_time);
-    if (!startDate || !endDate) return { top: '0px', height: '24px', left: '2px', width: 'calc(100% - 4px)', right: 'auto' };
+    if (!startDate || !endDate) return { top: '0px', height: '24px', left: '2px', width: 'calc(100% - 4px)', right: 'auto', justifyContent: 'flex-start', alignItems: 'flex-start' };
     const startHour = startDate.getHours() + startDate.getMinutes() / 60;
     const endHour = endDate.getHours() + endDate.getMinutes() / 60;
     const duration = Math.max(endHour - startHour, 0.5);
