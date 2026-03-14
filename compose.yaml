@@ -33,12 +33,21 @@ services:
             timeout: 5s
             retries: 10
 
+    create-env:
+        image: alpine:latest
+        container_name: create-env
+        volumes:
+            - .:/workspace
+        command: sh -c "touch /workspace/.env.s3"
+
     terraform:
         image: hashicorp/terraform:latest
         container_name: terraform-minio
         depends_on:
             minio:
                 condition: service_healthy
+            create-env:
+                condition: service_completed_successfully
         volumes:
             - ./terraform:/terraform
             - ./.env.s3:/.env.s3
