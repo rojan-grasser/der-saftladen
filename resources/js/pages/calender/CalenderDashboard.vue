@@ -815,10 +815,10 @@ const mobileNavItems = [
                 <div class="space-y-0.5 p-3">
                     <p class="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Navigation</p>
                     <div v-for="shortcut in [
-                        { keys: ['T'], label: 'Heute' },
-                        { keys: ['←'], label: 'Zurück (Tag / Woche / Monat)' },
-                        { keys: ['→'], label: 'Vor (Tag / Woche / Monat)' },
-                    ]" :key="shortcut.label" class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50">
+                        { keys: ['T'], label: 'Heute', action: () => { goToday(); showShortcutsHelp.value = false; } },
+                        { keys: ['←'], label: 'Zurück (Tag / Woche / Monat)', action: () => { goPrev(); showShortcutsHelp.value = false; } },
+                        { keys: ['→'], label: 'Vor (Tag / Woche / Monat)', action: () => { goNext(); showShortcutsHelp.value = false; } },
+                    ]" :key="shortcut.label" class="flex cursor-pointer items-center justify-between rounded px-2 py-1 hover:bg-muted/50" @click="shortcut.action()">
                         <span class="text-xs text-muted-foreground">{{ shortcut.label }}</span>
                         <div class="flex gap-1">
                             <kbd v-for="k in shortcut.keys" :key="k"
@@ -830,11 +830,11 @@ const mobileNavItems = [
 
                     <p class="mb-2 mt-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Ansichten</p>
                     <div v-for="shortcut in [
-                        { keys: ['D'], label: 'Tagesansicht' },
-                        { keys: ['W'], label: 'Wochenansicht' },
-                        { keys: ['M'], label: 'Monatsansicht' },
-                        { keys: ['A'], label: 'Agenda' },
-                    ]" :key="shortcut.label" class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50">
+                        { keys: ['D'], label: 'Tagesansicht', action: () => { viewMode.value = 'day'; showShortcutsHelp.value = false; } },
+                        { keys: ['W'], label: 'Wochenansicht', action: () => { viewMode.value = 'week'; showShortcutsHelp.value = false; } },
+                        { keys: ['M'], label: 'Monatsansicht', action: () => { viewMode.value = 'month'; showShortcutsHelp.value = false; } },
+                        { keys: ['A'], label: 'Agenda', action: () => { viewMode.value = 'agenda'; showShortcutsHelp.value = false; } },
+                    ]" :key="shortcut.label" class="flex cursor-pointer items-center justify-between rounded px-2 py-1 hover:bg-muted/50" @click="shortcut.action()">
                         <span class="text-xs text-muted-foreground">{{ shortcut.label }}</span>
                         <div class="flex gap-1">
                             <kbd v-for="k in shortcut.keys" :key="k"
@@ -846,10 +846,10 @@ const mobileNavItems = [
 
                     <p class="mb-2 mt-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Aktionen</p>
                     <div v-for="shortcut in [
-                        { keys: ['N'], label: 'Neuer Termin' },
-                        { keys: ['?'], label: 'Shortcuts anzeigen' },
-                        { keys: ['Esc'], label: 'Schließen' },
-                    ]" :key="shortcut.label" class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50">
+                        { keys: ['N'], label: 'Neuer Termin', action: () => { startCreate(); showShortcutsHelp.value = false; } },
+                        { keys: ['?'], label: 'Shortcuts anzeigen', action: () => { showShortcutsHelp.value = !showShortcutsHelp.value; } },
+                        { keys: ['Esc'], label: 'Schließen', action: () => { showShortcutsHelp.value = false; } },
+                    ]" :key="shortcut.label" class="flex cursor-pointer items-center justify-between rounded px-2 py-1 hover:bg-muted/50" @click="shortcut.action()">
                         <span class="text-xs text-muted-foreground">{{ shortcut.label }}</span>
                         <div class="flex gap-1">
                             <kbd v-for="k in shortcut.keys" :key="k"
