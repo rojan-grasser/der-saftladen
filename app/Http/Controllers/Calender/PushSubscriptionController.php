@@ -3,53 +3,38 @@
 namespace App\Http\Controllers\Calender;
 
 use App\Http\Controllers\Controller;
-use App\Models\PushSubscription;
+use App\Mail\AppointmentReminderMail;
+use App\Models\Appointment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class PushSubscriptionController extends Controller
 {
-    public function store(Request $request)
+    public function testEmail()
     {
-        $validated = $request->validate([
-            'endpoint' => 'required|string',
-            'public_key' => 'nullable|string',
-            'auth_token' => 'nullable|string',
-        ]);
-
         $user = Auth::user();
 
-        PushSubscription::updateOrCreate(
-            [
-                'user_id' => $user->id,
-                'endpoint' => $validated['endpoint'],
-            ],
-            [
-                'public_key' => $validated['public_key'] ?? null,
-                'auth_token' => $validated['auth_token'] ?? null,
-            ]
-        );
+        // Nächsten Termin des Users als Beispiel verwenden
+        $appointment = Appointment::with('creator')
+            ->where('user_id', $user->id)
+            ->where('start_time', '>', now())
+            ->orderBy('start_time')
+            ->first();
 
-        return response()->json(['status' => 'ok']);
-    }
+        // Fallback: Dummy-Termin für die Test-Mail
+        if (! $appointment) {
+            $appointment = new Appointment([
+                'title' => 'Beispiel-Termin',
+                'description' => 'Das ist eine Test-Benachrichtigung.',
+                'location' => 'Besprechungsraum 1',
+                'start_time' => now()->addHours(1),
+                'end_time' => now()->addHours(2),
+            ]);
+        }
 
-    public function destroy(Request $request)
-    {
-        $validated = $request->validate([
-            'endpoint' => 'required|string',
-        ]);
+        Mail::to($user->email)->send(new AppointmentReminderMail($appointment, 15));
 
-        PushSubscription::where('user_id', Auth::id())
-            ->where('endpoint', $validated['endpoint'])
-            ->delete();
-
-        return response()->json(['status' => 'ok']);
-    }
-
-    public function vapidPublicKey()
-    {
-        return response()->json([
-            'key' => config('webpush.vapid.public_key'),
-        ]);
+        return response()->json(['status' => 'ok', 'sent_to' => $user->email]);
     }
 }

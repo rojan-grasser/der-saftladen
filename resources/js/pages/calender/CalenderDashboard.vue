@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { Head, router, usePage } from '@inertiajs/vue3';
 import appointments from '@/routes/appointments';
-import { Bell, BellOff, CalendarDays, CalendarRange, ChevronLeft, ChevronRight, Keyboard, LayoutGrid, List, Plus, X } from 'lucide-vue-next';
+import { CalendarDays, CalendarRange, ChevronLeft, ChevronRight, Keyboard, LayoutGrid, List, Plus, X } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-
-import { usePushNotifications } from '@/composables/usePushNotifications';
 
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -178,10 +176,7 @@ const handleSelectDay = (date: Date) => {
     selectDay(date);
 };
 
-const { isSupported: pushSupported, isSubscribed: pushSubscribed, isLoading: pushLoading, checkSubscriptionStatus, requestPermissionAndSubscribe, unsubscribe: unsubscribePush } = usePushNotifications();
-
 onMounted(() => {
-    checkSubscriptionStatus();
     document.addEventListener('keydown', handleKeyDown);
 });
 
@@ -189,11 +184,33 @@ onUnmounted(() => {
     document.removeEventListener('keydown', handleKeyDown);
 });
 
-const togglePushNotifications = async () => {
-    if (pushSubscribed.value) {
-        await unsubscribePush();
-    } else {
-        await requestPermissionAndSubscribe();
+// ── Dev-Modus ─────────────────────────────────────────────────────────────────
+const showDevPanel = ref(false);
+const devTestStatus = ref<string | null>(null);
+const devTestLoading = ref(false);
+
+const sendTestEmail = async () => {
+    devTestStatus.value = null;
+    devTestLoading.value = true;
+    try {
+        const res = await fetch('/reminder/test-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] ?? ''),
+            },
+        });
+        const data = await res.json();
+        if (res.ok) {
+            devTestStatus.value = `✅ E-Mail gesendet an ${data.sent_to}`;
+        } else {
+            devTestStatus.value = `❌ ${data.message ?? 'Fehler'}`;
+        }
+    } catch {
+        devTestStatus.value = '❌ Netzwerkfehler';
+    } finally {
+        devTestLoading.value = false;
     }
 };
 
@@ -301,6 +318,11 @@ const handleKeyDown = (e: KeyboardEvent) => {
         case '?':
             e.preventDefault();
             showShortcutsHelp.value = !showShortcutsHelp.value;
+            break;
+        case 'F9':
+            e.preventDefault();
+            showDevPanel.value = !showDevPanel.value;
+            devTestStatus.value = null;
             break;
     }
 };
@@ -415,15 +437,6 @@ const mobileNavItems = [
                     </button>
                 </div>
 
-                <button
-                    v-if="pushSupported"
-                    class="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/60"
-                    :disabled="pushLoading"
-                    @click="togglePushNotifications"
-                >
-                    <BellOff v-if="pushSubscribed" class="h-4 w-4" />
-                    <Bell v-else class="h-4 w-4" />
-                </button>
             </div>
 
             <!-- Content-Bereich -->
@@ -589,19 +602,6 @@ const mobileNavItems = [
                     @prev-month="goPrevMonth"
                     @next-month="goNextMonth"
                 />
-
-                <!-- Push-Benachrichtigungen -->
-                <Button
-                    v-if="pushSupported"
-                    variant="outline"
-                    class="w-full gap-2"
-                    :disabled="pushLoading"
-                    @click="togglePushNotifications"
-                >
-                    <BellOff v-if="pushSubscribed" class="h-4 w-4" />
-                    <Bell v-else class="h-4 w-4" />
-                    {{ pushSubscribed ? 'Benachrichtigungen aus' : 'Benachrichtigungen an' }}
-                </Button>
 
                 <!-- Termine am ausgewählten Tag -->
                 <div v-if="selectedAppointments.length > 0" class="space-y-2">
@@ -784,6 +784,57 @@ const mobileNavItems = [
             @edit="startEdit"
             @deleted="handleAppointmentDeleted"
         />
+
+        <!-- Dev-Panel (Backtick ` zum Öffnen) -->
+        <Transition
+            enter-active-class="transition ease-out duration-150"
+            enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-100"
+            leave-from-class="opacity-100 scale-100"
+            leave-to-class="opacity-0 scale-95"
+        >
+            <div
+                v-if="showDevPanel"
+                class="fixed bottom-4 left-4 z-50 w-72 origin-bottom-left overflow-hidden rounded-xl border border-yellow-500/50 bg-yellow-950/95 shadow-xl"
+            >
+                <div class="flex items-center justify-between border-b border-yellow-500/30 px-4 py-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm">🛠️</span>
+                        <span class="text-sm font-semibold text-yellow-300">Dev-Modus</span>
+                        <span class="rounded bg-yellow-500/20 px-1.5 py-0.5 text-[10px] font-medium text-yellow-400">nur intern</span>
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        class="h-6 w-6 text-yellow-400 hover:bg-yellow-500/20 hover:text-yellow-200"
+                        @click="showDevPanel = false"
+                    >
+                        <X class="h-3.5 w-3.5" />
+                    </Button>
+                </div>
+                <div class="space-y-3 p-4">
+                    <div>
+                        <p class="mb-2 text-[11px] font-medium uppercase tracking-wider text-yellow-500">E-Mail Erinnerung</p>
+                        <p class="mb-3 text-[11px] text-yellow-400/70">Sendet eine Test-Erinnerungsmail an deine E-Mail-Adresse.</p>
+                        <Button
+                            size="sm"
+                            class="w-full bg-yellow-500 text-yellow-950 hover:bg-yellow-400"
+                            :disabled="devTestLoading"
+                            @click="sendTestEmail"
+                        >
+                            {{ devTestLoading ? 'Sende...' : '📧 Test-E-Mail senden' }}
+                        </Button>
+                        <p v-if="devTestStatus" class="mt-2 text-xs" :class="devTestStatus.startsWith('✅') ? 'text-green-400' : 'text-red-400'">
+                            {{ devTestStatus }}
+                        </p>
+                    </div>
+                </div>
+                <p class="border-t border-yellow-500/30 px-4 py-2 text-[10px] text-yellow-600">
+                    Öffnen/Schließen: <kbd class="rounded border border-yellow-600 bg-yellow-900 px-1 font-mono">F9</kbd>
+                </p>
+            </div>
+        </Transition>
 
         <!-- Tastaturkürzel-Hilfe-Panel -->
         <Transition
