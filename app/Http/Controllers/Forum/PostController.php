@@ -28,14 +28,6 @@ class PostController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $professionId, string $topicId, string $postId)
-    {
-        return ForumPost::findOrFail($postId);
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $professionId, string $topicId, string $postId)

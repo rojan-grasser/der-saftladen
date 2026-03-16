@@ -62,14 +62,6 @@ class TopicController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return response()->setStatusCode(501);
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request, string $professionId)
