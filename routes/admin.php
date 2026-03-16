@@ -5,15 +5,10 @@ use App\Http\Controllers\Admin\InstructorToProfessionController;
 use App\Http\Controllers\Admin\ProfessionController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::middleware(['request-logging', 'auth', 'verified', 'active', 'role:admin'])
     ->prefix('admin')
     ->group(function () {
-        Route::get('/dashboard', function () {
-            return Inertia::render('admin/AdminDashboard');
-        })->name('admin.dashboard');
-
         Route::get('/users', [UserController::class, 'index'])->name('admin.users');
         Route::put('/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
@@ -26,6 +21,4 @@ Route::middleware(['request-logging', 'auth', 'verified', 'active', 'role:admin'
 
         Route::post('/instructors-to-profession/{instructorId}/{professionId}', [InstructorToProfessionController::class, 'index'])->name('admin.instructors-to-profession.add');
         Route::delete('/instructors-to-profession/{instructorId}/{professionId}', [InstructorToProfessionController::class, 'destroy'])->name('admin.instructors-to-profession.destroy');
-
-        // Add any other admin routes here
     });

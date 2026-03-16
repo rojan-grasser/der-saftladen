@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserToProfession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Enum;
@@ -105,31 +106,8 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
+     *
      * @throws Throwable
      */
     public function update(Request $request, string $id)
@@ -149,9 +127,9 @@ class UserController extends Controller
             $user->update(collect($validated)->except('roles')->toArray());
 
             if (($validated['status'] ?? null) != UserStatus::ACTIVE->value) {
-                DB::table('user_to_profession')
-                    ->where('user_id', $user->id)
-                    ->delete();
+                UserToProfession::where([
+                    'user_id' => $user->id,
+                ])->delete();
             }
 
             if (isset($validated['roles'])) {
@@ -171,9 +149,7 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        $user = User::findOrFail($id);
-
-        $user->delete();
+        User::findOrFail($id)->delete();
 
         return back()->with('success', 'Der benutzer wurde gelöscht');
     }
