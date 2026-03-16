@@ -30,7 +30,7 @@ deployment:
           - name: APP_URL
             value: https://{{ .Host }}.{{ .BaseDomain }}
           - name: FEATURE
-            value: { { .BranchName } }
+            value: {{ .BranchName }}
           # Postgres
           - name: DB_CONNECTION
             value: "pgsql"
@@ -148,7 +148,7 @@ virtualService:
   enabled: true
   spec:
     gateways:
-      - { { .Gateway } }
+      - {{ .Gateway }}
     hosts:
       - "{{ .Host }}.{{ .BaseDomain }}"
       - "{{ .MinioHost }}.{{ .BaseDomain }}"
@@ -163,7 +163,7 @@ virtualService:
               exact: "{{ .MinioHost }}.{{ .BaseDomain }}"
         route:
           - destination:
-              host: { { .Name } }.{{ .Namespace }}.svc.cluster.local
+              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
               port:
                 number: 9000
         rewrite:
@@ -176,7 +176,7 @@ virtualService:
               exact: "{{ .MinioHost }}.{{ .BaseDomain }}"
         route:
           - destination:
-              host: { { .Name } }.{{ .Namespace }}.svc.cluster.local
+              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
               port:
                 number: 9001
       - match:
@@ -187,6 +187,6 @@ virtualService:
               exact: "{{ .Host }}.{{ .BaseDomain }}"
         route:
           - destination:
-              host: { { .Name } }.{{ .Namespace }}.svc.cluster.local
+              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
               port:
                 number: 8000
