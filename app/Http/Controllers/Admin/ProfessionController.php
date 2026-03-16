@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Profession;
 use Exception;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class ProfessionController extends Controller
@@ -18,46 +17,40 @@ class ProfessionController extends Controller
     /**
      * Takes name and description as parameters, returns success (always) and message (sometimes).
      *
-     * @param Request $request
      * @return RedirectResponse
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', Rule::unique('professions', 'name')],
             'description' => ['required', 'string', 'max:255'],
+        ], [
+            'name.unique' => 'Der Berufsbereich ":input" existiert bereits.',
         ]);
-
-        $name = trim($validated['name']);
 
         try {
             Profession::create([
-                'name' => $name,
+                'name' => trim($validated['name']),
                 'description' => trim($validated['description']),
             ]);
 
-            return back()->with('success', 'Profession created successfully.');
+            return back()->with('success', 'Der Berufsbereich wurde erfolgreich erstellt.');
         } catch (Exception $exception) {
-            // Error code 23000 -> Unique violation on the name
-            if ($exception instanceof QueryException && $exception->errorInfo[0] === '23000') {
-                throw ValidationException::withMessages([
-                    'name' => 'The profession "' . $name . '" already exists.',
-                ]);
-            }
-
             Log::error($exception);
 
-            return back()->with('error', 'There was an unexpected error while creating the profession. Please try again later.');
+            return back()->with('error', 'Es ist ein Fehler beim erstellen des Berufsbereiches aufgetreten. Probiere es bitte später erneut.');
         }
     }
 
     public function update(Request $request, string $id)
     {
         $validated = $request->validate([
-            'name' => ['sometimes', 'string', 'max:255'],
+            'name' => ['sometimes', 'string', 'max:255', Rule::unique('professions', 'name')->ignore($id)],
             'description' => ['sometimes', 'string', 'max:255'],
             'instructor_ids' => ['sometimes', 'array'],
             'instructor_ids.*' => ['integer', 'distinct', 'exists:users,id'],
+        ], [
+            'name.unique' => 'Der Berufsbereich ":input" existiert bereits.',
         ]);
 
         $profession = Profession::query()->findOrFail($id);
@@ -78,18 +71,11 @@ class ProfessionController extends Controller
                 }
             });
 
-            return back()->with('success', 'profession updated successfully.');
-        } catch (Exception $exception) {
-            // Error code 23000 -> Unique violation on the name (SQLite/MySQL etc.)
-            if ($exception instanceof QueryException && ($exception->errorInfo[0] ?? null) === '23000') {
-                throw ValidationException::withMessages([
-                    'name' => 'The profession "' . $updateData['name'] . '" already exists.',
-                ]);
-            }
-
+            return back()->with('success', 'Der Berufsbereich wurde aktualisiert.');
+        } catch (\Throwable $exception) {
             Log::error($exception);
 
-            return back()->with('error', 'There was an unexpected error while updating the profession. Please try again later.');
+            return back()->with('error', 'Es ist ein Fehler beim aktualisieren des Berufsbereiches aufgetreten. Probiere es bitte später erneut.');
         }
     }
 
@@ -101,11 +87,11 @@ class ProfessionController extends Controller
         try {
             Profession::destroy($id);
 
-            return back()->with('success', 'profession deleted successfully.');
+            return back()->with('success', 'Der Berufsbereich wurde gelöscht.');
         } catch (Exception $exception) {
             Log::error($exception);
 
-            return back()->with('error', 'There was a unexpected error while deleting the profession, please try again later');
+            return back()->with('error', 'Es ist ein Fehler beim löschen des Berufsbereichs passiert. Probiere es bitte später erneut.');
         }
     }
 
@@ -139,7 +125,6 @@ class ProfessionController extends Controller
             'filters' => $request->only('query'),
         ]);
     }
-
 
     public function getInstructors(Request $request, string $id)
     {
