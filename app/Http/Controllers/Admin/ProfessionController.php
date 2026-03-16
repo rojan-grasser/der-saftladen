@@ -34,7 +34,7 @@ class ProfessionController extends Controller
                 'description' => trim($validated['description']),
             ]);
 
-            return back()->with('success', 'Profession created successfully.');
+            return back()->with('success', 'Der Berufsbereich wurde erfolgreich erstellt.');
         } catch (Exception $exception) {
             Log::error($exception);
 
