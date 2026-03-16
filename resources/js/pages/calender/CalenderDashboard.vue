@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { Head, router, usePage } from '@inertiajs/vue3';
 import appointments from '@/routes/appointments';
-import { Bell, BellOff, ChevronLeft, ChevronRight, Keyboard, Plus, X } from 'lucide-vue-next';
+import { ChevronLeft, ChevronRight, Keyboard, Plus, X } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-
-import { usePushNotifications } from '@/composables/usePushNotifications';
 
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -169,24 +167,13 @@ const handleSelectDay = (date: Date) => {
     selectDay(date);
 };
 
-const { isSupported: pushSupported, isSubscribed: pushSubscribed, isLoading: pushLoading, checkSubscriptionStatus, requestPermissionAndSubscribe, unsubscribe: unsubscribePush } = usePushNotifications();
-
 onMounted(() => {
-    checkSubscriptionStatus();
     document.addEventListener('keydown', handleKeyDown);
 });
 
 onUnmounted(() => {
     document.removeEventListener('keydown', handleKeyDown);
 });
-
-const togglePushNotifications = async () => {
-    if (pushSubscribed.value) {
-        await unsubscribePush();
-    } else {
-        await requestPermissionAndSubscribe();
-    }
-};
 
 const startCreate = () => {
     if (!canCreateAppointments.value) return;
@@ -392,19 +379,6 @@ const getEventBgClass = (appointment: Appointment) => {
                     @prev-month="goPrevMonth"
                     @next-month="goNextMonth"
                 />
-
-                <!-- Push-Benachrichtigungen -->
-                <Button
-                    v-if="pushSupported"
-                    variant="outline"
-                    class="w-full gap-2"
-                    :disabled="pushLoading"
-                    @click="togglePushNotifications"
-                >
-                    <BellOff v-if="pushSubscribed" class="h-4 w-4" />
-                    <Bell v-else class="h-4 w-4" />
-                    {{ pushSubscribed ? 'Benachrichtigungen aus' : 'Benachrichtigungen an' }}
-                </Button>
 
                 <!-- Termine am ausgewählten Tag -->
                 <div v-if="selectedAppointments.length > 0" class="space-y-2">
