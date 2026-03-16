@@ -1,6 +1,7 @@
 imageChecks:
   - images:
       - ghcr.io/rojan-grasser/der-saftladen:{{ .CommitId }}
+    pullSecret: kubeberry-image-registry
 
 deployment:
   spec:
