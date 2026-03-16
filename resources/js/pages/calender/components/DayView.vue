@@ -171,6 +171,12 @@ const resetDrag = () => {
     drag.isDragOver = false;
     drag.previewStartMinutes = null;
 };
+
+const now = new Date();
+const isPastAppointment = (appointment: Appointment): boolean => {
+    const end = parseDate(appointment.end_time);
+    return end !== null && end < now;
+};
 </script>
 
 <template>
@@ -235,7 +241,9 @@ const resetDrag = () => {
                                 getEventBgClass(appointment),
                                 drag.appointment?.id === appointment.id
                                     ? 'opacity-40'
-                                    : 'hover:opacity-90',
+                                    : isPastAppointment(appointment)
+                                      ? 'opacity-50 hover:opacity-70'
+                                      : 'hover:opacity-90',
                                 canEditAppointment(appointment) ? 'cursor-grab active:cursor-grabbing' : '',
                             ]"
                             :style="getAppointmentPosition(appointment)"

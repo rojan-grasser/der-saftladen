@@ -231,6 +231,12 @@ const resetMonthDrag = () => {
     drag.durationMs = 0;
     drag.overDayKey = null;
 };
+
+const now = new Date();
+const isPastAppointment = (appointment: Appointment): boolean => {
+    const end = parseDate(appointment.end_time);
+    return end !== null && end < now;
+};
 </script>
 
 <template>
@@ -307,7 +313,11 @@ const resetMonthDrag = () => {
                         getEventBgClass(segment.appointment),
                         segment.isStart ? 'rounded-l' : '',
                         segment.isEnd ? 'rounded-r' : '',
-                        drag.appointment?.id === segment.appointment.id ? 'opacity-40' : '',
+                        drag.appointment?.id === segment.appointment.id
+                            ? 'opacity-40'
+                            : isPastAppointment(segment.appointment)
+                              ? 'opacity-50 hover:opacity-70'
+                              : '',
                         canEditAppointment(segment.appointment) ? 'cursor-grab active:cursor-grabbing' : '',
                     ]"
                     :style="{

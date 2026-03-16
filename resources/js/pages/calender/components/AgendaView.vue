@@ -7,6 +7,12 @@ import MarkdownContent from '@/components/MarkdownContent.vue';
 import type { Appointment } from '../types';
 import { parseDate, toDateKey } from '../utils/date';
 
+const now = new Date();
+const isPastAppointment = (appointment: Appointment): boolean => {
+    const end = parseDate(appointment.end_time);
+    return end !== null && end < now;
+};
+
 const props = defineProps<{
     appointments: Appointment[];
     formatTime: (value: string | number) => string;
@@ -119,6 +125,7 @@ function formatDateLabel(date: Date): string {
                             :key="apt.id"
                             type="button"
                             class="flex w-full items-start gap-3 rounded-lg border bg-card p-3 text-left transition-colors hover:bg-muted/50"
+                            :class="isPastAppointment(apt) ? 'opacity-50 hover:opacity-70' : ''"
                             @click="emit('open-details', apt)"
                         >
                             <div

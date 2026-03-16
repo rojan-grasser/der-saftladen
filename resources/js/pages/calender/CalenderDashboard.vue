@@ -328,6 +328,12 @@ const handleAppointmentDeleted = () => {
     detailsOpen.value = false;
 };
 
+const now = new Date();
+const isPastAppointment = (appointment: Appointment): boolean => {
+    const end = parseDate(appointment.end_time);
+    return end !== null && end < now;
+};
+
 const getEventBgClass = (appointment: Appointment) => {
     const color = appointment.color ?? defaultAppointmentColor;
     const colorMap: Record<string, string> = {
@@ -390,6 +396,7 @@ const getEventBgClass = (appointment: Appointment) => {
                             v-for="apt in selectedAppointments.slice(0, 5)"
                             :key="apt.id"
                             class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-sm transition-colors hover:bg-muted/50"
+                            :class="isPastAppointment(apt) ? 'opacity-50 hover:opacity-70' : ''"
                             @click="openDetails(apt)"
                         >
                             <div
