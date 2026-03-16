@@ -22,6 +22,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "laravel-lang/common": "^6.7",
         "laravel/pail": "^1.2",
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
@@ -73,12 +74,6 @@
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
-        ],
-        "minio": [
-            "cd terraform",
-            "terraform init",
-            "TF_VAR_minio_host=\"localhost:9000\" TF_VAR_minio_user=\"minio\" TF_VAR_minio_password=\"miniopassword\" terraform plan",
-            "TF_VAR_minio_host=\"localhost:9000\" TF_VAR_minio_user=\"minio\" TF_VAR_minio_password=\"miniopassword\" terraform apply"
         ]
     },
     "extra": {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Calender;
 
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\User;
@@ -70,7 +71,7 @@ class AppointmentController extends Controller
 
     public function index()
     {
-        $appointments = Appointment::with('creator:id,name')
+        $appointments = Appointment::with('creator:id,first_name,last_name')
             ->get()
             ->map(function (Appointment $appointment) {
                 return [
@@ -79,6 +80,8 @@ class AppointmentController extends Controller
                     'end_time' => $appointment->end_time?->timestamp,
                     'creator' => [
                         'id' => $appointment->creator?->id ?? 0,
+                        'first_name' => $appointment->creator?->first_name ?? User::$deletedUserName,
+                        'last_name' => $appointment->creator?->last_name ?? '',
                         'name' => $appointment->creator?->name ?? User::$deletedUserName,
                     ]
                 ];
@@ -91,6 +94,10 @@ class AppointmentController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->user()->hasRole(Role::INSTRUCTOR)) {
+            return back()->with('error', 'Sie dürfen keine termine erstellen');
+        }
+
         $validated = $this->validateAppointment($request);
 
         Appointment::create([
@@ -103,6 +110,10 @@ class AppointmentController extends Controller
 
     public function update(Request $request, Appointment $appointment)
     {
+        if ($request->user()->id !== $appointment->creator()->id) {
+            return back()->with('error', 'Sie dürfen diesen termin nicht bearbeiten');
+        }
+
         $validated = $this->validateAppointment($request);
 
         $appointment->update($validated);
@@ -110,8 +121,12 @@ class AppointmentController extends Controller
         return back()->with('success', 'Termin erfolgreich aktualisiert!');
     }
 
-    public function destroy(Appointment $appointment)
+    public function destroy(Request $request, Appointment $appointment)
     {
+        if ($request->user()->id !== $appointment->creator()->id) {
+            return back()->with('error', 'Sie dürfen diesen termin nicht löschen');
+        }
+
         $appointment->delete();
 
         return back()->with('success', 'Termin erfolgreich gelöscht!');

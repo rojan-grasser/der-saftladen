@@ -4,49 +4,43 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Instructor;
+use App\Models\UserToProfession;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class InstructorToProfessionController extends Controller
 {
-    public function index(Request $request, string $instructorId, string $professionId)
+    public function store(Request $request, string $instructorId, string $professionId)
     {
         $instructor = Instructor::findOrFail($instructorId);
 
         // Instructor already allowed to see profession
         if ($instructor->professions()->where('professions.id', $professionId)->exists()) {
-            return [
-                'success' => false,
-                'message' => 'The Instructor already is allowed to see this profession',
-            ];
+            return back()->with('error', 'Dieser Ausbilder darf den Berufsbereich bereits sehen');
         }
 
-        DB::table('user_to_profession')->insert([
+        UserToProfession::create([
             'profession_id' => $professionId,
             'user_id' => $instructorId,
         ]);
 
-        return ['success' => true];
+        return back();
     }
 
     public function destroy(Request $request, string $instructorId, string $professionId)
     {
         try {
-            DB::table('user_to_profession')
-                ->where('user_id', '=', $instructorId)
-                ->where('profession_id', '=', $professionId)
-                ->delete();
+            UserToProfession::where([
+                'user_id' => $instructorId,
+                'profession_id' => $professionId,
+            ])->delete();
 
-            return ['success' => true];
+            return back();
         } catch (Exception $exception) {
             Log::error($exception);
 
-            return [
-                'success' => false,
-                'message' => 'An unexpected error occurred while removing the instructor',
-            ];
+            return back()->with('error', 'Es ist ein fehler aufgetreten');
         }
     }
 }

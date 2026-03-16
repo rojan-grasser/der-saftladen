@@ -37,18 +37,33 @@ const roles = ref<string[]>([]);
             class="flex flex-col gap-6"
         >
             <div class="grid gap-6">
-                <div class="grid gap-2">
-                    <Label for="name">Name</Label>
-                    <Input
-                        id="name"
-                        type="text"
-                        required
-                        autofocus
-                        :tabindex="1"
-                        name="name"
-                        placeholder="Voller Name"
-                    />
-                    <InputError :message="errors.name" />
+                <div class="flex gap-4">
+                    <div class="grid min-w-0 flex-1 gap-2">
+                        <Label for="first_name">Vorname</Label>
+                        <Input
+                            id="first_name"
+                            type="text"
+                            required
+                            autofocus
+                            :tabindex="1"
+                            name="first_name"
+                            placeholder="Vorname"
+                        />
+                        <InputError :message="errors.first_name" />
+                    </div>
+
+                    <div class="grid min-w-0 flex-1 gap-2">
+                        <Label for="last_name">Nachname</Label>
+                        <Input
+                            id="last_name"
+                            type="text"
+                            required
+                            :tabindex="2"
+                            name="last_name"
+                            placeholder="Nachname"
+                        />
+                        <InputError :message="errors.last_name" />
+                    </div>
                 </div>
 
                 <div class="grid gap-2">
@@ -57,7 +72,7 @@ const roles = ref<string[]>([]);
                         id="email"
                         type="email"
                         required
-                        :tabindex="2"
+                        :tabindex="3"
                         name="email"
                         placeholder="email@example.com"
                     />
@@ -67,7 +82,7 @@ const roles = ref<string[]>([]);
                 <div class="grid gap-2">
                     <Label for="roles">Rollen</Label>
                     <Select v-model="roles" multiple>
-                        <SelectTrigger id="roles" :tabindex="3" class="w-full">
+                        <SelectTrigger id="roles" :tabindex="4" class="w-full">
                             <SelectValue placeholder="Wählen Sie Rollen aus" />
                         </SelectTrigger>
                         <SelectContent>
@@ -93,7 +108,7 @@ const roles = ref<string[]>([]);
                     <PasswordInput
                         id="password"
                         required
-                        :tabindex="3"
+                        :tabindex="5"
                         name="password"
                         placeholder="Passwort"
                     />
@@ -107,7 +122,7 @@ const roles = ref<string[]>([]);
                     <PasswordInput
                         id="password_confirmation"
                         required
-                        :tabindex="4"
+                        :tabindex="6"
                         name="password_confirmation"
                         placeholder="Passwort bestätigen"
                     />
@@ -117,7 +132,7 @@ const roles = ref<string[]>([]);
                 <Button
                     type="submit"
                     class="mt-2 w-full"
-                    tabindex="5"
+                    tabindex="7"
                     :disabled="processing"
                 >
                     <Spinner v-if="processing" />

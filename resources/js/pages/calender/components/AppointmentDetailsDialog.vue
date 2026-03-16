@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import AppoitmentDeleteAlert from '@/pages/calender/components/AppoitmentDeleteA
 
 import type { Appointment } from '../types';
 
+const page = usePage();
 
 const props = defineProps<{
     open: boolean;
@@ -118,8 +120,10 @@ const handleDeleted = () => {
                         >
                             Beschreibung
                         </div>
-                        <p class="mt-2 whitespace-pre-wrap text-sm">
-                            {{ appointment.description || 'Keine Beschreibung.' }}
+                        <p class="mt-2 text-sm whitespace-pre-wrap">
+                            {{
+                                appointment.description || 'Keine Beschreibung.'
+                            }}
                         </p>
                     </div>
                 </div>
@@ -136,7 +140,10 @@ const handleDeleted = () => {
                     Schließen
                 </Button>
                 <Button
-                    v-if="appointment"
+                    v-if="
+                        appointment &&
+                        page.props.auth.user.id === appointment.creator?.id
+                    "
                     type="button"
                     variant="destructive"
                     @click="showDeleteAlert = true"
@@ -144,7 +151,10 @@ const handleDeleted = () => {
                     Löschen
                 </Button>
                 <Button
-                    v-if="appointment"
+                    v-if="
+                        appointment &&
+                        page.props.auth.user.id === appointment.creator?.id
+                    "
                     type="button"
                     @click="emit('edit')"
                 >

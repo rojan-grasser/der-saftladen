@@ -60,6 +60,13 @@ deployment:
             value: "der.saftladen01@gmail.com"
           - name: MAIL_FROM_NAME
             value: "Der Saftladen"
+          # Localisation
+          - name: APP_LOCALE
+            value: "de"
+          - name: APP_FALLBACK_LOCALE
+            value: "en"
+          - name: APP_FAKER_LOCALE
+            value: "de_DE"
           # Object storage
           - name: AWS_ENDPOINT
             value: "http://127.0.0.1:9000"
