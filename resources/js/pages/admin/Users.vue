@@ -59,30 +59,28 @@ const fetchUsers = (page = 1, searchValue = search.value) => {
         {
             search: searchValue || undefined,
             role: roleFilter.value === 'all' ? undefined : roleFilter.value,
-            status:
-                statusFilter.value === 'all' ? undefined : statusFilter.value,
-                priority: priorityFilter.value === 'default' ? undefined : priorityFilter.value,
+            status: statusFilter.value === 'all' ? undefined : statusFilter.value,
+            priority: priorityFilter.value === 'default' ? undefined : priorityFilter.value,
             page,
         },
         { preserveState: true, replace: true },
     );
 };
 
-// Debounced Funktion für Suche
-const debouncedFetchUsers = debounce(
-    (value: string) => fetchUsers(1, value),
-    500,
-);
+// Debounced Suche
+const debouncedFetchUsers = debounce((value: string) => {
+    fetchUsers(1, value);
+}, 500);
 
-// Watch für Filter → immer Seite 1 laden
-watch([roleFilter, statusFilter], () => fetchUsers(1));
-
-// Watch für Suche → Debounced
+// Watch: Suche → nur Debounced
 watch(search, (value) => {
     debouncedFetchUsers(value);
 });
-// Watch bevorzugten Filter
-watch([roleFilter, statusFilter, priorityFilter], () => fetchUsers(1));
+
+// Watch: Filter (role, status, priority)
+watch([roleFilter, statusFilter, priorityFilter], () => {
+    fetchUsers(1);
+});
 
 // Pagination Handler
 const handlePageChange = (page: number) => fetchUsers(page);
@@ -115,9 +113,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                     /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="default">Standard-Filter</SelectItem>
-                        <SelectItem value="firstname">Vorname bevorzugen</SelectItem>
-                        <SelectItem value="lastname">Nachname bevorzugen</SelectItem>
-                        <SelectItem value="email">Email bevorzugen</SelectItem>
+                        <SelectItem value="firstname">Ausschließlich Vorname</SelectItem>
+                        <SelectItem value="lastname">Ausschließlich Nachname</SelectItem>
+                        <SelectItem value="email">Ausschließlich Email</SelectItem>
                     </SelectContent>
                 </Select>
 
