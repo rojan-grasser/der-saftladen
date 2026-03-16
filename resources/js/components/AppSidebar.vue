@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import {
+    Briefcase,
     Calendar,
     LayoutGrid,
     MessageSquare,
-    ShieldCheck,
+    Users,
 } from 'lucide-vue-next';
 
 import NavMain from '@/components/NavMain.vue';
@@ -47,19 +48,14 @@ const mainNavItems: NavItem[] = [
 ];
 if (user.roles?.find((u) => u.role === 'admin')) {
     mainNavItems.push({
-        title: 'Admin Dashboard',
-        href: admin.dashboard(),
-        icon: ShieldCheck,
-        children: [
-            {
-                title: 'Benutzerverwaltung',
-                href: admin.users(),
-            },
-            {
-                title: 'Berufsbereiche',
-                href: admin.profession(),
-            },
-        ],
+        title: 'Benutzerverwaltung',
+        href: admin.users(),
+        icon: Users,
+    });
+    mainNavItems.push({
+        title: 'Berufsbereiche',
+        href: admin.profession(),
+        icon: Briefcase,
     });
 }
 </script>
