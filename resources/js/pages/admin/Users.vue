@@ -113,9 +113,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                     /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="default">Standard-Filter</SelectItem>
-                        <SelectItem value="firstname">Ausschließlich Vorname</SelectItem>
-                        <SelectItem value="lastname">Ausschließlich Nachname</SelectItem>
-                        <SelectItem value="email">Ausschließlich Email</SelectItem>
+                        <SelectItem value="firstname">Nur nach Vorname</SelectItem>
+                        <SelectItem value="lastname">Nur nach Nachname</SelectItem>
+                        <SelectItem value="email">Nur nach Email</SelectItem>
                     </SelectContent>
                 </Select>
 
