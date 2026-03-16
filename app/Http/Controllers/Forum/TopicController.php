@@ -20,7 +20,7 @@ class TopicController extends Controller
     {
         $validated = $request->validate([
             'limit' => ['nullable', 'integer', 'min:1', 'max:100'],
-            'query' => ['nullable', 'string', 'min:1', 'max:50']
+            'query' => ['nullable', 'string', 'min:1', 'max:50'],
         ]);
 
         $profession = Profession::findOrFail($professionId);
@@ -83,7 +83,7 @@ class TopicController extends Controller
             $request->user()->hasRole(Role::INSTRUCTOR) &&
             !Instructor::find($request->user()->id)->hasAccess($professionId)
         ) {
-            return back()->with('error', 'Du hast keinen zugriff auf das ausgewählte professionelle Fachgebiet.');
+            return back()->with('error', 'Du hast keinen zugriff auf den Berufsbereich.');
         }
 
         // Check existence
@@ -127,14 +127,6 @@ class TopicController extends Controller
             ->where('topics.profession_id', '=', $professionId)
             ->findOrFail($topicId);
 
-        if (
-            $request->user()->hasRole(Role::INSTRUCTOR) &&
-            !Instructor::find($request->user()->id)->hasAccess($topic->profession_id)
-        ) {
-            return back()->with('error', 'Du hast keinen zugriff auf dieses Thema');
-        }
-
-        // Rendering of single topic on /forum/topics/{id}
         $owner = $topic->user;
 
         return Inertia::render('forum/Topic', [
@@ -158,7 +150,7 @@ class TopicController extends Controller
                         'likesCount' => $post->likes_count,
                         'dislikesCount' => $post->dislikes_count,
                         'isOwnPost' => ($post->creator?->id ?? 0) === $request->user()->id,
-                        'edited' => !!$post->edited,
+                        'edited' => (bool) $post->edited,
                         'user' => [
                             'id' => $post->creator?->id ?? 0,
                             'name' => $post->creator?->name ?? User::$deletedUserName,
@@ -174,14 +166,6 @@ class TopicController extends Controller
                 'description' => $profession->description,
             ],
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        return response()->setStatusCode(501);
     }
 
     /**
@@ -202,7 +186,7 @@ class TopicController extends Controller
 
         $topic->update($validated);
 
-        return back()->with('success', 'Das thema wurde bearbeitet');
+        return back()->with('success', 'Das Thema wurde bearbeitet');
     }
 
     /**
@@ -218,6 +202,6 @@ class TopicController extends Controller
 
         $topic->delete();
 
-        return redirect('/forum/topics');
+        return redirect('/forum/professions');
     }
 }
