@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Role;
+use App\Enums\UserStatus;
 use App\Models\Appointment;
 use App\Models\ForumPost;
 use App\Models\Topic;
@@ -19,7 +20,7 @@ class DashboardController extends Controller
 
         // 1. Upcoming Appointments (Next 5)
         $appointments = Appointment::where('start_time', '>=', now())
-            ->orderBy('start_time', 'asc')
+            ->orderBy('start_time')
             ->limit(5)
             ->get();
 
@@ -36,7 +37,7 @@ class DashboardController extends Controller
             $adminData = [
                 'stats' => [
                     'total_users' => User::count(),
-                    'pending_users_count' => User::where('status', \App\Enums\UserStatus::PENDING)->count(),
+                    'pending_users_count' => User::where('status', UserStatus::PENDING)->count(),
                     'recent_posts_count' => ForumPost::where('created_at', '>=', now()->subDays(7))->count(),
                     'upcoming_appointments_count' => Appointment::where('start_time', '>=', now())->count(),
                 ],
