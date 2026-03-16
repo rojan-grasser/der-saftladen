@@ -127,8 +127,6 @@ service:
     - name: web-ui
       port: 9001
       targetPort: 9001
-  port: {{ .Port }}
-  targetPort: {{ .Port }}
 
 virtualService:
   enabled: true
