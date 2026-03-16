@@ -1,58 +1,110 @@
 <script lang="ts" setup>
-import { Head, Link } from '@inertiajs/vue3';
-import { Briefcase, Users } from 'lucide-vue-next';
+import { Calendar, MessageSquare, Users } from 'lucide-vue-next';
 
-import { Card } from '@/components/ui/card';
-import AppLayout from '@/layouts/AppLayout.vue';
-import admin from '@/routes/admin';
-import { type BreadcrumbItem, NavItem } from '@/types';
+import { Card, CardContent } from '@/components/ui/card';
+import type { AdminData } from '@/types/dashboard';
 
-const navItems: NavItem[] = [
-    {
-        title: 'Benutzerverwaltung',
-        href: admin.users().url,
-        icon: Users,
-    },
-    {
-        title: 'Berufsbereiche',
-        href: admin.profession().url,
-        icon: Briefcase,
-    },
-];
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Admin Dashboard',
-        href: admin.dashboard().url,
-    },
-];
+defineProps<{
+    admin: AdminData;
+}>();
 </script>
 
 <template>
-    <Head title="Admin Dashboard" />
-
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
-        >
-            <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-                <Link
-                    v-for="item in navItems"
-                    :key="String(item.href)"
-                    :href="item.href"
-                >
-                    <Card
-                        class="relative aspect-video items-center justify-center gap-2 overflow-hidden p-0 transition-colors hover:bg-muted/70"
-                    >
-                        <component
-                            :is="item.icon"
-                            v-if="item.icon"
-                            class="h-8 w-8 text-muted-foreground"
-                        />
-                        <span class="font-medium">{{ item.title }}</span>
-                    </Card>
-                </Link>
-            </div>
+    <div class="flex flex-col gap-6">
+        <!-- Stats Cards -->
+        <div class="grid gap-4 md:grid-cols-4">
+            <Card>
+                <CardContent>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30"
+                        >
+                            <Users
+                                class="h-6 w-6 text-blue-600 dark:text-blue-400"
+                            />
+                        </div>
+                        <div>
+                            <p
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Benutzer insgesamt
+                            </p>
+                            <h3 class="text-2xl font-bold">
+                                {{ admin.stats.total_users }}
+                            </h3>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardContent>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="rounded-lg bg-orange-100 p-2 dark:bg-orange-900/30"
+                        >
+                            <Users
+                                class="h-6 w-6 text-orange-600 dark:text-orange-400"
+                            />
+                        </div>
+                        <div>
+                            <p
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Ausstehende Benutzer
+                            </p>
+                            <h3 class="text-2xl font-bold">
+                                {{ admin.stats.pending_users_count }}
+                            </h3>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardContent>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="rounded-lg bg-green-100 p-2 dark:bg-green-900/30"
+                        >
+                            <MessageSquare
+                                class="h-6 w-6 text-green-600 dark:text-green-400"
+                            />
+                        </div>
+                        <div>
+                            <p
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Aktuelle Foren-Aktivität
+                            </p>
+                            <h3 class="text-2xl font-bold">
+                                {{ admin.stats.recent_posts_count }} Beiträge
+                            </h3>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardContent>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30"
+                        >
+                            <Calendar
+                                class="h-6 w-6 text-purple-600 dark:text-purple-400"
+                            />
+                        </div>
+                        <div>
+                            <p
+                                class="text-sm font-medium text-muted-foreground"
+                            >
+                                Anstehende Termine
+                            </p>
+                            <h3 class="text-2xl font-bold">
+                                {{ admin.stats.upcoming_appointments_count }}
+                            </h3>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
-    </AppLayout>
+    </div>
 </template>

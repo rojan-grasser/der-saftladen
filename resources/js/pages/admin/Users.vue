@@ -8,15 +8,38 @@ import PaginationBar from '@/components/PaginationBar.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { roleLabels, statusLabels, statusVariants } from '@/constants/user';
 import AppLayout from '@/layouts/AppLayout.vue';
 import DeleteUser from '@/pages/admin/DeleteUser.vue';
 import UserEdit from '@/pages/admin/UserEdit.vue';
 import admin from '@/routes/admin';
-import { type BreadcrumbItem, type PaginatedResponse, type User, type UserStatus } from '@/types';
+import {
+    type BreadcrumbItem,
+    type PaginatedResponse,
+    type User,
+    type UserStatus,
+} from '@/types';
 
 // ------------------------------
 // Props
@@ -61,7 +84,10 @@ const fetchUsers = (page = 1, searchValue = search.value) => {
             role: roleFilter.value === 'all' ? undefined : roleFilter.value,
             status:
                 statusFilter.value === 'all' ? undefined : statusFilter.value,
-                priority: priorityFilter.value === 'default' ? undefined : priorityFilter.value,
+            priority:
+                priorityFilter.value === 'default'
+                    ? undefined
+                    : priorityFilter.value,
             page,
         },
         { preserveState: true, replace: true },
@@ -89,7 +115,6 @@ const handlePageChange = (page: number) => fetchUsers(page);
 
 // Breadcrumbs
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Admin Dashboard', href: admin.dashboard().url },
     { title: 'Benutzerverwaltung', href: admin.users().url },
 ];
 </script>
@@ -115,8 +140,12 @@ const breadcrumbs: BreadcrumbItem[] = [
                     /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="default">Standard-Filter</SelectItem>
-                        <SelectItem value="firstname">Vorname bevorzugen</SelectItem>
-                        <SelectItem value="lastname">Nachname bevorzugen</SelectItem>
+                        <SelectItem value="firstname"
+                            >Vorname bevorzugen</SelectItem
+                        >
+                        <SelectItem value="lastname"
+                            >Nachname bevorzugen</SelectItem
+                        >
                         <SelectItem value="email">Email bevorzugen</SelectItem>
                     </SelectContent>
                 </Select>
@@ -149,7 +178,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 
                 <!-- Reset -->
                 <Button
-                    v-if="search || roleFilter !== 'all' || statusFilter !== 'all' || priorityFilter !== 'default'"
+                    v-if="
+                        search ||
+                        roleFilter !== 'all' ||
+                        statusFilter !== 'all' ||
+                        priorityFilter !== 'default'
+                    "
                     variant="ghost"
                     @click="
                         () => {
