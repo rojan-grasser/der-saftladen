@@ -9,11 +9,7 @@ import { formatDate } from '@/lib/utils';
 import AdminDashboard from '@/pages/admin/AdminDashboard.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
-import {
-    type AdminData,
-    type Appointment,
-    type Topic,
-} from '@/types/dashboard';
+import { type AdminData, type Appointment, type Topic } from '@/types/dashboard';
 
 defineProps<{
     appointments: Appointment[];
@@ -62,9 +58,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                                 :key="appointment.id"
                                 class="flex flex-col gap-1 rounded-lg border border-sidebar-border/50 p-3"
                             >
-                                <span class="font-medium">{{
-                                    appointment.title
-                                }}</span>
+                                <span class="font-medium">
+                                    {{ appointment.title }}
+                                </span>
                                 <div
                                     class="flex items-center gap-4 text-sm text-muted-foreground"
                                 >
