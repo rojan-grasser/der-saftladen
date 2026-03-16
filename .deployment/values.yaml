@@ -4,6 +4,9 @@ deployment:
       - name: der-saftladen
         image: ghcr.io/rojan-grasser/der-saftladen:{{ .CommitId }}
         imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: terraform-state
+            mountPath: /terraform
         env:
           - name: RUNMODE
             value: all
@@ -23,7 +26,7 @@ deployment:
           - name: APP_URL
             value: https://{{ .Host }}.{{ .BaseDomain }}
           - name: FEATURE
-            value: {{ .BranchName }}
+            value: { { .BranchName } }
           # Postgres
           - name: DB_CONNECTION
             value: "pgsql"
@@ -112,7 +115,9 @@ deployment:
         ports:
           - containerPort: 9000
           - containerPort: 9001
-    volumes: []
+    volumes:
+      - name: terraform-state
+        emptyDir: { }
     restartPolicy: Always
 
 service:
@@ -132,7 +137,7 @@ virtualService:
   enabled: true
   spec:
     gateways:
-      - {{ .Gateway }}
+      - { { .Gateway } }
     hosts:
       - "{{ .Host }}.{{ .BaseDomain }}"
       - "{{ .MinioHost }}.{{ .BaseDomain }}"
@@ -147,7 +152,7 @@ virtualService:
               exact: "{{ .MinioHost }}.{{ .BaseDomain }}"
         route:
           - destination:
-              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
+              host: { { .Name } }.{{ .Namespace }}.svc.cluster.local
               port:
                 number: 9000
         rewrite:
@@ -160,7 +165,7 @@ virtualService:
               exact: "{{ .MinioHost }}.{{ .BaseDomain }}"
         route:
           - destination:
-              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
+              host: { { .Name } }.{{ .Namespace }}.svc.cluster.local
               port:
                 number: 9001
       - match:
@@ -171,6 +176,6 @@ virtualService:
               exact: "{{ .Host }}.{{ .BaseDomain }}"
         route:
           - destination:
-              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
+              host: { { .Name } }.{{ .Namespace }}.svc.cluster.local
               port:
                 number: 8000

@@ -56,7 +56,7 @@ services:
             TF_VAR_minio_host: "minio:9000"
             TF_VAR_minio_user: minio
             TF_VAR_minio_password: miniopassword
-        entrypoint: ["/bin/sh", "-c", "terraform init && terraform apply -auto-approve"]
+        entrypoint: ["/bin/sh", "-c", "mkdir -p /terraform && terraform init && terraform apply -auto-approve"]
         restart: on-failure
 
 volumes:
