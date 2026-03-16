@@ -117,6 +117,8 @@ function onInstructorSearch(q: string) {
 const selectedFromProfession = computed<Instructor[]>(() =>
     (props.profession.instructors ?? []).map((u) => ({
         id: u.id,
+        first_name: u.first_name,
+        last_name: u.last_name,
         name: u.name,
         email: u.email,
     })),
@@ -159,6 +161,8 @@ watch(
         cacheInstructors(
             (u.instructors ?? []).map((x) => ({
                 id: x.id,
+                first_name: x.first_name,
+                last_name: x.last_name,
                 name: x.name,
                 email: x.email,
             })),

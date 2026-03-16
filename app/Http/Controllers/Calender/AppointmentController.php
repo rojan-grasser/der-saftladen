@@ -71,7 +71,7 @@ class AppointmentController extends Controller
 
     public function index()
     {
-        $appointments = Appointment::with('creator:id,name')
+        $appointments = Appointment::with('creator:id,first_name,last_name')
             ->get()
             ->map(function (Appointment $appointment) {
                 return [
@@ -80,6 +80,8 @@ class AppointmentController extends Controller
                     'end_time' => $appointment->end_time?->timestamp,
                     'creator' => [
                         'id' => $appointment->creator?->id ?? 0,
+                        'first_name' => $appointment->creator?->first_name ?? User::$deletedUserName,
+                        'last_name' => $appointment->creator?->last_name ?? '',
                         'name' => $appointment->creator?->name ?? User::$deletedUserName,
                     ]
                 ];

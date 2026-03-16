@@ -38,6 +38,8 @@ export interface UserRole {
 
 export interface User {
     id: number;
+    first_name: string;
+    last_name: string;
     name: string;
     email: string;
     avatar?: string;
@@ -51,6 +53,8 @@ export interface User {
 
 export interface Instructor {
     id: number;
+    first_name: string;
+    last_name: string;
     name: string;
     email: string;
 }

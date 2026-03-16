@@ -29,11 +29,20 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
         'status',
     ];
+
+    /**
+     * Get the user's full name.
+     */
+    public function getNameAttribute(): string
+    {
+        return trim($this->first_name . ' ' . $this->last_name);
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -48,6 +57,13 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     public static string $deletedUserName = 'Gelöschter Benutzer';
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = ['name'];
 
     /**
      * Get the attributes that should be cast.

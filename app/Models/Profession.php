@@ -27,7 +27,8 @@ class Profession extends Model
             'user_id',
         )->select([
             'users.id',
-            'users.name',
+            'users.first_name',
+            'users.last_name',
             'users.email',
         ])->withTimestamps();
     }
