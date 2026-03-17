@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
 
 import { Button } from '@/components/ui/button';
 
@@ -15,8 +15,8 @@ const isNotLocalhost = window.location.hostname !== 'localhost';
         "
         class="fixed top-5 right-5"
     >
-        <Link href="/feature">
+        <a href="/feature">
             <Button variant="secondary">Features</Button>
-        </Link>
+        </a>
     </div>
 </template>

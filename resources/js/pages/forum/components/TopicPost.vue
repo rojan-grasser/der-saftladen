@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import EditTopic from '@/pages/forum/components/EditTopic.vue';
+import PinTopic from '@/pages/forum/components/PinTopic.vue';
 import TopicDescription from '@/pages/forum/components/TopicDescription.vue';
 import { Topic } from '@/pages/forum/types';
 
@@ -19,11 +20,19 @@ const {
         <div class="flex flex-col gap-5">
             <div class="flex justify-between">
                 <h2 class="text-2xl font-semibold">{{ topic.title }}</h2>
-                <EditTopic
-                    :topic="topic"
-                    v-if="topic.isOwnPost"
-                    :profession-id="professionId"
-                />
+                <div class="flex gap-2">
+                    <PinTopic
+                        :profession-id="professionId"
+                        :topic-id="topic.id"
+                        :pinned="topic.pinned"
+                        class="h-auto w-auto"
+                    />
+                    <EditTopic
+                        :topic="topic"
+                        v-if="topic.isOwnPost"
+                        :profession-id="professionId"
+                    />
+                </div>
             </div>
 
             <div>

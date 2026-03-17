@@ -61,6 +61,6 @@ class PostReactionController extends Controller
     {
         PostReaction::findOrFailByUserAndPost($request->user()->id, $postId)->delete();
 
-        return response(null, 200);
+        return back();
     }
 }

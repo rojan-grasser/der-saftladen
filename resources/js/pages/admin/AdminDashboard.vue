@@ -1,58 +1,131 @@
 <script lang="ts" setup>
-import { Head, Link } from '@inertiajs/vue3';
-import { Briefcase, Users } from 'lucide-vue-next';
+import { Link } from '@inertiajs/vue3';
+import { Calendar, MessageSquare, Users } from 'lucide-vue-next';
 
-import { Card } from '@/components/ui/card';
-import AppLayout from '@/layouts/AppLayout.vue';
-import admin from '@/routes/admin';
-import { type BreadcrumbItem, NavItem } from '@/types';
+import { Card, CardContent } from '@/components/ui/card';
+import { users as adminUsers } from '@/routes/admin';
+import { index as appointmentsIndex } from '@/routes/appointments';
+import { professions as forumProfessions } from '@/routes/forum';
+import type { AdminData } from '@/types/dashboard';
 
-const navItems: NavItem[] = [
-    {
-        title: 'Benutzerverwaltung',
-        href: admin.users().url,
-        icon: Users,
-    },
-    {
-        title: 'Berufsbereiche',
-        href: admin.profession().url,
-        icon: Briefcase,
-    },
-];
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Admin Dashboard',
-        href: admin.dashboard().url,
-    },
-];
+defineProps<{
+    admin: AdminData;
+}>();
 </script>
 
 <template>
-    <Head title="Admin Dashboard" />
+    <div class="flex flex-col gap-6">
+        <!-- Stats Cards -->
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <Link :href="adminUsers().url" class="block h-full">
+                <Card class="h-full transition-colors hover:bg-muted">
+                    <CardContent>
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30"
+                            >
+                                <Users
+                                    class="h-6 w-6 text-blue-600 dark:text-blue-400"
+                                />
+                            </div>
+                            <div class="min-w-0">
+                                <p
+                                    class="text-sm font-medium wrap-break-word text-muted-foreground"
+                                >
+                                    Benutzer insgesamt
+                                </p>
+                                <h3 class="text-2xl font-bold wrap-break-word">
+                                    {{ admin.stats.total_users }}
+                                </h3>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </Link>
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div
-            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
-        >
-            <div class="grid auto-rows-min gap-4 md:grid-cols-3">
-                <Link
-                    v-for="item in navItems"
-                    :key="String(item.href)"
-                    :href="item.href"
-                >
-                    <Card
-                        class="relative aspect-video items-center justify-center gap-2 overflow-hidden p-0 transition-colors hover:bg-muted/70"
-                    >
-                        <component
-                            :is="item.icon"
-                            v-if="item.icon"
-                            class="h-8 w-8 text-muted-foreground"
-                        />
-                        <span class="font-medium">{{ item.title }}</span>
-                    </Card>
-                </Link>
-            </div>
+            <Link
+                :href="adminUsers({ query: { status: 'pending' } }).url"
+                class="block h-full"
+            >
+                <Card class="h-full transition-colors hover:bg-muted">
+                    <CardContent>
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="rounded-lg bg-orange-100 p-2 dark:bg-orange-900/30"
+                            >
+                                <Users
+                                    class="h-6 w-6 text-orange-600 dark:text-orange-400"
+                                />
+                            </div>
+                            <div class="min-w-0">
+                                <p
+                                    class="text-sm font-medium wrap-break-word text-muted-foreground"
+                                >
+                                    Ausstehende Benutzer
+                                </p>
+                                <h3 class="text-2xl font-bold wrap-break-word">
+                                    {{ admin.stats.pending_users_count }}
+                                </h3>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </Link>
+
+            <Link :href="forumProfessions().url" class="block h-full">
+                <Card class="h-full transition-colors hover:bg-muted">
+                    <CardContent>
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="rounded-lg bg-green-100 p-2 dark:bg-green-900/30"
+                            >
+                                <MessageSquare
+                                    class="h-6 w-6 text-green-600 dark:text-green-400"
+                                />
+                            </div>
+                            <div class="min-w-0">
+                                <p
+                                    class="text-sm font-medium wrap-break-word text-muted-foreground"
+                                >
+                                    Aktuelle Foren-Aktivität
+                                </p>
+                                <h3 class="text-2xl font-bold wrap-break-word">
+                                    {{ admin.stats.recent_posts_count }}
+                                    Beiträge
+                                </h3>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </Link>
+
+            <Link :href="appointmentsIndex().url" class="block h-full">
+                <Card class="h-full transition-colors hover:bg-muted">
+                    <CardContent>
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30"
+                            >
+                                <Calendar
+                                    class="h-6 w-6 text-purple-600 dark:text-purple-400"
+                                />
+                            </div>
+                            <div class="min-w-0">
+                                <p
+                                    class="text-sm font-medium wrap-break-word text-muted-foreground"
+                                >
+                                    Anstehende Termine
+                                </p>
+                                <h3 class="text-2xl font-bold wrap-break-word">
+                                    {{
+                                        admin.stats.upcoming_appointments_count
+                                    }}
+                                </h3>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </Link>
         </div>
-    </AppLayout>
+    </div>
 </template>
