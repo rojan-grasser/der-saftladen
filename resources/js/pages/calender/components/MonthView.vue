@@ -262,8 +262,9 @@ const isPastAppointment = (appointment: Appointment): boolean => {
                 <div
                     v-for="(day, dayIndex) in week.days"
                     :key="day.key"
-                    class="group relative h-full min-h-[100px] cursor-pointer border-r border-b p-1 transition-colors last:border-r-0 hover:bg-muted/30"
+                    class="group relative h-full min-h-[100px] cursor-pointer border-b p-1 transition-colors hover:bg-muted/30"
                     :class="[
+                        dayIndex !== 6 ? 'border-r' : '',
                         !day.isCurrentMonth ? 'bg-muted/20' : '',
                         day.isSelected ? 'bg-primary/5' : '',
                         drag.appointment && drag.overDayKey === day.key ? 'bg-primary/10 ring-2 ring-inset ring-primary/40' : '',
