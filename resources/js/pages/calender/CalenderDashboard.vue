@@ -96,7 +96,8 @@ const {
 
 const getOwnerName = (appointment: Appointment) => {
     if (!appointment.creator) return 'Unbekannt';
-    return appointment.creator.name || 'Unbekannt';
+    const { first_name, last_name } = appointment.creator;
+    return `${first_name} ${last_name}`.trim() || 'Unbekannt';
 };
 
 const canDeleteAppointment = (appointment: Appointment | null) => {
@@ -106,8 +107,6 @@ const canDeleteAppointment = (appointment: Appointment | null) => {
 
 const canEditSelectedAppointment = computed(() => canEditAppointment(selectedAppointment.value));
 const canDeleteSelectedAppointment = computed(() => canDeleteAppointment(selectedAppointment.value));
-
-const getOwnerName = (appointment: Appointment) => appointment.creator?.name ?? 'Unbekannt';
 
 const formatTime = (value: string | number) => {
     const date = parseDate(value);
