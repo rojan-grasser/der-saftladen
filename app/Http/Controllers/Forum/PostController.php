@@ -10,22 +10,6 @@ use Illuminate\Http\Request;
 class PostController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index(string $professionId, string $topicId)
-    {
-        return Topic::findOrFail($topicId)->posts()->paginate(25);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(Request $request, string $professionId, string $topicId)
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request, string $professionId, string $topicId)
@@ -41,22 +25,6 @@ class PostController extends Controller
         ]);
 
         return back()->with('success', 'Der kommentar wurde erstellt');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $professionId, string $topicId, string $postId)
-    {
-        return ForumPost::findOrFail($postId);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
     }
 
     /**
@@ -79,7 +47,7 @@ class PostController extends Controller
             'edited' => true,
         ]);
 
-        return redirect("/forum/profession/$professionId/topics/$topicId")->with('success', 'Der Kommentar wurde aktualisiert');
+        return back()->with('success', 'Der Kommentar wurde aktualisiert');
     }
 
     /**
@@ -95,6 +63,6 @@ class PostController extends Controller
 
         $post->delete();
 
-        return redirect("/forum/profession/$professionId/topics/$topicId");
+        return back();
     }
 }

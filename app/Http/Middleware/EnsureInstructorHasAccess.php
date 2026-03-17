@@ -24,7 +24,7 @@ class EnsureInstructorHasAccess
             $instructor &&
             !$instructor->hasAccess($professionId)
         ) {
-            return back()->with('error', 'Du hast keinen zugriff auf dieses Thema');
+            return redirect('/dashboard');
         }
 
         return $next($request);

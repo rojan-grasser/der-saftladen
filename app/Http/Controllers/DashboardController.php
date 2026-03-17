@@ -19,15 +19,20 @@ class DashboardController extends Controller
         $user = $request->user();
 
         // 1. Upcoming Appointments (Next 5)
-        $appointments = Appointment::where('start_time', '>=', now())
+        $appointments = Appointment::where('user_id', $user->id)
+            ->where('start_time', '>=', now())
             ->orderBy('start_time')
             ->limit(5)
             ->get();
 
-        // 2. Recent Forum Activity (Latest 5 Topics)
+        // 2. Recent Forum Activity (Latest 5 Topics by the latest post)
         $recentTopics = Topic::with(['user', 'posts' => fn($q) => $q->latest()->limit(1)])
+            ->leftJoin('forum_posts', 'topics.id', '=', 'forum_posts.topic_id')
+            ->select('topics.*')
+            ->selectRaw('COALESCE(MAX(forum_posts.created_at), topics.created_at) as last_post_at')
             ->withCount('posts')
-            ->latest()
+            ->groupBy('topics.id')
+            ->orderBy('last_post_at', 'desc')
             ->limit(5)
             ->get();
 

@@ -1,15 +1,46 @@
 #!/bin/bash
 set -e
 
-# Run migrations
-php artisan migrate --force
+function tf-runmode() {
+    if [[ "$WAIT_FOR_MINIO" == 'true' ]]; then
+        echo "Waiting for MinIO to be ready..."
+        until wget -qO- $AWS_ENDPOINT/minio/health/live > /dev/null 2>&1; do
+            echo "MinIO not ready yet, retrying in 2s..."
+            sleep 2
+        done
+    fi
 
-# Run feature deployment initialization if FEATURE env var is set
-if [ -n "$FEATURE" ]; then
-    echo "Creating init user with email 'test-admin@example.com' and password 'password'"
+    cd terraform
 
-    php artisan app:feature-deployment-init
+    export TF_DATA_DIR=/terraform/.terraform
+
+    terraform init
+    terraform plan
+    terraform apply -auto-approve
+
+    cd ..
+}
+
+function server-runmode() {
+    # Run migrations
+    php artisan migrate --force
+
+    # Run feature deployment initialization if FEATURE env var is set
+    if [ -n "$FEATURE" ]; then
+        echo "Creating init user with email 'test-admin@example.com' and password 'password'"
+
+        php artisan app:feature-deployment-init
+    fi
+
+    # Start Octane
+    php artisan octane:start --host=0.0.0.0 --port=$APP_PORT --server=roadrunner
+}
+
+if [[ "$RUNMODE" == 'terraform' ]]; then
+    tf-runmode
+elif [[ "$RUNMODE" == 'server' ]]; then
+    server-runmode
+elif [[ "$RUNMODE" == 'all' ]]; then
+    tf-runmode
+    server-runmode
 fi
-
-# Start Octane
-php artisan octane:start --host=0.0.0.0 --port=9000 --server=roadrunner
