@@ -11,13 +11,12 @@ Route::middleware(['auth', 'verified', 'active'])
     ->group(function () {
         Route::get('professions', [ForumProfessionController::class, 'index'])->name('forum.professions');
 
-        // Route::resource('profession', TopicController::class);
-        Route::get('profession/{professionId}', [TopicController::class, 'index'])->name('topics.index');
-        Route::post('profession/{professionId}/topics', [TopicController::class, 'store'])->name('topics.store');
-
-        Route::middleware([])
+        Route::middleware(['instructor-has-access'])
             ->prefix('profession/{professionId}')
             ->group(function () {
+                Route::get('', [TopicController::class, 'index'])->name('topics.index');
+                Route::post('/topics', [TopicController::class, 'store'])->name('topics.store');
+
                 Route::get('/topics/{topicId}', [TopicController::class, 'show'])->name('topics.show');
                 Route::put('/topics/{topicId}', [TopicController::class, 'update'])->name('topics.update');
 
