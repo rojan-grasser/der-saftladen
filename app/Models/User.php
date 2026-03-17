@@ -35,6 +35,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'status',
         'company',
+        'email_notifications',
     ];
 
     /**
@@ -78,6 +79,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'status' => UserStatus::class,
+            'email_notifications' => 'boolean',
         ];
     }
 

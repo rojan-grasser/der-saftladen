@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Forum;
 
 use App\Http\Controllers\Controller;
 use App\Models\ForumPost;
-use App\Models\Topic;
+use App\Notifications\CommentAddedToTopic;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -18,11 +18,18 @@ class PostController extends Controller
             'content' => ['required', 'string'],
         ]);
 
-        ForumPost::create([
+        $post = ForumPost::create([
             'content' => $validated['content'],
             'user_id' => $request->user()->id,
             'topic_id' => $topicId,
         ]);
+
+        $topic = $post->topic;
+        $topicCreator = $topic->user;
+
+        if ($topicCreator && $topicCreator->id !== $post->user_id && $topicCreator->email_notifications) {
+            $topicCreator->notify(new CommentAddedToTopic($post));
+        }
 
         return back()->with('success', 'Der kommentar wurde erstellt');
     }
