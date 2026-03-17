@@ -16,7 +16,8 @@
         "laravel/octane": "^2.13",
         "laravel/tinker": "^2.10.1",
         "laravel/wayfinder": "^0.1.9",
-"spiral/roadrunner-cli": "^2.6.0",
+        "league/flysystem-aws-s3-v3": "^3.32",
+        "spiral/roadrunner-cli": "^2.6.0",
         "spiral/roadrunner-http": "^3.3.0"
     },
     "require-dev": {
