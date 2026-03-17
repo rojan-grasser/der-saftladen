@@ -21,9 +21,9 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $validated = $request->validate([
-            'role'     => ['sometimes', new Enum(Role::class)],
-            'status'   => ['sometimes', new Enum(UserStatus::class)],
-            'search'   => ['sometimes', 'string', 'max:255'],
+            'role' => ['sometimes', new Enum(Role::class)],
+            'status' => ['sometimes', new Enum(UserStatus::class)],
+            'search' => ['sometimes', 'string', 'max:255'],
             'priority' => ['sometimes', 'in:firstname,lastname,email'],
         ]);
 
@@ -50,20 +50,20 @@ class UserController extends Controller
             if (!empty($validated['priority'])) {
                 $column = match ($validated['priority']) {
                     'firstname' => 'first_name',
-                    'lastname'  => 'last_name',
-                    'email'     => 'email',
+                    'lastname' => 'last_name',
+                    'email' => 'email',
                 };
 
                 if ($column === 'email') {
                     // Email: ILIKE (case-insensitive)
                     $query->where('email', 'ilike', "%{$search}%");
 
-                    $query->orderByRaw("
+                    $query->orderByRaw('
                         CASE
                             WHEN email ILIKE ? THEN 1
                             ELSE 2
                         END
-                    ", ["{$search}%"]);
+                    ', ["{$search}%"]);
 
                     $appliedPrioritySort = true;
                 } else {
@@ -84,8 +84,8 @@ class UserController extends Controller
                 // Default-Suche (ohne Priority): in allen Feldern, NULL-safe für Namen
                 $query->where(function ($q) use ($search) {
                     $q->whereRaw("COALESCE(first_name, '') ILIKE ?", ["%{$search}%"])
-                      ->orWhereRaw("COALESCE(last_name, '') ILIKE ?", ["%{$search}%"])
-                      ->orWhere('email', 'ilike', "%{$search}%");
+                        ->orWhereRaw("COALESCE(last_name, '') ILIKE ?", ["%{$search}%"])
+                        ->orWhere('email', 'ilike', "%{$search}%");
                 });
             }
         }
@@ -100,7 +100,7 @@ class UserController extends Controller
             ->withQueryString();
 
         return Inertia::render('admin/Users', [
-            'users'   => $users,
+            'users' => $users,
             'filters' => $request->only(['role', 'status', 'search', 'priority']),
         ]);
     }
@@ -114,11 +114,11 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'first_name' => ['sometimes', 'string', 'max:255'],
-            'last_name'  => ['sometimes', 'string', 'max:255'],
-            'email'      => ['sometimes', 'email', 'max:255'],
-            'status'     => ['sometimes', new Enum(UserStatus::class)],
-            'roles'      => ['sometimes', 'array'],
-            'roles.*'    => [new Enum(Role::class)],
+            'last_name' => ['sometimes', 'string', 'max:255'],
+            'email' => ['sometimes', 'email', 'max:255'],
+            'status' => ['sometimes', new Enum(UserStatus::class)],
+            'roles' => ['sometimes', 'array'],
+            'roles.*' => [new Enum(Role::class)],
         ]);
 
         DB::transaction(function () use ($validated, $id) {

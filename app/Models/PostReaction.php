@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Database\Factories\PostReactionFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PostReaction extends Model
@@ -39,7 +39,7 @@ class PostReaction extends Model
         return PostReaction::baseFindByUserAndPost($userId, $postId)->first();
     }
 
-    public static function findOrFailByUserAndPost(string $userId, string $postId): PostReaction
+    public static function findOrFailByUserAndPost(string $userId, string $postId): Model
     {
         return PostReaction::baseFindByUserAndPost($userId, $postId)->firstOrFail();
     }

@@ -13,13 +13,14 @@ class EnsureUserIsActive
     /**
      * Handle an incoming request.
      *
-     * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
+     * @param Closure(Request): (Response) $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         if (!$request->user()->hasStatus(UserStatus::ACTIVE)) {
             return Inertia::render('Inactive')->toResponse($request)->setStatusCode(Response::HTTP_FORBIDDEN);
         }
+
         return $next($request);
     }
 }

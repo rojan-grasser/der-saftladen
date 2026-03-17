@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Forum;
 
 use App\Http\Controllers\Controller;
 use App\Models\ForumPost;
-use App\Models\Topic;
 use Illuminate\Http\Request;
 
 class PostController extends Controller

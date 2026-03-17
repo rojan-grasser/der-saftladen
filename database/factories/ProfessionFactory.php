@@ -19,7 +19,7 @@ class ProfessionFactory extends Factory
     {
         return [
             'name' => fake()->unique()->jobTitle(),
-            'description' => fake()->sentence()
+            'description' => fake()->sentence(),
         ];
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 class TestS3 extends Command
 {
     protected $signature = 'test:s3';
+
     protected $description = 'Tests that the S3 bucket is publicly readable and only writable with API keys';
 
     public function handle(): void

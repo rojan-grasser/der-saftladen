@@ -7,8 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
@@ -21,6 +21,7 @@ class AppointmentController extends Controller
             if ($timestamp > 9999999999) {
                 $timestamp = (int) floor($timestamp / 1000);
             }
+
             return Carbon::createFromTimestamp($timestamp);
         }
 
@@ -83,7 +84,7 @@ class AppointmentController extends Controller
                         'first_name' => $appointment->creator?->first_name ?? User::$deletedUserName,
                         'last_name' => $appointment->creator?->last_name ?? '',
                         'name' => $appointment->creator?->name ?? User::$deletedUserName,
-                    ]
+                    ],
                 ];
             });
 

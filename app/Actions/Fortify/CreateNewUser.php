@@ -34,7 +34,7 @@ class CreateNewUser implements CreatesNewUsers
             'last_name' => $input['last_name'],
             'email' => $input['email'],
             'password' => $input['password'],
-            'status' => UserStatus::PENDING
+            'status' => UserStatus::PENDING,
         ]);
 
         $user->assignRole(array_map(fn($role) => Role::from($role), $input['roles']));

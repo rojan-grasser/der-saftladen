@@ -28,9 +28,9 @@ class FeatureDeploymentInit extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
-        $factory = new UserFactory();
+        $factory = new UserFactory;
 
         $user = User::create([
             ...$factory->definition(),

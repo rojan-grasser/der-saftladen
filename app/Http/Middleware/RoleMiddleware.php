@@ -11,11 +11,6 @@ class RoleMiddleware
 {
     /**
      * Handle an incoming request.
-     *
-     * @param Request $request
-     * @param Closure $next
-     * @param string ...$roles
-     * @return Response
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
