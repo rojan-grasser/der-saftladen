@@ -131,13 +131,14 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <!-- Anordnung -->
                 <Select v-model="priorityFilter">
                     <SelectTrigger class="w-48"
-                        ><SelectValue placeholder="Anordnen nach"
+                        ><SelectValue placeholder="Filtern nach"
                     /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="default">Standard-Filter</SelectItem>
                         <SelectItem value="firstname">Nur nach Vorname</SelectItem>
                         <SelectItem value="lastname">Nur nach Nachname</SelectItem>
                         <SelectItem value="email">Nur nach Email</SelectItem>
+                        <SelectItem value="company">Nur nach Unternehmen</SelectItem>
                     </SelectContent>
                 </Select>
 
