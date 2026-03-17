@@ -9,6 +9,7 @@ export interface Appointment {
 
 export interface Topic {
     id: number;
+    profession_id: number;
     title: string;
     description: string;
     posts_count: number;

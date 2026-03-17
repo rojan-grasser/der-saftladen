@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { Calendar, Clock, MapPin, MessageSquare } from 'lucide-vue-next';
 
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { formatDate } from '@/lib/utils';
 import AdminDashboard from '@/pages/admin/AdminDashboard.vue';
 import { dashboard } from '@/routes';
+import { show as showTopic } from '@/routes/topics';
 import { type BreadcrumbItem } from '@/types';
 import { type AdminData, type Appointment, type Topic } from '@/types/dashboard';
 
@@ -108,11 +109,21 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     class="flex items-start justify-between gap-4"
                                 >
                                     <div>
-                                        <h3
-                                            class="cursor-pointer font-medium hover:underline"
+                                        <Link
+                                            :href="
+                                                showTopic({
+                                                    professionId:
+                                                        topic.profession_id,
+                                                    topicId: topic.id,
+                                                }).url
+                                            "
                                         >
-                                            {{ topic.title }}
-                                        </h3>
+                                            <h3
+                                                class="cursor-pointer font-medium hover:underline"
+                                            >
+                                                {{ topic.title }}
+                                            </h3>
+                                        </Link>
                                         <p
                                             class="mt-1 text-xs text-muted-foreground"
                                         >
