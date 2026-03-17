@@ -30,7 +30,7 @@ const form = useForm({
     first_name: props.user.first_name,
     last_name: props.user.last_name,
     email: props.user.email,
-    company: props.user.company ?? '', // <-- NEU: immer string für v-model
+    company: props.user.company ?? '',
     roles: props.user.roles?.map((r) => r.role) ?? [],
     status: props.user.status,
 });
@@ -59,7 +59,7 @@ watch(
         form.first_name = u.first_name;
         form.last_name = u.last_name;
         form.email = u.email;
-        form.company = u.company ?? ''; // <-- NEU
+        form.company = u.company ?? '';
         form.roles = u.roles?.map((r) => r.role) ?? [];
         form.status = u.status;
         form.clearErrors();
