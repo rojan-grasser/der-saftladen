@@ -26,7 +26,7 @@ class DashboardController extends Controller
             ->get();
 
         // 2. Recent Forum Activity (Latest 5 Topics by the latest post)
-        $recentTopics = Topic::with(['user', 'posts' => fn($q) => $q->latest()->limit(1)])
+        $recentTopics = Topic::with(['user', 'posts' => fn ($q) => $q->latest()->limit(1)])
             ->leftJoin('forum_posts', 'topics.id', '=', 'forum_posts.topic_id')
             ->select('topics.*')
             ->selectRaw('COALESCE(MAX(forum_posts.created_at), topics.created_at) as last_post_at')

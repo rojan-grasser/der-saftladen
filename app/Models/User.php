@@ -94,15 +94,15 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * @param Role|Role[] $roles
-     * @param bool $requireAll If true, the user must have ALL roles
+     * @param  Role|Role[]  $roles
+     * @param  bool  $requireAll  If true, the user must have ALL roles
      */
     public function hasRoles(Role|array $roles, bool $requireAll = false): bool
     {
         $roles = is_array($roles) ? $roles : [$roles];
 
         $roleValues = array_map(
-            fn(Role $role) => $role->value,
+            fn (Role $role) => $role->value,
             $roles
         );
 
@@ -119,7 +119,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Assign one or more roles to the user.
      *
-     * @param Role|Role[] $roles
+     * @param  Role|Role[]  $roles
      */
     public function assignRole(Role|array $roles): void
     {
@@ -136,14 +136,14 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Remove one or more roles from the user.
      *
-     * @param Role|Role[] $roles
+     * @param  Role|Role[]  $roles
      */
     public function removeRole(Role|array $roles): void
     {
         $roles = is_array($roles) ? $roles : [$roles];
 
         $this->roles()
-            ->whereIn('role', array_map(fn($r) => $r->value, $roles))
+            ->whereIn('role', array_map(fn ($r) => $r->value, $roles))
             ->delete();
     }
 

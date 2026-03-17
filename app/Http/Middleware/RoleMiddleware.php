@@ -23,7 +23,7 @@ class RoleMiddleware
         }
 
         // Convert string roles to Role enums
-        $roleEnums = array_map(fn($r) => Role::from($r), $roles);
+        $roleEnums = array_map(fn ($r) => Role::from($r), $roles);
 
         $user = $request->user();
 

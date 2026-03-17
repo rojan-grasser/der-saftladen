@@ -37,7 +37,7 @@ class CreateNewUser implements CreatesNewUsers
             'status' => UserStatus::PENDING,
         ]);
 
-        $user->assignRole(array_map(fn($role) => Role::from($role), $input['roles']));
+        $user->assignRole(array_map(fn ($role) => Role::from($role), $input['roles']));
 
         return $user;
     }

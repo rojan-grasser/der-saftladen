@@ -6,7 +6,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -30,7 +31,7 @@ return new class extends Migration {
             ->whereNotNull('role')
             ->select('id as user_id', 'role')
             ->get()
-            ->map(fn($user) => [
+            ->map(fn ($user) => [
                 'user_id' => $user->user_id,
                 'role' => $user->role,
                 'created_at' => $now,
