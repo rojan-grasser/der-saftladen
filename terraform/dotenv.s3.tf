@@ -4,8 +4,8 @@ resource "local_sensitive_file" "env" {
     content  = <<-EOT
         AWS_ACCESS_KEY_ID=${minio_iam_service_account.s3_api_keys.access_key}
         AWS_SECRET_ACCESS_KEY=${minio_iam_service_account.s3_api_keys.secret_key}
-        AWS_URL=http://${var.minio_host}
-        AWS_ENDPOINT=http://${var.minio_host}
+        AWS_URL=http://127.0.0.1:9000
+        AWS_ENDPOINT=http://127.0.0.1:9000
         AWS_USE_PATH_STYLE_ENDPOINT=true
 
         AWS_FORUM_BUCKET=${minio_s3_bucket_policy.forum.bucket}

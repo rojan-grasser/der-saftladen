@@ -46,7 +46,7 @@ watch(open, () => {
 <template>
     <Dialog :open="open" @update:open="(o) => (open = o)">
         <DialogTrigger as-child>
-            <Button class="fixed right-8 bottom-8"
+            <Button class="fixed right-8 bottom-8 z-10"
                 ><PlusIcon /> Kommentar</Button
             >
         </DialogTrigger>

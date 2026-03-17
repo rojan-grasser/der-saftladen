@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
+import axios from 'axios';
 import { PlusIcon } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
@@ -16,6 +17,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { FileWithPreview } from '@/composables/useFileUpload';
+import FileTable from '@/pages/forum/components/file-table/FileTable.vue';
+import { FileUpload } from '@/pages/forum/types';
+import forumFiles from '@/routes/forum/files';
 import topics from '@/routes/topics';
 
 const { professionId } = defineProps<{ professionId: number }>();
@@ -25,9 +30,30 @@ const open = ref(false);
 const form = useForm({
     title: '',
     description: '',
+    files: [] as string[],
 });
 
+const uploadedFiles = ref<Array<string>>([]);
+
+const uploadFile = (files: FileWithPreview[]) => {
+    files.forEach(async (file) => {
+        const formData = new FormData();
+
+        if (file.file instanceof File) {
+            formData.append('file', file.file);
+
+            const { data } = (await axios.post(
+                forumFiles.store({ professionId }).url,
+                formData,
+            )) as { data: Omit<FileUpload, 'type'> };
+
+            uploadedFiles.value.push(data.id);
+        }
+    });
+};
+
 const submit = () => {
+    form.files = uploadedFiles.value;
     form.post(topics.store({ professionId: professionId }).url, {
         onSuccess: () => {
             open.value = false;
@@ -76,6 +102,10 @@ watch(open, () => {
                             class="max-h-[70vh] resize-y overflow-auto"
                         />
                     </div>
+                    <FileTable
+                        :initial-files="[]"
+                        :on-files-added="uploadFile"
+                    />
                 </div>
                 <DialogFooter>
                     <Button

@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Forum;
 
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
+use App\Models\FileUpload;
 use App\Models\Instructor;
 use App\Models\Profession;
 use App\Models\Topic;
+use App\Models\TopicToFileUpload;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -71,6 +73,8 @@ class TopicController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'min:1', 'max:255'],
             'description' => ['required', 'string'],
+            'files' => ['sometimes', 'array'],
+            'files.*' => ['integer'],
         ]);
 
         if (
@@ -88,6 +92,15 @@ class TopicController extends Controller
             'profession_id' => $professionId,
             'user_id' => auth()->id(),
         ]);
+
+        $fileUploads = FileUpload::findMany($validated['files']);
+
+        foreach ($fileUploads as $file) {
+            TopicToFileUpload::create([
+                'topic_id' => $topic->id,
+                'file_upload_id' => $file->id,
+            ]);
+        }
 
         return redirect("/forum/profession/$professionId/topics/" . $topic->id);
     }
@@ -130,6 +143,15 @@ class TopicController extends Controller
                 'description' => $topic->description,
                 'isOwnPost' => $topic->user_id === $request->user()->id,
                 'pinned' => $topic->pinned,
+                'files' => $topic->fileUploads->map(function ($upload) {
+                    return [
+                        'name' => $upload->filename(),
+                        'size' => $upload->size,
+                        'type' => $upload->type(),
+                        'url' => $upload->downloadUrl(),
+                        'id' => $upload->uuid(),
+                    ];
+                }),
                 'owner' => [
                     'id' => $owner?->id ?? 0,
                     'name' => $owner?->name ?? User::$deletedUserName,
@@ -145,7 +167,7 @@ class TopicController extends Controller
                         'likesCount' => $post->likes_count,
                         'dislikesCount' => $post->dislikes_count,
                         'isOwnPost' => ($post->creator?->id ?? 0) === $request->user()->id,
-                        'edited' => (bool) $post->edited,
+                        'edited' => (bool)$post->edited,
                         'user' => [
                             'id' => $post->creator?->id ?? 0,
                             'name' => $post->creator?->name ?? User::$deletedUserName,

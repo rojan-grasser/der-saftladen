@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Forum\FileController;
 use App\Http\Controllers\Forum\PostController;
 use App\Http\Controllers\Forum\PostReactionController;
 use App\Http\Controllers\Forum\ProfessionController as ForumProfessionController;
@@ -14,6 +15,11 @@ Route::middleware(['auth', 'verified', 'active'])
         Route::middleware(['instructor-has-access'])
             ->prefix('profession/{professionId}')
             ->group(function () {
+                Route::prefix('files')
+                    ->group(function () {
+                        Route::post('/upload', [FileController::class, 'store'])->name('forum.files.store');
+                    });
+
                 Route::get('', [TopicController::class, 'index'])->name('topics.index');
                 Route::post('/topics', [TopicController::class, 'store'])->name('topics.store');
 
