@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -9,9 +11,7 @@ Route::get('/', function () {
     ]);
 })->name('home')->middleware('request-logging');
 
-Route::get('dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['request-logging', 'auth', 'verified', 'active'])->name('dashboard');
+Route::get('dashboard', [DashboardController::class, 'index'])->middleware(['request-logging', 'auth', 'verified', 'active'])->name('dashboard');
 
 require __DIR__ . '/admin.php';
 require __DIR__ . '/calendar.php';

@@ -50,6 +50,12 @@ deployment:
             value: "der.saftladen01@gmail.com"
           - name: MAIL_FROM_NAME
             value: "Der Saftladen"
+          - name: APP_LOCALE
+            value: "de"
+          - name: APP_FALLBACK_LOCALE
+            value: "en"
+          - name: APP_FAKER_LOCALE
+            value: "de_DE"
         resources:
           requests:
             cpu: "200m"

@@ -35,7 +35,8 @@ class FeatureDeploymentInit extends Command
         $user = User::create([
             ...$factory->definition(),
             'password' => Hash::make('password'),
-            'name' => 'Test Admin',
+            'first_name' => 'Test',
+            'last_name' => 'Admin',
             'email' => 'test-admin@example.com',
         ]);
         $user->assignRole(Role::ADMIN);
