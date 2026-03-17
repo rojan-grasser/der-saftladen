@@ -129,6 +129,7 @@ class UserController extends Controller
             'first_name' => ['sometimes', 'string', 'max:255'],
             'last_name' => ['sometimes', 'string', 'max:255'],
             'email' => ['sometimes', 'email', 'max:255'],
+            'company'    => ['sometimes', 'nullable', 'string', 'max:255'],
             'status' => ['sometimes', new Enum(UserStatus::class)],
             'roles' => ['sometimes', 'array'],
             'roles.*' => [new Enum(Role::class)],
