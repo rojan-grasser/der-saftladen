@@ -1,0 +1,24 @@
+version: "3"
+
+server:
+  command: "php vendor/bin/roadrunner-worker"
+
+http:
+  address: "0.0.0.0:9000"
+  pool:
+    # Minimum workers kept alive while idling.
+    # Overridden at runtime by octane:start --workers=${OCTANE_WORKERS:-2}
+    num_workers: 2
+    # Scale up to this many workers under load, then release them when idle.
+    max_workers: 4
+    # How long to wait for a new worker to allocate before returning 503.
+    allocate_timeout: 60s
+    # Destroy a worker after it has handled this many requests (prevents memory leaks).
+    max_jobs: 500
+    # Destroy a worker that has been idle for this long (frees memory).
+    destroy_timeout: 60s
+
+logs:
+  mode: production
+  level: warn
+  output: stderr
