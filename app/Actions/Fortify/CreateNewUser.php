@@ -24,6 +24,7 @@ class CreateNewUser implements CreatesNewUsers
     {
         Validator::make($input, [
             ...$this->profileRules(),
+            'company' => ['nullable', 'string', 'max:255'],
             'password' => $this->passwordRules(),
             'roles' => ['required', 'array'],
             'roles.*' => ['required', new Enum(Role::class)],
@@ -33,6 +34,7 @@ class CreateNewUser implements CreatesNewUsers
             'first_name' => $input['first_name'],
             'last_name' => $input['last_name'],
             'email' => $input['email'],
+            'company' => $input['company'] ?? null,
             'password' => $input['password'],
             'status' => UserStatus::PENDING
         ]);
