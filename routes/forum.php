@@ -23,6 +23,8 @@ Route::middleware(['auth', 'verified', 'active'])
                 Route::middleware([])
                     ->prefix('topics/{topicId}')
                     ->group(function () {
+                        Route::put('pin', [TopicController::class, 'togglePin'])->name('topics.pin-toggle');
+
                         Route::get('posts/{postId}/reactions', [PostReactionController::class, 'index'])->name('posts.reactions.index');
                         Route::post('posts/{postId}/reactions', [PostReactionController::class, 'store'])->name('posts.reactions.store');
                         Route::delete('posts/{postId}/reactions', [PostReactionController::class, 'destroy'])->name('posts.reactions.destroy');
