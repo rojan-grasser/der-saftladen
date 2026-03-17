@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useTemplateRef, watchEffect } from 'vue';
 import { LucideAlertCircle } from 'lucide-vue-next';
 
 import { FileWithPreview, useFileUpload } from '@/composables/useFileUpload';
@@ -30,17 +31,25 @@ const {
     initialFiles,
     onFilesAdded,
 });
+
+const uploadDropAreaRef = useTemplateRef<InstanceType<typeof UploadDropArea>>('uploadDropArea');
+
+watchEffect(() => {
+    if (uploadDropAreaRef.value) {
+        dropzoneRef.value = uploadDropAreaRef.value.dropzoneRef;
+        inputRef.value = uploadDropAreaRef.value.inputRef;
+    }
+});
 </script>
 
 <template>
     <div class="flex flex-col gap-2">
         <UploadDropArea
+            ref="uploadDropArea"
             :readonly="!!readonly"
             :files="files.length > 0"
             :max-size="maxSize"
             :open-file-dialog="openFileDialog"
-            :dropzone-ref="dropzoneRef"
-            :input-ref="inputRef"
         />
 
         <div v-if="files.length > 0" class="flex flex-col gap-2">
