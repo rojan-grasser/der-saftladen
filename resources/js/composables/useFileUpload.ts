@@ -151,7 +151,7 @@ export const useFileUpload = (options: FileUploadOptions = {}) => {
 
     files.value = [];
     errors.value = [];
-    onFilesChange?.(files.value);
+    // onFilesChange?.(files.value);
   };
 
   const addFiles = (newFiles: FileList | File[]) => {
@@ -208,7 +208,7 @@ export const useFileUpload = (options: FileUploadOptions = {}) => {
     if (validFiles.length > 0) {
       files.value = !multiple ? validFiles : [...files.value, ...validFiles];
       errors.value = newErrors;
-      onFilesChange?.(files.value);
+      // onFilesChange?.(files.value);
       onFilesAdded?.(validFiles);
     } else if (newErrors.length > 0) {
       errors.value = newErrors;
@@ -234,7 +234,7 @@ export const useFileUpload = (options: FileUploadOptions = {}) => {
 
     files.value = files.value.filter((file) => file.id !== id);
     errors.value = [];
-    onFilesChange?.(files.value);
+    // onFilesChange?.(files.value);
   };
 
   const clearErrors = () => {

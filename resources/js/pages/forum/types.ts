@@ -33,7 +33,7 @@ export type Topic = {
     pinned: boolean;
     owner: User;
     posts: Array<Post>;
-    files: Array<FileUpload & { downloadUrl: string }>;
+    files: Array<FileUpload>;
     createdAt: string;
 };
 

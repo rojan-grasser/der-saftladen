@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
+import axios from 'axios';
 import { ref, watch } from 'vue';
 
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Topic } from '@/pages/forum/types';
+import { FileWithPreview } from '@/composables/useFileUpload';
+import FileTable from '@/pages/forum/components/file-table/FileTable.vue';
+import { FileUpload, Topic } from '@/pages/forum/types';
+import forumFiles from '@/routes/forum/files';
 import topics from '@/routes/topics';
 
 const { topic, professionId } = defineProps<{
@@ -28,9 +32,43 @@ const open = ref(false);
 const form = useForm({
     title: topic.title,
     description: topic.description,
+    files: [] as Array<string>,
 });
 
+const uploadedFiles = ref<Array<{ beId: string; appId: string }>>(topic.files.map(f => ({beId: f.id, appId: f.id})));
+
+const usedFiles = ref<Array<string>>([]);
+
+const onFileChange = async (files: FileWithPreview[]) => {
+    console.log(JSON.parse(JSON.stringify(files)));
+    await Promise.all(
+        files
+            .filter(
+                (file) => !uploadedFiles.value.find((f) => file.id === f.appId),
+            )
+            .map(async (file) => {
+                const formData = new FormData();
+
+                if (file.file instanceof File) {
+                    formData.append('file', file.file);
+
+                    const { data } = (await axios.post(
+                        forumFiles.store({ professionId }).url,
+                        formData,
+                    )) as { data: Omit<FileUpload, 'type'> };
+
+                    uploadedFiles.value.push({ beId: data.id, appId: file.id });
+                }
+            }),
+    );
+
+    usedFiles.value = files.map(
+        (f) => uploadedFiles.value.find((uf) => uf.appId === f.id)!.beId,
+    );
+};
+
 const submit = () => {
+    form.files = usedFiles.value;
     form.put(topics.update({ topicId: topic.id, professionId }).url, {
         onSuccess: () => {
             form.defaults({ title: form.title, description: form.description });
@@ -81,6 +119,10 @@ watch(open, () => {
                             class="max-h-[70vh] resize-y overflow-auto"
                         />
                     </div>
+                    <FileTable
+                        :initial-files="topic.files"
+                        :on-files-change="onFileChange"
+                    />
                 </div>
                 <DialogFooter>
                     <Button

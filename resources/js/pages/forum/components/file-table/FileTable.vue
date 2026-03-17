@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useTemplateRef, watchEffect } from 'vue';
 import { LucideAlertCircle } from 'lucide-vue-next';
+import { useTemplateRef, watchEffect } from 'vue';
 
 import { FileWithPreview, useFileUpload } from '@/composables/useFileUpload';
 import ButtonHeader from '@/pages/forum/components/file-table/ButtonHeader.vue';
@@ -9,13 +9,14 @@ import FileTableHeader from '@/pages/forum/components/file-table/FileTableHeader
 import UploadDropArea from '@/pages/forum/components/file-table/UploadDropArea.vue';
 import { FileUpload } from '@/pages/forum/types';
 
-const { initialFiles, onFilesAdded } = defineProps<{
+const { initialFiles, onFilesAdded, onFilesChange } = defineProps<{
     initialFiles: Array<FileUpload>;
     readonly?: boolean;
     onFilesAdded?: (files: FileWithPreview[]) => void;
+    onFilesChange?: (files: FileWithPreview[]) => void;
 }>();
 
-const maxSize = 512 * 1024 * 1024; // 512 MB
+const maxSize = 100 * 1024 * 1024; // 100 MB -> Cloudflare doesnt allow requests go go above this with default plan
 
 const {
     files,
@@ -30,9 +31,11 @@ const {
     maxSize,
     initialFiles,
     onFilesAdded,
+    onFilesChange,
 });
 
-const uploadDropAreaRef = useTemplateRef<InstanceType<typeof UploadDropArea>>('uploadDropArea');
+const uploadDropAreaRef =
+    useTemplateRef<InstanceType<typeof UploadDropArea>>('uploadDropArea');
 
 watchEffect(() => {
     if (uploadDropAreaRef.value) {

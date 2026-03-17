@@ -33,27 +33,39 @@ const form = useForm({
     files: [] as string[],
 });
 
-const uploadedFiles = ref<Array<string>>([]);
+const uploadedFiles = ref<Array<{ beId: string; appId: string }>>([]);
 
-const uploadFile = (files: FileWithPreview[]) => {
-    files.forEach(async (file) => {
-        const formData = new FormData();
+const usedFiles = ref<Array<string>>([]);
 
-        if (file.file instanceof File) {
-            formData.append('file', file.file);
+const onFileChange = async (files: FileWithPreview[]) => {
+    await Promise.all(
+        files
+            .filter(
+                (file) => !uploadedFiles.value.find((f) => file.id === f.appId),
+            )
+            .map(async (file) => {
+                const formData = new FormData();
 
-            const { data } = (await axios.post(
-                forumFiles.store({ professionId }).url,
-                formData,
-            )) as { data: Omit<FileUpload, 'type'> };
+                if (file.file instanceof File) {
+                    formData.append('file', file.file);
 
-            uploadedFiles.value.push(data.id);
-        }
-    });
+                    const { data } = (await axios.post(
+                        forumFiles.store({ professionId }).url,
+                        formData,
+                    )) as { data: Omit<FileUpload, 'type'> };
+
+                    uploadedFiles.value.push({ beId: data.id, appId: file.id });
+                }
+            }),
+    );
+
+    usedFiles.value = files.map(
+        (f) => uploadedFiles.value.find((uf) => uf.appId === f.id)!.beId,
+    );
 };
 
 const submit = () => {
-    form.files = uploadedFiles.value;
+    form.files = usedFiles.value;
     form.post(topics.store({ professionId: professionId }).url, {
         onSuccess: () => {
             open.value = false;
@@ -104,7 +116,7 @@ watch(open, () => {
                     </div>
                     <FileTable
                         :initial-files="[]"
-                        :on-files-added="uploadFile"
+                        :on-files-change="onFileChange"
                     />
                 </div>
                 <DialogFooter>

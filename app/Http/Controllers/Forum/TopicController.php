@@ -149,7 +149,7 @@ class TopicController extends Controller
                         'size' => $upload->size,
                         'type' => $upload->type(),
                         'url' => $upload->downloadUrl(),
-                        'id' => $upload->uuid(),
+                        'id' => $upload->id,
                     ];
                 }),
                 'owner' => [
@@ -193,6 +193,8 @@ class TopicController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
+            'files' => ['sometimes', 'array'],
+            'files.*' => ['integer'],
         ]);
 
         $topic = Topic::findOrFail($id);
@@ -201,7 +203,24 @@ class TopicController extends Controller
             return back()->with('error', 'Du bist nicht der ersteller dieses Themas, daher darfst du es auch nicht bearbeiten.');
         }
 
-        $topic->update($validated);
+        try {
+            \DB::transaction(function () use ($validated, $topic) {
+                $topic->update($validated);
+
+                TopicToFileUpload::where('topic_id', $topic->id)->delete();
+
+                $fileUploads = FileUpload::findMany($validated['files']);
+
+                foreach ($fileUploads as $file) {
+                    TopicToFileUpload::create([
+                        'topic_id' => $topic->id,
+                        'file_upload_id' => $file->id,
+                    ]);
+                }
+            });
+        } catch (\Throwable) {
+            return back()->with('error', 'Es ist ein Fehler beim bearbeiten aufgetreten');
+        }
 
         return back()->with('success', 'Das Thema wurde bearbeitet');
     }
