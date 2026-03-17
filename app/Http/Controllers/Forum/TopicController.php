@@ -27,6 +27,7 @@ class TopicController extends Controller
 
         $query = Topic::with('user')
             ->where('topics.profession_id', '=', $professionId)
+            ->orderBy('pinned', 'desc')
             ->orderBy('topics.created_at', 'desc');
 
         $limit = $validated['limit'] ?? 15;
@@ -43,6 +44,7 @@ class TopicController extends Controller
                         'id' => $topic->id,
                         'title' => $topic->title,
                         'description' => $topic->description,
+                        'pinned' => $topic->pinned,
                         'created_at' => $topic->created_at,
                         'user' => [
                             'id' => $topic->user?->id ?? 0,
@@ -143,6 +145,7 @@ class TopicController extends Controller
                 'title' => $topic->title,
                 'description' => $topic->description,
                 'isOwnPost' => $topic->user_id === $request->user()->id,
+                'pinned' => $topic->pinned,
                 'owner' => [
                     'id' => $owner?->id ?? 0,
                     'name' => $owner?->name ?? User::$deletedUserName,
@@ -219,5 +222,20 @@ class TopicController extends Controller
         $topic->delete();
 
         return redirect('/forum/topics');
+    }
+
+    public function togglePin(Request $request, string $professionId, string $id)
+    {
+        if (!$request->user()->hasRole(Role::ADMIN)) {
+            return back()->with('error', 'Du darfst keine Themen anheften!');
+        }
+
+        $topic = Topic::findOrFail($id);
+
+        $topic->update([
+            'pinned' => !$topic->pinned,
+        ]);
+
+        return back()->with('success', 'Das Thema wurde ' . ($topic->pinned ? 'angeheftet' : 'abgeheftet'));
     }
 }
