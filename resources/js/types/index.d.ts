@@ -48,6 +48,7 @@ export interface User {
     updated_at: string;
     status: UserStatus;
     roles: UserRole[] | null;
+    company?: string | null;
     [key: string]: unknown; // This allows for additional properties...
 }
 
