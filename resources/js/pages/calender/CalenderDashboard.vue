@@ -77,6 +77,7 @@ const {
     dayLabels,
     calendarDays,
     weekDays,
+    filteredAppointments,
     selectedAppointments,
     selectedAppointment,
     upcomingAppointments,
@@ -549,7 +550,7 @@ const getEventBgClass = (appointment: Appointment) => {
                     />
                     <AgendaView
                         v-else
-                        :appointments="appointments"
+                        :appointments="filteredAppointments"
                         :format-time="formatTime"
                         :get-event-bg-class="getEventBgClass"
                         :get-owner-name="getOwnerName"
