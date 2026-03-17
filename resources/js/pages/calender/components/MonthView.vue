@@ -251,18 +251,18 @@ const isPastAppointment = (appointment: Appointment): boolean => {
             </div>
         </div>
 
-        <div class="grid min-h-0 flex-1 grid-rows-6">
+        <div class="min-h-0 flex-1 overflow-y-auto">
             <div
                 v-for="(week, weekIndex) in weeks"
                 :key="weekIndex"
-                class="relative grid h-full grid-cols-7"
+                class="relative grid grid-cols-7"
                 :style="{ minHeight: `${getWeekMinHeight(week)}px` }"
             >
                 <!-- Day cells -->
                 <div
                     v-for="(day, dayIndex) in week.days"
                     :key="day.key"
-                    class="group relative h-full min-h-[100px] cursor-pointer border-b p-1 transition-colors hover:bg-muted/30"
+                    class="group relative min-h-[100px] cursor-pointer border-b p-1 transition-colors hover:bg-muted/30"
                     :class="[
                         dayIndex !== 6 ? 'border-r' : '',
                         !day.isCurrentMonth ? 'bg-muted/20' : '',
