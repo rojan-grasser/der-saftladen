@@ -100,6 +100,15 @@ const getOwnerName = (appointment: Appointment) => {
     return `${first_name} ${last_name}`.trim() || 'Unbekannt';
 };
 
+const canCreateAppointments = computed(() => props.permissions.canCreate);
+
+const canEditAppointment = (appointment: Appointment | null): boolean => {
+    if (!appointment) return false;
+    if (props.permissions.canEditAll) return true;
+    if (props.permissions.canEditOwn && appointment.user_id === userId.value) return true;
+    return false;
+};
+
 const canDeleteAppointment = (appointment: Appointment | null) => {
     if (!appointment) return false;
     return props.permissions.canDeleteAll;
