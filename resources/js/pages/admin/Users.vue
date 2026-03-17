@@ -95,7 +95,7 @@ const debouncedFetchUsers = debounce((value: string) => {
     fetchUsers(1, value);
 }, 500);
 
-// Watch: Suche → nur Debounced
+// Watch für Suche → Debounced
 watch(search, (value) => {
     debouncedFetchUsers(value);
 });
@@ -197,6 +197,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <TableRow>
                             <TableHead>Name</TableHead>
                             <TableHead>Email</TableHead>
+                            <TableHead>Unternehmen</TableHead>
                             <TableHead>Rollen</TableHead>
                             <TableHead>Status</TableHead>
                             <TableHead>Aktionen</TableHead>
@@ -212,6 +213,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                             </TableCell>
                             <TableCell class="text-muted-foreground">
                                 {{ user.email }}
+                            </TableCell>                                              
+                            <TableCell class="text-muted-foreground">
+                                {{ user.company || '—' }}
                             </TableCell>
                             <TableCell class="break-all whitespace-normal">
                                 <Badge
@@ -261,7 +265,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <TableRow v-if="props.users.data.length === 0">
                             <TableCell
                                 class="h-24 text-center text-muted-foreground"
-                                colspan="5"
+                                colspan="6"
                             >
                                 Keine Benutzer gefunden.
                             </TableCell>

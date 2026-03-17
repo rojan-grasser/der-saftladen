@@ -109,6 +109,19 @@ const user = page.props.auth.user;
                             Ein neuer Bestätigungslink wurde an Ihre E-Mail-Adresse gesendet.
                         </div>
                     </div>
+     
+                    <div class="grid gap-2">
+                        <Label for="company">Unternehmen</Label>
+                        <Input
+                            id="company"
+                            class="mt-1 block w-full"
+                            name="company"
+                            :default-value="user.company ?? ''"
+                            placeholder="Unternehmen (optional)"
+                        />
+                        <InputError class="mt-2" :message="errors.company" />
+                    </div>
+
 
                     <div class="flex items-center gap-4">
                         <Button :disabled="processing">Speichern</Button>
