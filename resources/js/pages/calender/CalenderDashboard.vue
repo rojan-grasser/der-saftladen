@@ -13,6 +13,7 @@ import AppointmentDetailsSheet from './components/AppointmentDetailsSheet.vue';
 import AppointmentFormDialog from './components/AppointmentFormDialog.vue';
 import DayView from './components/DayView.vue';
 import MiniCalendar from './components/MiniCalendar.vue';
+import MobileMonthView from './components/MobileMonthView.vue';
 import MonthView from './components/MonthView.vue';
 import WeekView from './components/WeekView.vue';
 import {
@@ -363,7 +364,7 @@ const getEventBgClass = (appointment: Appointment) => {
     <Head title="Kalender" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-[calc(100vh-8rem)] gap-4 p-4">
+        <div class="flex h-[calc(100vh-8rem)] gap-2 p-2 md:gap-4 md:p-4">
             <!-- Linke Sidebar mit Mini-Kalender -->
             <aside class="hidden w-64 flex-shrink-0 space-y-4 lg:block">
                 <Button
@@ -427,8 +428,8 @@ const getEventBgClass = (appointment: Appointment) => {
             <!-- Hauptbereich -->
             <div class="flex flex-1 flex-col overflow-hidden rounded-xl border bg-card">
                 <!-- Toolbar -->
-                <div class="flex items-center justify-between border-b px-4 py-3">
-                    <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2 md:px-4 md:py-3">
+                    <div class="flex items-center gap-1.5">
                         <Button
                             variant="outline"
                             size="sm"
@@ -442,7 +443,7 @@ const getEventBgClass = (appointment: Appointment) => {
                                 variant="ghost"
                                 size="icon"
                                 class="h-8 w-8"
-                                @click="goPrevMonth"
+                                @click="goPrev"
                             >
                                 <ChevronLeft class="h-4 w-4" />
                             </Button>
@@ -450,22 +451,22 @@ const getEventBgClass = (appointment: Appointment) => {
                                 variant="ghost"
                                 size="icon"
                                 class="h-8 w-8"
-                                @click="goNextMonth"
+                                @click="goNext"
                             >
                                 <ChevronRight class="h-4 w-4" />
                             </Button>
                         </div>
-                        <h2 class="text-lg font-semibold">
+                        <h2 class="text-base font-semibold md:text-lg">
                             {{ monthLabel }}
                         </h2>
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <div class="flex items-center gap-1 rounded-lg border p-1">
+                        <div class="flex items-center gap-0.5 rounded-lg border p-1">
                             <Button
                                 :variant="viewMode === 'day' ? 'secondary' : 'ghost'"
                                 size="sm"
-                                class="rounded-md px-3"
+                                class="rounded-md px-2 md:px-3"
                                 title="Tag (D)"
                                 @click="viewMode = 'day'"
                             >
@@ -474,7 +475,7 @@ const getEventBgClass = (appointment: Appointment) => {
                             <Button
                                 :variant="viewMode === 'week' ? 'secondary' : 'ghost'"
                                 size="sm"
-                                class="rounded-md px-3"
+                                class="hidden rounded-md px-2 sm:inline-flex md:px-3"
                                 title="Woche (W)"
                                 @click="viewMode = 'week'"
                             >
@@ -483,7 +484,7 @@ const getEventBgClass = (appointment: Appointment) => {
                             <Button
                                 :variant="viewMode === 'month' ? 'secondary' : 'ghost'"
                                 size="sm"
-                                class="rounded-md px-3"
+                                class="rounded-md px-2 md:px-3"
                                 title="Monat (M)"
                                 @click="viewMode = 'month'"
                             >
@@ -492,7 +493,7 @@ const getEventBgClass = (appointment: Appointment) => {
                             <Button
                                 :variant="viewMode === 'agenda' ? 'secondary' : 'ghost'"
                                 size="sm"
-                                class="rounded-md px-3"
+                                class="rounded-md px-2 md:px-3"
                                 title="Agenda (A)"
                                 @click="viewMode = 'agenda'"
                             >
@@ -500,11 +501,11 @@ const getEventBgClass = (appointment: Appointment) => {
                             </Button>
                         </div>
 
-                        <!-- Shortcuts-Hilfe -->
+                        <!-- Shortcuts-Hilfe (nur Desktop) -->
                         <Button
                             variant="ghost"
                             size="icon"
-                            class="h-8 w-8 text-muted-foreground"
+                            class="hidden h-8 w-8 text-muted-foreground md:flex"
                             title="Tastaturkürzel anzeigen (?)"
                             @click="showShortcutsHelp = !showShortcutsHelp"
                         >
@@ -515,8 +516,21 @@ const getEventBgClass = (appointment: Appointment) => {
 
                 <!-- Kalenderansicht -->
                 <div class="flex-1 overflow-auto">
+                    <!-- Mobile: kompakte Monatsansicht mit Dot-Indikatoren -->
+                    <MobileMonthView
+                        v-if="viewMode === 'month'"
+                        class="md:hidden"
+                        :day-labels="dayLabels"
+                        :calendar-days="calendarDays"
+                        :selected-date="selectedDate"
+                        :get-event-bg-class="getEventBgClass"
+                        @select-day="(date) => { handleSelectDay(date); viewMode = 'day'; }"
+                        @open-details="openDetails"
+                    />
+                    <!-- Desktop: volle Monatsansicht -->
                     <MonthView
                         v-if="viewMode === 'month'"
+                        class="hidden md:flex"
                         :day-labels="dayLabels"
                         :calendar-days="calendarDays"
                         :format-time="formatTime"
