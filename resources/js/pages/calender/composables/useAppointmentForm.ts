@@ -73,7 +73,8 @@ export const useAppointmentForm = () => {
             startDate.value ||
             toDateString(form.start_time) ||
             toInputDate(new Date());
-        const time = startTime.value || toTimeString(form.start_time) || '00:00';
+        const time =
+            startTime.value || toTimeString(form.start_time) || '00:00';
         if (!startTime.value && time) {
             startTime.value = time;
         }

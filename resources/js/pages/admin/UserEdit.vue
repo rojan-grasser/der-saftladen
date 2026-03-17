@@ -3,10 +3,22 @@ import { useForm } from '@inertiajs/vue3';
 import { computed, watch } from 'vue';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import admin from '@/routes/admin';
 import { type User } from '@/types';
 
@@ -98,14 +110,20 @@ const submit = () => {
                     <div class="grid min-w-0 flex-1 gap-2">
                         <Label for="first_name">Vorname</Label>
                         <Input id="first_name" v-model="form.first_name" />
-                        <div v-if="form.errors.first_name" class="text-sm text-red-600">
+                        <div
+                            v-if="form.errors.first_name"
+                            class="text-sm text-red-600"
+                        >
                             {{ form.errors.first_name }}
                         </div>
                     </div>
                     <div class="grid min-w-0 flex-1 gap-2">
                         <Label for="last_name">Nachname</Label>
                         <Input id="last_name" v-model="form.last_name" />
-                        <div v-if="form.errors.last_name" class="text-sm text-red-600">
+                        <div
+                            v-if="form.errors.last_name"
+                            class="text-sm text-red-600"
+                        >
                             {{ form.errors.last_name }}
                         </div>
                     </div>
@@ -130,7 +148,9 @@ const submit = () => {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="admin">Admin</SelectItem>
-                                <SelectItem value="instructor">Ausbilder</SelectItem>
+                                <SelectItem value="instructor"
+                                    >Ausbilder</SelectItem
+                                >
                                 <SelectItem value="teacher">Lehrer</SelectItem>
                             </SelectContent>
                         </Select>
@@ -144,15 +164,24 @@ const submit = () => {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="active">Aktiv</SelectItem>
-                                <SelectItem value="pending">Ausstehend</SelectItem>
-                                <SelectItem value="inactive">Inaktiv</SelectItem>
+                                <SelectItem value="pending"
+                                    >Ausstehend</SelectItem
+                                >
+                                <SelectItem value="inactive"
+                                    >Inaktiv</SelectItem
+                                >
                             </SelectContent>
                         </Select>
                     </div>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-4">
-                    <Button :disabled="form.processing" type="button" variant="outline" @click="close">
+                    <Button
+                        :disabled="form.processing"
+                        type="button"
+                        variant="outline"
+                        @click="close"
+                    >
                         Abbrechen
                     </Button>
                     <Button :disabled="form.processing" type="submit">

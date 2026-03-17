@@ -82,8 +82,12 @@ const fetchUsers = (page = 1, searchValue = search.value) => {
         {
             search: searchValue || undefined,
             role: roleFilter.value === 'all' ? undefined : roleFilter.value,
-            status: statusFilter.value === 'all' ? undefined : statusFilter.value,
-            priority: priorityFilter.value === 'default' ? undefined : priorityFilter.value,
+            status:
+                statusFilter.value === 'all' ? undefined : statusFilter.value,
+            priority:
+                priorityFilter.value === 'default'
+                    ? undefined
+                    : priorityFilter.value,
             page,
         },
         { preserveState: true, replace: true },
@@ -135,8 +139,12 @@ const breadcrumbs: BreadcrumbItem[] = [
                     /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="default">Standard-Filter</SelectItem>
-                        <SelectItem value="firstname">Nur nach Vorname</SelectItem>
-                        <SelectItem value="lastname">Nur nach Nachname</SelectItem>
+                        <SelectItem value="firstname"
+                            >Nur nach Vorname</SelectItem
+                        >
+                        <SelectItem value="lastname"
+                            >Nur nach Nachname</SelectItem
+                        >
                         <SelectItem value="email">Nur nach Email</SelectItem>
                     </SelectContent>
                 </Select>

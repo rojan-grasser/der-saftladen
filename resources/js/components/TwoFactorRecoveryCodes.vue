@@ -46,8 +46,9 @@ onMounted(async () => {
                 <LockKeyhole class="size-4" />2FA-Wiederherstellungscodes
             </CardTitle>
             <CardDescription>
-                Wiederherstellungscodes ermöglichen Ihnen den Zugriff zurück, falls Sie Ihr 2FA-Gerät verlieren.
-                Bewahren Sie diese in einem sicheren Passwort-Manager auf.
+                Wiederherstellungscodes ermöglichen Ihnen den Zugriff zurück,
+                falls Sie Ihr 2FA-Gerät verlieren. Bewahren Sie diese in einem
+                sicheren Passwort-Manager auf.
             </CardDescription>
         </CardHeader>
         <CardContent>
@@ -59,7 +60,8 @@ onMounted(async () => {
                         :is="isRecoveryCodesVisible ? EyeOff : Eye"
                         class="size-4"
                     />
-                    {{ isRecoveryCodesVisible ? 'Hide' : 'View' }} Wiederherstellungscodes
+                    {{ isRecoveryCodesVisible ? 'Hide' : 'View' }}
+                    Wiederherstellungscodes
                 </Button>
 
                 <Form
@@ -111,10 +113,12 @@ onMounted(async () => {
                         </div>
                     </div>
                     <p class="text-xs text-muted-foreground select-none">
-                        Jeder Wiederherstellungscode kann nur einmal für den Zugriff auf Ihr Konto verwendet werden.
-                        Er wird nach der Verwendung gelöscht. Falls Sie weitere Codes benötigen,
+                        Jeder Wiederherstellungscode kann nur einmal für den
+                        Zugriff auf Ihr Konto verwendet werden. Er wird nach der
+                        Verwendung gelöscht. Falls Sie weitere Codes benötigen,
                         klicken Sie hier.
-                        <span class="font-bold">Codes neu generieren</span> über.
+                        <span class="font-bold">Codes neu generieren</span>
+                        über.
                     </p>
                 </div>
             </div>

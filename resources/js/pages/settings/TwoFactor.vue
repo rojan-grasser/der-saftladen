@@ -43,7 +43,9 @@ onUnmounted(() => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <Head title="2-Faktor-Authentifizierung" />
 
-        <h1 class="sr-only">Einstellungen für die 2-Faktor-Authentifizierung</h1>
+        <h1 class="sr-only">
+            Einstellungen für die 2-Faktor-Authentifizierung
+        </h1>
 
         <SettingsLayout>
             <div class="space-y-6">
@@ -59,10 +61,10 @@ onUnmounted(() => {
                     <Badge variant="destructive">Deaktiviert</Badge>
 
                     <p class="text-muted-foreground">
-                        Wenn Sie die 2-Faktor-Authentifizierung aktivieren, werden Sie
-                        beim Anmelden zur Eingabe einer sicheren PIN aufgefordert. Diese PIN kann
-                        über eine TOTP-fähige Anwendung auf Ihrem
-                        Telefon abgerufen werden.
+                        Wenn Sie die 2-Faktor-Authentifizierung aktivieren,
+                        werden Sie beim Anmelden zur Eingabe einer sicheren PIN
+                        aufgefordert. Diese PIN kann über eine TOTP-fähige
+                        Anwendung auf Ihrem Telefon abgerufen werden.
                     </p>
 
                     <div>
@@ -93,8 +95,9 @@ onUnmounted(() => {
 
                     <p class="text-muted-foreground">
                         Bei aktivierter 2-Faktor-Authentifizierung werden Sie
-                        bei der Anmeldung zur Eingabe einer sicheren, zufällig generierten PIN aufgefordert, die Sie
-                        über die TOTP-fähige Anwendung auf Ihrem Telefon abrufen können.
+                        bei der Anmeldung zur Eingabe einer sicheren, zufällig
+                        generierten PIN aufgefordert, die Sie über die
+                        TOTP-fähige Anwendung auf Ihrem Telefon abrufen können.
                     </p>
 
                     <TwoFactorRecoveryCodes />

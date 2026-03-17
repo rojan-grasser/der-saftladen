@@ -133,7 +133,8 @@ export const useCalendarAppointments = ({
             days.push({
                 date,
                 key,
-                isCurrentMonth: date.getMonth() === currentMonth.value.getMonth(),
+                isCurrentMonth:
+                    date.getMonth() === currentMonth.value.getMonth(),
                 isToday: isSameDay(date, new Date()),
                 isSelected: isSameDay(date, selectedDate.value),
                 appointments: appointmentsByDate.value.get(key) ?? [],

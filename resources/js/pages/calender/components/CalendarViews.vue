@@ -5,7 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
-import type { AgendaGroup, Appointment, CalendarDay, ViewMode, WeekDay } from '../types';
+import type {
+    AgendaGroup,
+    Appointment,
+    CalendarDay,
+    ViewMode,
+    WeekDay,
+} from '../types';
 
 defineProps<{
     viewMode: ViewMode;
@@ -43,12 +49,11 @@ const emit = defineEmits<{
             </div>
         </div>
 
-        <div v-if="viewMode === 'month'" class="grid grid-cols-7 gap-px bg-border">
-            <div
-                v-for="day in calendarDays"
-                :key="day.key"
-                class="bg-card p-2"
-            >
+        <div
+            v-if="viewMode === 'month'"
+            class="grid grid-cols-7 gap-px bg-border"
+        >
+            <div v-for="day in calendarDays" :key="day.key" class="bg-card p-2">
                 <div
                     class="flex min-h-[120px] flex-col gap-2 rounded-md border p-2 transition hover:border-primary/40"
                     :class="[
@@ -112,7 +117,10 @@ const emit = defineEmits<{
             </div>
         </div>
 
-        <div v-else-if="viewMode === 'week'" class="grid grid-cols-7 gap-px bg-border">
+        <div
+            v-else-if="viewMode === 'week'"
+            class="grid grid-cols-7 gap-px bg-border"
+        >
             <div
                 v-for="day in weekDays"
                 :key="`week-${day.key}`"
@@ -168,12 +176,18 @@ const emit = defineEmits<{
         <div v-else-if="viewMode === 'day'" class="p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <div class="text-sm text-muted-foreground">Tagesansicht</div>
+                    <div class="text-sm text-muted-foreground">
+                        Tagesansicht
+                    </div>
                     <div class="text-lg font-semibold">
                         {{ formatDate(selectedDate) }}
                     </div>
                 </div>
-                <Button variant="outline" size="sm" @click="emit('open-create')">
+                <Button
+                    size="sm"
+                    variant="outline"
+                    @click="emit('open-create')"
+                >
                     <Plus class="h-4 w-4" />
                     Hinzufügen
                 </Button>
@@ -192,7 +206,9 @@ const emit = defineEmits<{
                             {{ appointment.title }}
                         </div>
                         <div class="text-xs text-muted-foreground">
-                            {{ appointment.description || 'Keine Beschreibung' }}
+                            {{
+                                appointment.description || 'Keine Beschreibung'
+                            }}
                         </div>
                     </div>
                     <div class="text-xs text-muted-foreground">
@@ -254,7 +270,9 @@ const emit = defineEmits<{
                                 </Badge>
                             </div>
                             <div class="text-xs text-muted-foreground">
-                                {{ appointment.location || 'Kein Ort angegeben' }}
+                                {{
+                                    appointment.location || 'Kein Ort angegeben'
+                                }}
                             </div>
                         </div>
                     </div>

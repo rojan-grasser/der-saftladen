@@ -98,7 +98,8 @@ const user = page.props.auth.user;
                                 as="button"
                                 class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                             >
-                                Klicken Sie hier, um die Bestätigungs-E-Mail erneut zu senden.
+                                Klicken Sie hier, um die Bestätigungs-E-Mail
+                                erneut zu senden.
                             </Link>
                         </p>
 
@@ -106,7 +107,8 @@ const user = page.props.auth.user;
                             v-if="status === 'verification-link-sent'"
                             class="mt-2 text-sm font-medium text-green-600"
                         >
-                            Ein neuer Bestätigungslink wurde an Ihre E-Mail-Adresse gesendet.
+                            Ein neuer Bestätigungslink wurde an Ihre
+                            E-Mail-Adresse gesendet.
                         </div>
                     </div>
 

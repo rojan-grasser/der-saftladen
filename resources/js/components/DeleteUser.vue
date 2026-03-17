@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import DeleteUserButton from '@/components/DeleteUserButton.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 </script>

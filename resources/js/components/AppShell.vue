@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import 'vue-sonner/style.css';
 import { usePage } from '@inertiajs/vue3';
+import 'vue-sonner/style.css';
 
 import FlashToaster from '@/components/FlashToaster.vue';
 import { SidebarProvider } from '@/components/ui/sidebar';

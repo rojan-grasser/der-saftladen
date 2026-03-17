@@ -2,8 +2,8 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
 
-import { dashboard, login, register } from '@/routes';
 import AppLogo from '@/components/AppLogo.vue';
+import { dashboard, login, register } from '@/routes';
 
 defineProps<{
     canRegister?: boolean;
@@ -12,13 +12,16 @@ defineProps<{
 const featuresVisible = ref(false);
 
 onMounted(() => {
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                featuresVisible.value = true;
-            }
-        });
-    }, { threshold: 0.2 });
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    featuresVisible.value = true;
+                }
+            });
+        },
+        { threshold: 0.2 },
+    );
 
     const target = document.getElementById('features-section');
     if (target) observer.observe(target);
@@ -28,37 +31,71 @@ onMounted(() => {
 <template>
     <Head title="Ausbilderportal">
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+        <link
+            crossorigin=""
+            href="https://fonts.gstatic.com"
+            rel="preconnect"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+            rel="stylesheet"
+        />
     </Head>
 
-    <div class="bg-background text-foreground font-sans overflow-x-auto min-h-screen relative selection:bg-primary selection:text-primary-foreground">
+    <div
+        class="relative min-h-screen overflow-x-auto bg-background font-sans text-foreground selection:bg-primary selection:text-primary-foreground"
+    >
         <!-- Background Effects -->
-        <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-            <div class="absolute inset-0 bg-dot-pattern opacity-[0.2] mask-corners"></div>
-            <div class="absolute -top-[10%] -left-[10%] w-[500px] h-[500px] bg-primary/10 blur-[120px] rounded-full opacity-40"></div>
-            <div class="absolute -bottom-[10%] -right-[10%] w-[500px] h-[500px] bg-primary/10 blur-[120px] rounded-full opacity-40"></div>
-            <div class="absolute top-[20%] right-[5%] w-[300px] h-[300px] bg-primary/5 blur-[100px] rounded-full opacity-20"></div>
+        <div class="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+            <div
+                class="bg-dot-pattern mask-corners absolute inset-0 opacity-[0.2]"
+            ></div>
+            <div
+                class="absolute -top-[10%] -left-[10%] h-[500px] w-[500px] rounded-full bg-primary/10 opacity-40 blur-[120px]"
+            ></div>
+            <div
+                class="absolute -right-[10%] -bottom-[10%] h-[500px] w-[500px] rounded-full bg-primary/10 opacity-40 blur-[120px]"
+            ></div>
+            <div
+                class="absolute top-[20%] right-[5%] h-[300px] w-[300px] rounded-full bg-primary/5 opacity-20 blur-[100px]"
+            ></div>
         </div>
 
         <!-- Header -->
-        <header class="relative top-0 left-0 w-full z-50 pt-6 pb-4 px-4 sm:px-6 md:px-12 transition-all duration-300 backdrop-blur-sm">
-            <div class="max-w-7xl mx-auto flex items-center justify-between min-w-[320px]">
+        <header
+            class="relative top-0 left-0 z-50 w-full px-4 pt-6 pb-4 backdrop-blur-sm transition-all duration-300 sm:px-6 md:px-12"
+        >
+            <div
+                class="mx-auto flex max-w-7xl min-w-[320px] items-center justify-between"
+            >
                 <div class="flex items-center gap-3">
                     <AppLogo></AppLogo>
                 </div>
                 <div class="flex items-center gap-4">
                     <template v-if="$page.props.auth.user">
-                        <Link :href="dashboard()" class="inline-flex h-9 items-center justify-center rounded-lg bg-primary hover:bg-primary/90 px-4 text-sm font-semibold text-primary-foreground transition-colors shadow-sm">
+                        <Link
+                            :href="dashboard()"
+                            class="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                        >
                             Dashboard
                         </Link>
                     </template>
                     <template v-else>
-                        <Link :href="login()" class="inline-block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                        <Link
+                            :href="login()"
+                            class="inline-block text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                        >
                             Anmelden
                         </Link>
-                        <Link v-if="canRegister" :href="register()" class="inline-flex h-9 items-center justify-center rounded-lg bg-secondary hover:bg-secondary/80 px-4 text-sm font-semibold text-secondary-foreground transition-colors border border-border">
+                        <Link
+                            v-if="canRegister"
+                            :href="register()"
+                            class="inline-flex h-9 items-center justify-center rounded-lg border border-border bg-secondary px-4 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/80"
+                        >
                             Registrieren
                         </Link>
                     </template>
@@ -67,30 +104,52 @@ onMounted(() => {
         </header>
 
         <!-- Main Content -->
-        <main class="relative z-10 flex flex-col min-w-[320px]">
+        <main class="relative z-10 flex min-w-[320px] flex-col">
             <!-- Hero Section -->
-            <section class="flex flex-col items-center justify-center px-4 sm:px-6 text-center pt-40">
-                <div class="max-w-5xl mx-auto flex flex-col items-center gap-10">
+            <section
+                class="flex flex-col items-center justify-center px-4 pt-40 text-center sm:px-6"
+            >
+                <div
+                    class="mx-auto flex max-w-5xl flex-col items-center gap-10"
+                >
                     <div class="space-y-6">
-                        <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-foreground leading-tight break-words">
+                        <h1
+                            class="text-4xl leading-tight font-extrabold tracking-tight break-words text-foreground sm:text-5xl md:text-7xl lg:text-8xl"
+                        >
                             Ausbilderportal
                         </h1>
-                        <p class="text-base sm:text-lg md:text-xl text-muted-foreground max-w-xl sm:max-w-2xl mx-auto leading-relaxed">
-                            Die zentrale Schnittstelle für Ausbildung, Projektmanagement und Kommunikation. Effizient, übersichtlich und sicher.
+                        <p
+                            class="mx-auto max-w-xl text-base leading-relaxed text-muted-foreground sm:max-w-2xl sm:text-lg md:text-xl"
+                        >
+                            Die zentrale Schnittstelle für Ausbildung,
+                            Projektmanagement und Kommunikation. Effizient,
+                            übersichtlich und sicher.
                         </p>
                     </div>
 
-                    <div class="flex flex-col sm:flex-row gap-4 w-full max-w-sm sm:max-w-none justify-center mt-6">
+                    <div
+                        class="mt-6 flex w-full max-w-sm flex-col justify-center gap-4 sm:max-w-none sm:flex-row"
+                    >
                         <template v-if="$page.props.auth.user">
-                            <Link :href="dashboard()" class="inline-flex h-12 md:h-14 min-w-[180px] cursor-pointer items-center justify-center rounded-lg bg-primary px-8 text-base font-bold text-primary-foreground shadow-lg hover:shadow-xl hover:bg-primary/90 transition-all transform hover:-translate-y-0.5">
+                            <Link
+                                :href="dashboard()"
+                                class="inline-flex h-12 min-w-[180px] transform cursor-pointer items-center justify-center rounded-lg bg-primary px-8 text-base font-bold text-primary-foreground shadow-lg transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-xl md:h-14"
+                            >
                                 Zum Dashboard
                             </Link>
                         </template>
                         <template v-else>
-                            <Link :href="login()" class="inline-flex h-12 md:h-14 min-w-[180px] cursor-pointer items-center justify-center rounded-lg bg-primary px-8 text-base font-bold text-primary-foreground shadow-lg hover:shadow-xl hover:bg-primary/90 transition-all transform hover:-translate-y-0.5">
+                            <Link
+                                :href="login()"
+                                class="inline-flex h-12 min-w-[180px] transform cursor-pointer items-center justify-center rounded-lg bg-primary px-8 text-base font-bold text-primary-foreground shadow-lg transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-xl md:h-14"
+                            >
                                 Einloggen
                             </Link>
-                            <Link v-if="canRegister" :href="register()" class="inline-flex h-12 md:h-14 min-w-[180px] cursor-pointer items-center justify-center rounded-lg bg-transparent border border-input px-8 text-base font-bold text-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                            <Link
+                                v-if="canRegister"
+                                :href="register()"
+                                class="inline-flex h-12 min-w-[180px] cursor-pointer items-center justify-center rounded-lg border border-input bg-transparent px-8 text-base font-bold text-foreground transition-colors hover:bg-accent hover:text-accent-foreground md:h-14"
+                            >
                                 Jetzt Registrieren
                             </Link>
                         </template>
@@ -166,9 +225,17 @@ onMounted(() => {
 }
 .mask-corners {
     mask-image: radial-gradient(circle at center, transparent 30%, black 100%);
-    -webkit-mask-image: radial-gradient(circle at center, transparent 30%, black 100%);
+    -webkit-mask-image: radial-gradient(
+        circle at center,
+        transparent 30%,
+        black 100%
+    );
 }
 .material-symbols-outlined {
-    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 300,
+        'GRAD' 0,
+        'opsz' 24;
 }
 </style>

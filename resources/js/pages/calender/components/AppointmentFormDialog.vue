@@ -186,7 +186,11 @@ const endTimeValue = computed({
                     </div>
                 </div>
                 <DialogFooter class="gap-2">
-                    <Button type="button" variant="outline" @click="emit('close')">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        @click="emit('close')"
+                    >
                         Abbrechen
                     </Button>
                     <Button type="submit" :disabled="form.processing">

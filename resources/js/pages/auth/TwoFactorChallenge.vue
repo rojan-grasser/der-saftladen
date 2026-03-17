@@ -118,7 +118,10 @@ const code = ref<string>('');
                         required
                     />
                     <InputError :message="errors.recovery_code" />
-                    <Button type="einreichen" class="w-full" :disabled="processing"
+                    <Button
+                        :disabled="processing"
+                        class="w-full"
+                        type="einreichen"
                         >Fortsetzen</Button
                     >
 

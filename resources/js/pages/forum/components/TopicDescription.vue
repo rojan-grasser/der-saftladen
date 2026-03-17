@@ -25,7 +25,7 @@ watch(splitDesc, () => {
 </script>
 
 <template>
-        <div v-if="splitDesc.length === 1" class="whitespace-pre-wrap">
+    <div v-if="splitDesc.length === 1" class="whitespace-pre-wrap">
         {{ splitDesc[0] }}
     </div>
     <div v-if="splitDesc.length > 1">

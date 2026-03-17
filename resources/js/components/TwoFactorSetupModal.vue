@@ -60,7 +60,8 @@ const modalConfig = computed<{
     if (showVerificationStep.value) {
         return {
             title: 'Authentifizierungscode überprüfen',
-            description: 'Geben Sie den 6-stelligen Code aus Ihrer Authentifizierungs-App ein.',
+            description:
+                'Geben Sie den 6-stelligen Code aus Ihrer Authentifizierungs-App ein.',
             buttonText: 'Fortsetzen',
         };
     }
@@ -269,9 +270,7 @@ watch(
                                         />
                                     </InputOTPGroup>
                                 </InputOTP>
-                                <InputError
-                                    :message="errors?.code"
-                                />
+                                <InputError :message="errors?.code" />
                             </div>
 
                             <div class="flex w-full items-center space-x-5">

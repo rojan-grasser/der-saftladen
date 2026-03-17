@@ -10,7 +10,11 @@ import AdminDashboard from '@/pages/admin/AdminDashboard.vue';
 import { dashboard } from '@/routes';
 import { show as showTopic } from '@/routes/topics';
 import { type BreadcrumbItem } from '@/types';
-import { type AdminData, type Appointment, type Topic } from '@/types/dashboard';
+import {
+    type AdminData,
+    type Appointment,
+    type Topic,
+} from '@/types/dashboard';
 
 defineProps<{
     appointments: Appointment[];

@@ -46,7 +46,7 @@ defineProps<{
 
                 <div class="my-6 flex items-center justify-start">
                     <Button :disabled="processing" class="w-full">
-                        <Spinner v-if="processing" />                    
+                        <Spinner v-if="processing" />
                         Link zum Zurücksetzen des Passworts per E-Mail
                     </Button>
                 </div>
