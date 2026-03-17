@@ -8,6 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import PinTopic from '@/pages/forum/components/PinTopic.vue';
 import { MinimalTopic, Profession } from '@/pages/forum/types';
 import topicsApi, { show } from '@/routes/topics';
 import { PaginatedResponse } from '@/types';
@@ -34,7 +35,18 @@ const handlePageChange = (page: number) => {
 </script>
 
 <template>
-    <div v-for="topic in topics.data" :key="`topic-${topic.id}`">
+    <div
+        v-for="topic in topics.data"
+        :key="`topic-${topic.id}`"
+        class="relative"
+    >
+        <PinTopic
+            :profession-id="profession.id"
+            :topic-id="topic.id"
+            :pinned="topic.pinned"
+            show-pinned-icon
+            class="absolute top-4 right-4"
+        />
         <Link
             :href="show.url({ topicId: topic.id, professionId: profession.id })"
             class="block"

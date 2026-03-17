@@ -22,6 +22,7 @@ export type Topic = {
     title: string;
     description: string;
     isOwnPost: boolean;
+    pinned: boolean;
     owner: User;
     posts: Array<Post>;
     createdAt: string;
@@ -31,6 +32,7 @@ export type MinimalTopic = {
     id: number;
     title: string;
     description: string;
+    pinned: boolean;
     user: {
         id: number;
         name: string;

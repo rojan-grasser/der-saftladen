@@ -20,13 +20,14 @@ class TopicController extends Controller
     {
         $validated = $request->validate([
             'limit' => ['nullable', 'integer', 'min:1', 'max:100'],
-            'query' => ['nullable', 'string', 'min:1', 'max:50']
+            'query' => ['nullable', 'string', 'min:1', 'max:50'],
         ]);
 
         $profession = Profession::findOrFail($professionId);
 
         $query = Topic::with('user')
             ->where('topics.profession_id', '=', $professionId)
+            ->orderBy('pinned', 'desc')
             ->orderBy('topics.created_at', 'desc');
 
         $limit = $validated['limit'] ?? 15;
@@ -43,6 +44,7 @@ class TopicController extends Controller
                         'id' => $topic->id,
                         'title' => $topic->title,
                         'description' => $topic->description,
+                        'pinned' => $topic->pinned,
                         'created_at' => $topic->created_at,
                         'user' => [
                             'id' => $topic->user?->id ?? 0,
@@ -62,14 +64,6 @@ class TopicController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return response()->setStatusCode(501);
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request, string $professionId)
@@ -83,7 +77,7 @@ class TopicController extends Controller
             $request->user()->hasRole(Role::INSTRUCTOR) &&
             !Instructor::find($request->user()->id)->hasAccess($professionId)
         ) {
-            return back()->with('error', 'Du hast keinen zugriff auf das ausgewählte professionelle Fachgebiet.');
+            return back()->with('error', 'Du hast keinen zugriff auf den Berufsbereich.');
         }
 
         // Check existence
@@ -127,14 +121,6 @@ class TopicController extends Controller
             ->where('topics.profession_id', '=', $professionId)
             ->findOrFail($topicId);
 
-        if (
-            $request->user()->hasRole(Role::INSTRUCTOR) &&
-            !Instructor::find($request->user()->id)->hasAccess($topic->profession_id)
-        ) {
-            return back()->with('error', 'Du hast keinen zugriff auf dieses Thema');
-        }
-
-        // Rendering of single topic on /forum/topics/{id}
         $owner = $topic->user;
 
         return Inertia::render('forum/Topic', [
@@ -143,6 +129,7 @@ class TopicController extends Controller
                 'title' => $topic->title,
                 'description' => $topic->description,
                 'isOwnPost' => $topic->user_id === $request->user()->id,
+                'pinned' => $topic->pinned,
                 'owner' => [
                     'id' => $owner?->id ?? 0,
                     'name' => $owner?->name ?? User::$deletedUserName,
@@ -158,7 +145,7 @@ class TopicController extends Controller
                         'likesCount' => $post->likes_count,
                         'dislikesCount' => $post->dislikes_count,
                         'isOwnPost' => ($post->creator?->id ?? 0) === $request->user()->id,
-                        'edited' => !!$post->edited,
+                        'edited' => (bool) $post->edited,
                         'user' => [
                             'id' => $post->creator?->id ?? 0,
                             'name' => $post->creator?->name ?? User::$deletedUserName,
@@ -174,14 +161,6 @@ class TopicController extends Controller
                 'description' => $profession->description,
             ],
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        return response()->setStatusCode(501);
     }
 
     /**
@@ -202,7 +181,7 @@ class TopicController extends Controller
 
         $topic->update($validated);
 
-        return back()->with('success', 'Das thema wurde bearbeitet');
+        return back()->with('success', 'Das Thema wurde bearbeitet');
     }
 
     /**
@@ -218,6 +197,21 @@ class TopicController extends Controller
 
         $topic->delete();
 
-        return redirect('/forum/topics');
+        return redirect('/forum/professions');
+    }
+
+    public function togglePin(Request $request, string $professionId, string $id)
+    {
+        if (!$request->user()->hasRole(Role::ADMIN)) {
+            return back()->with('error', 'Du darfst keine Themen anheften!');
+        }
+
+        $topic = Topic::findOrFail($id);
+
+        $topic->update([
+            'pinned' => !$topic->pinned,
+        ]);
+
+        return back()->with('success', 'Das Thema wurde ' . ($topic->pinned ? 'angeheftet' : 'abgeheftet'));
     }
 }

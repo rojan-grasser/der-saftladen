@@ -193,6 +193,7 @@ return [
         'routes',
         'composer.lock',
         '.env',
+        '.env.s3',
     ],
 
     /*

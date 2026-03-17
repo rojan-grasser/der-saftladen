@@ -13,6 +13,7 @@
 .env
 .env.backup
 .env.production
+.env.s3
 .phpactor.json
 Homestead.json
 Homestead.yaml
@@ -27,5 +28,8 @@ yarn-error.log
 rr
 .rr.yaml
 /.claude/
-
 /.codex/
+/terraform/.terraform/
+/terraform/.terraform.lock.hcl
+/terraform/terraform.tfstate
+/terraform/terraform.tfstate.backup

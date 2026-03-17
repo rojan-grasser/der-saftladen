@@ -1,10 +1,24 @@
+imageChecks:
+  - images:
+      - ghcr.io/rojan-grasser/der-saftladen:{{ .CommitId }}
+
 deployment:
   spec:
     containers:
       - name: der-saftladen
         image: ghcr.io/rojan-grasser/der-saftladen:{{ .CommitId }}
         imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - name: terraform-state
+            mountPath: /terraform
         env:
+          - name: RUNMODE
+            value: all
+          - name: WAIT_FOR_MINIO
+            value: "true"
+          - name: APP_PORT
+            value: "8000"
+          # App
           - name: APP_KEY
             value: base64:r9EkUOISRfHacEdhgcXKaND0ZcdYFgmhIUnUrjYzoow=
           - name: APP_NAME
@@ -50,12 +64,29 @@ deployment:
             value: "der.saftladen01@gmail.com"
           - name: MAIL_FROM_NAME
             value: "Der Saftladen"
+          # Localisation
           - name: APP_LOCALE
             value: "de"
           - name: APP_FALLBACK_LOCALE
             value: "en"
           - name: APP_FAKER_LOCALE
             value: "de_DE"
+          # Object storage
+          - name: AWS_ENDPOINT
+            value: "http://127.0.0.1:9000"
+          - name: AWS_URL
+            value: "http://127.0.0.1:9000"
+          - name: AWS_USE_PATH_STYLE_ENDPOINT
+            value: "true"
+          # Terraform vars
+          - name: TF_VAR_minio_host
+            value: 127.0.0.1:9000
+          - name: TF_VAR_minio_user
+            value: minio
+          - name: TF_VAR_minio_password
+            value: miniopassword
+          - name: AWS_DEFAULT_REGION
+            value: us-west-2
         resources:
           requests:
             cpu: "200m"
@@ -80,14 +111,38 @@ deployment:
           limits:
             cpu: "250m"
             memory: "512Mi"
-    volumes: []
+      - name: minio
+        image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
+        args:
+          - server
+          - /data
+          - --console-address
+          - ":9001"
+        env:
+          - name: MINIO_ROOT_USER
+            value: minio
+          - name: MINIO_ROOT_PASSWORD
+            value: miniopassword
+        ports:
+          - containerPort: 9000
+          - containerPort: 9001
+    volumes:
+      - name: terraform-state
+        emptyDir: { }
     restartPolicy: Always
-
 
 service:
   enabled: true
-  port: {{ .Port }}
-  targetPort: {{ .Port }}
+  ports:
+    - name: app
+      port: 8000
+      targetPort: 8000
+    - name: api
+      port: 9000
+      targetPort: 9000
+    - name: web-ui
+      port: 9001
+      targetPort: 9001
 
 virtualService:
   enabled: true
@@ -95,14 +150,43 @@ virtualService:
     gateways:
       - {{ .Gateway }}
     hosts:
-        - "{{ .Host }}.{{ .BaseDomain }}"
+      - "{{ .Host }}.{{ .BaseDomain }}"
+      - "{{ .MinioHost }}.{{ .BaseDomain }}"
     http:
+      - match:
+          - uri:
+              prefix: /assets/
+            headers:
+              cookie:
+                regex: ".*feature={{ .BranchName }}.*"
+            authority:
+              exact: "{{ .MinioHost }}.{{ .BaseDomain }}"
+        route:
+          - destination:
+              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
+              port:
+                number: 9000
+        rewrite:
+          uri: /
       - match:
           - headers:
               cookie:
                 regex: ".*feature={{ .BranchName }}.*"
+            authority:
+              exact: "{{ .MinioHost }}.{{ .BaseDomain }}"
         route:
           - destination:
-              port:
-                number: {{ .Port }}
               host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
+              port:
+                number: 9001
+      - match:
+          - headers:
+              cookie:
+                regex: ".*feature={{ .BranchName }}.*"
+            authority:
+              exact: "{{ .Host }}.{{ .BaseDomain }}"
+        route:
+          - destination:
+              host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
+              port:
+                number: 8000
