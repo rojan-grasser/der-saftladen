@@ -1,4 +1,4 @@
-import { ref, watch, shallowRef, computed } from "vue";
+import { ref, watch, shallowRef, computed, type MaybeRefOrGetter, toValue } from "vue";
 
 export type FileMetadata = {
   name: string;
@@ -19,7 +19,7 @@ export type FileUploadOptions = {
   maxSize?: number;
   accept?: string;
   multiple?: boolean;
-  initialFiles?: FileMetadata[];
+  initialFiles?: MaybeRefOrGetter<FileMetadata[]>;
   onFilesChange?: (files: FileWithPreview[]) => void;
   onFilesAdded?: (files: FileWithPreview[]) => void;
 };
@@ -36,11 +36,24 @@ export const useFileUpload = (options: FileUploadOptions = {}) => {
   } = options;
 
   const files = ref<FileWithPreview[]>(
-    initialFiles.map((file) => ({
+    (toValue(initialFiles) ?? []).map((file) => ({
       file,
       id: file.id,
       preview: file.url,
     })),
+  );
+
+  // Re-sync when initialFiles changes (e.g. after an Inertia navigation/re-render)
+  watch(
+    () => toValue(initialFiles),
+    (newInitial) => {
+      files.value = (newInitial ?? []).map((file) => ({
+        file,
+        id: file.id,
+        preview: file.url,
+      }));
+      errors.value = [];
+    },
   );
 
   const errors = ref<string[]>([]);

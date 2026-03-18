@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import FileComponent from '@/pages/forum/components/FileComponent.vue';
 import EditTopic from '@/pages/forum/components/EditTopic.vue';
+import FileTableWithAccordion from '@/pages/forum/components/file-table/FileTableWithAccordion.vue';
 import PinTopic from '@/pages/forum/components/PinTopic.vue';
 import TopicDescription from '@/pages/forum/components/TopicDescription.vue';
 import { Topic } from '@/pages/forum/types';
-import FileTable from '@/pages/forum/components/file-table/FileTable.vue';
-import FileTableWithAccordion from '@/pages/forum/components/file-table/FileTableWithAccordion.vue';
 
 const {
     topic,

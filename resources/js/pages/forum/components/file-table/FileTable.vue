@@ -29,7 +29,7 @@ const {
 } = useFileUpload({
     multiple: true,
     maxSize,
-    initialFiles,
+    initialFiles: () => initialFiles,
     onFilesAdded,
     onFilesChange,
 });
