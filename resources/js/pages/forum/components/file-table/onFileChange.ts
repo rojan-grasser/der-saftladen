@@ -36,8 +36,6 @@ export const uploadFiles = async (
         if (index !== -1) uploadedFiles.splice(index, 1);
     });
 
-
-
     await Promise.all(
         files
             .filter((file) => !uploadedFiles.find((f) => file.id === f.appId))
