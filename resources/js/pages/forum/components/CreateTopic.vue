@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import axios from 'axios';
 import { PlusIcon } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
@@ -19,8 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { FileWithPreview } from '@/composables/useFileUpload';
 import FileTable from '@/pages/forum/components/file-table/FileTable.vue';
-import { FileUpload } from '@/pages/forum/types';
-import forumFiles from '@/routes/forum/files';
+import { uploadFiles } from '@/pages/forum/components/file-table/onFileChange';
 import topics from '@/routes/topics';
 
 const { professionId } = defineProps<{ professionId: number }>();
@@ -38,29 +36,10 @@ const uploadedFiles = ref<Array<{ beId: string; appId: string }>>([]);
 const usedFiles = ref<Array<string>>([]);
 
 const onFileChange = async (files: FileWithPreview[]) => {
-    await Promise.all(
-        files
-            .filter(
-                (file) => !uploadedFiles.value.find((f) => file.id === f.appId),
-            )
-            .map(async (file) => {
-                const formData = new FormData();
-
-                if (file.file instanceof File) {
-                    formData.append('file', file.file);
-
-                    const { data } = (await axios.post(
-                        forumFiles.store({ professionId }).url,
-                        formData,
-                    )) as { data: Omit<FileUpload, 'type'> };
-
-                    uploadedFiles.value.push({ beId: data.id, appId: file.id });
-                }
-            }),
-    );
-
-    usedFiles.value = files.map(
-        (f) => uploadedFiles.value.find((uf) => uf.appId === f.id)!.beId,
+    usedFiles.value = await uploadFiles(
+        files,
+        uploadedFiles.value,
+        professionId,
     );
 };
 
