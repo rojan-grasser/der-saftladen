@@ -40,11 +40,16 @@ class PostReactionController extends Controller
         $postReaction = PostReaction::findByUserAndPost($request->user()->id, $postId);
 
         if (!$postReaction) {
-            PostReaction::create([
-                'user_id' => $request->user()->id,
-                'forum_post_id' => $postId,
-                'type' => $validated['type'],
-            ]);
+            // To prevent errors in case the user spams and a race between requests happens
+            try {
+                PostReaction::create([
+                    'user_id' => $request->user()->id,
+                    'forum_post_id' => $postId,
+                    'type' => $validated['type'],
+                ]);
+            } catch (\Throwable) {
+                return;
+            }
 
             return;
         }
