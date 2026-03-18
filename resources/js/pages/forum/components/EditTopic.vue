@@ -40,7 +40,6 @@ const uploadedFiles = ref<Array<{ beId: string; appId: string }>>(topic.files.ma
 const usedFiles = ref<Array<string>>([]);
 
 const onFileChange = async (files: FileWithPreview[]) => {
-    console.log(JSON.parse(JSON.stringify(files)));
     await Promise.all(
         files
             .filter(

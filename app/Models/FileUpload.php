@@ -34,7 +34,7 @@ class FileUpload extends Model
         return $exploded[count($exploded) - 1];
     }
 
-    public function downloadUrl(): string
+    public function url(): string
     {
         $bucket = $this->bucket;
         $path = $this->file_path;

@@ -148,7 +148,7 @@ class TopicController extends Controller
                         'name' => $upload->filename(),
                         'size' => $upload->size,
                         'type' => $upload->type(),
-                        'url' => $upload->downloadUrl(),
+                        'url' => $upload->url(),
                         'id' => $upload->id,
                     ];
                 }),
