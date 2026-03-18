@@ -193,6 +193,12 @@ const startSegmentDrag = (e: DragEvent, appointment: Appointment) => {
     drag.appointment = appointment;
     drag.durationMs = end.getTime() - start.getTime();
     e.dataTransfer!.effectAllowed = 'move';
+
+    // Immer beim ersten Tag "anfassen": Drag-Bild so setzen, dass die linke
+    // Kante des Event-Balkens am Cursor liegt – egal an welchem Tag der User
+    // geklickt hat.
+    const el = e.currentTarget as HTMLElement;
+    e.dataTransfer!.setDragImage(el, 0, e.offsetY);
 };
 
 const onDayCellDragOver = (e: DragEvent, day: CalendarDay) => {
