@@ -130,10 +130,11 @@ return [
         'stdout' => [
             'driver' => 'monolog',
             'handler' => StreamHandler::class,
-            'with' => [
+            'handler_with' => [
                 'stream' => 'php://stdout',
             ],
-            'level' => 'info',
+            'level' => env('LOG_LEVEL', 'debug'),
+            'processors' => [PsrLogMessageProcessor::class],
         ],
     ],
 
