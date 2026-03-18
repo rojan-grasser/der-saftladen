@@ -8,11 +8,4 @@ enum NotificationType: string
     // Potential future types
     // case NEW_TOPIC = 'new_topic';
     // case MENTION = 'mention';
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::NEW_COMMENT => 'Neuer Kommentar zu Ihrem Thema',
-        };
-    }
 }
