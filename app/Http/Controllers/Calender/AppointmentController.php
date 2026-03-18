@@ -16,11 +16,13 @@ use Inertia\Inertia;
 
 class AppointmentController extends Controller
 {
+    // US-13: Nur Teacher und Admin dürfen Termine erstellen.
     private function canCreateAppointment(User $user): bool
     {
-        return $user->hasRole(Role::ADMIN) || $user->hasRole(Role::TEACHER);
+        return $user->hasRole(Role::TEACHER) || $user->hasRole(Role::ADMIN);
     }
 
+    // US-15: Teacher darf nur eigene Termine bearbeiten. Admin darf alle.
     private function canUpdateAppointment(User $user, Appointment $appointment): bool
     {
         if ($user->hasRole(Role::ADMIN)) {
@@ -30,9 +32,14 @@ class AppointmentController extends Controller
         return $user->hasRole(Role::TEACHER) && $appointment->user_id === $user->id;
     }
 
-    private function canDeleteAppointment(User $user): bool
+    // US-15: Teacher darf nur eigene Termine löschen. Admin darf alle.
+    private function canDeleteAppointment(User $user, Appointment $appointment): bool
     {
-        return $user->hasRole(Role::ADMIN);
+        if ($user->hasRole(Role::ADMIN)) {
+            return true;
+        }
+
+        return $user->hasRole(Role::TEACHER) && $appointment->user_id === $user->id;
     }
 
     private function abortIfCannotCreate(?User $user): void
@@ -49,9 +56,9 @@ class AppointmentController extends Controller
         }
     }
 
-    private function abortIfCannotDelete(?User $user): void
+    private function abortIfCannotDelete(?User $user, Appointment $appointment): void
     {
-        if (! $user || ! $this->canDeleteAppointment($user)) {
+        if (! $user || ! $this->canDeleteAppointment($user, $appointment)) {
             abort(403, 'Sie dürfen diesen Termin nicht löschen.');
         }
     }
@@ -144,10 +151,10 @@ class AppointmentController extends Controller
         return Inertia::render('calender/CalenderDashboard', [
             'appointments' => $appointments,
             'permissions' => [
-                'canCreate' => $user ? $this->canCreateAppointment($user) : false,
-                'canEditOwn' => $user ? $user->hasRole(Role::TEACHER) : false,
-                'canEditAll' => $user ? $user->hasRole(Role::ADMIN) : false,
-                'canDeleteAll' => $user ? $this->canDeleteAppointment($user) : false,
+                'canCreate'    => $user ? $this->canCreateAppointment($user) : false,
+                'canEditOwn'   => $user ? ($user->hasRole(Role::TEACHER) || $user->hasRole(Role::ADMIN)) : false,
+                'canEditAll'   => $user ? $user->hasRole(Role::ADMIN) : false,
+                'canDeleteAll' => $user ? $user->hasRole(Role::ADMIN) : false,
             ],
         ]);
     }
@@ -186,7 +193,7 @@ class AppointmentController extends Controller
 
     public function destroy(Appointment $appointment)
     {
-        $this->abortIfCannotDelete(request()->user());
+        $this->abortIfCannotDelete(request()->user(), $appointment);
 
         $appointment->delete();
 

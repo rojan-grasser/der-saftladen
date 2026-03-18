@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Schema;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -93,23 +92,11 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function rolePayload(): array
     {
-        if (Schema::hasTable('user_role')) {
-            if ($this->relationLoaded('roles')) {
-                return $this->roles->values()->toArray();
-            }
-
-            return $this->roles()->get()->toArray();
+        if ($this->relationLoaded('roles')) {
+            return $this->roles->values()->toArray();
         }
 
-        if (Schema::hasColumn($this->getTable(), 'role') && $this->getAttribute('role')) {
-            return [[
-                'id' => 0,
-                'user_id' => $this->id,
-                'role' => $this->getAttribute('role'),
-            ]];
-        }
-
-        return [];
+        return $this->roles()->get()->toArray();
     }
 
     /**
@@ -162,16 +149,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $roles = is_array($roles) ? $roles : [$roles];
 
-        if (! Schema::hasTable('user_role')) {
-            if (Schema::hasColumn($this->getTable(), 'role') && $roles !== []) {
-                $this->forceFill([
-                    'role' => $roles[0]->value,
-                ])->save();
-            }
-
-            return;
-        }
-
         foreach ($roles as $role) {
             UserRole::firstOrCreate([
                 'user_id' => $this->id,
@@ -188,19 +165,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function removeRole(Role|array $roles): void
     {
         $roles = is_array($roles) ? $roles : [$roles];
-
-        if (! Schema::hasTable('user_role')) {
-            if (
-                Schema::hasColumn($this->getTable(), 'role') &&
-                in_array($this->getAttribute('role'), array_map(fn($r) => $r->value, $roles), true)
-            ) {
-                $this->forceFill([
-                    'role' => Role::USER->value,
-                ])->save();
-            }
-
-            return;
-        }
 
         $this->roles()
             ->whereIn('role', array_map(fn($r) => $r->value, $roles))
