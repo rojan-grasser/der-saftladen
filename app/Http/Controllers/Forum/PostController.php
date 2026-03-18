@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Forum;
 
+use App\Enums\NotificationType;
 use App\Http\Controllers\Controller;
 use App\Models\ForumPost;
 use App\Notifications\CommentAddedToTopic;
@@ -27,7 +28,7 @@ class PostController extends Controller
         $topic = $post->topic;
         $topicCreator = $topic->user;
 
-        if ($topicCreator && $topicCreator->id !== $post->user_id && $topicCreator->email_notifications) {
+        if ($topicCreator && $topicCreator->id !== $post->user_id && $topicCreator->isNotificationEnabled(NotificationType::NEW_COMMENT)) {
             $topicCreator->notify(new CommentAddedToTopic($post));
         }
 

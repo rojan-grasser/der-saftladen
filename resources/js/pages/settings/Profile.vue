@@ -6,7 +6,6 @@ import DeleteUser from '@/components/DeleteUser.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -123,28 +122,6 @@ const user = page.props.auth.user;
                             placeholder="Unternehmen (optional)"
                         />
                         <InputError class="mt-2" :message="errors.company" />
-                    </div>
-
-                    <div class="flex items-center space-x-2">
-                        <input
-                            id="email_notifications"
-                            hidden
-                            name="email_notifications"
-                            value="0"
-                        />
-                        <Checkbox
-                            id="email_notifications"
-                            :default-value="Boolean(user.email_notifications)"
-                            name="email_notifications"
-                            value="1"
-                        />
-                        <Label for="email_notifications"
-                            >E-Mail-Benachrichtigungen erhalten</Label
-                        >
-                        <InputError
-                            :message="errors.email_notifications"
-                            class="mt-2"
-                        />
                     </div>
 
                     <div class="flex items-center gap-4">

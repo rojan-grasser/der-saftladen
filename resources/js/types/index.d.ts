@@ -49,7 +49,6 @@ export interface User {
     status: UserStatus;
     roles: UserRole[] | null;
     company?: string | null;
-    email_notifications?: boolean | null;
     [key: string]: unknown; // This allows for additional properties...
 }
 

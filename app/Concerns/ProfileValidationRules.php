@@ -19,7 +19,6 @@ trait ProfileValidationRules
             'last_name' => $this->lastNameRules(),
             'email' => $this->emailRules($userId),
             'company' => $this->companyRules(),
-            'email_notifications' => $this->emailNotificationsRules(),
         ];
     }
 
@@ -63,10 +62,5 @@ trait ProfileValidationRules
     protected function companyRules(): array
     {
         return ['nullable', 'string', 'max:255'];
-    }
-
-    protected function emailNotificationsRules(): array
-    {
-        return ['sometimes', 'boolean'];
     }
 }
