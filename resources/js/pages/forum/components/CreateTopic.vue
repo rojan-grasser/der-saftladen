@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
+import axios from 'axios';
 import { PlusIcon } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
@@ -32,20 +33,25 @@ const form = useForm({
 });
 
 const uploadedFiles = ref<Array<{ beId: string; appId: string }>>([]);
+const topicId = ref<number>(0);
 
-const usedFiles = ref<Array<string>>([]);
+const setTopicId = async () => {
+    const res = await axios.get(topics.initialize({ professionId }).url);
+    topicId.value = res.data.id;
+};
 
 const onFileChange = async (files: FileWithPreview[]) => {
-    usedFiles.value = await uploadFiles(
+    await uploadFiles(
         files,
         uploadedFiles.value,
         professionId,
+        topicId.value,
+        open.value,
     );
 };
 
 const submit = () => {
-    form.files = usedFiles.value;
-    form.post(topics.store({ professionId: professionId }).url, {
+    form.put(topics.update({ professionId: professionId, topicId: topicId.value }).url, {
         onSuccess: () => {
             open.value = false;
         },
@@ -61,7 +67,7 @@ watch(open, () => {
 
 <template>
     <Dialog :open="open" @update:open="(o) => (open = o)">
-        <DialogTrigger as-child>
+        <DialogTrigger as-child :onclick="setTopicId">
             <Button><PlusIcon /> Erstellen</Button>
         </DialogTrigger>
         <DialogContent class="sm:max-w-2xl">

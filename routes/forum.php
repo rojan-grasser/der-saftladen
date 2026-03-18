@@ -15,13 +15,8 @@ Route::middleware(['auth', 'verified', 'active'])
         Route::middleware(['instructor-has-access'])
             ->prefix('profession/{professionId}')
             ->group(function () {
-                Route::prefix('files')
-                    ->group(function () {
-                        Route::post('/upload', [FileController::class, 'store'])->name('forum.files.store');
-                    });
-
                 Route::get('', [TopicController::class, 'index'])->name('topics.index');
-                Route::post('/topics', [TopicController::class, 'store'])->name('topics.store');
+                Route::get('/topics/initialize', [TopicController::class, 'initialize'])->name('topics.initialize');
 
                 Route::get('/topics/{topicId}', [TopicController::class, 'show'])->name('topics.show');
                 Route::put('/topics/{topicId}', [TopicController::class, 'update'])->name('topics.update');
@@ -29,6 +24,12 @@ Route::middleware(['auth', 'verified', 'active'])
                 Route::middleware([])
                     ->prefix('topics/{topicId}')
                     ->group(function () {
+                        Route::prefix('files')
+                            ->group(function () {
+                                Route::post('/upload', [FileController::class, 'store'])->name('forum.files.store');
+                                Route::delete('/{fileId}/remove', [FileController::class, 'destroy'])->name('forum.files.remove');
+                            });
+
                         Route::put('pin', [TopicController::class, 'togglePin'])->name('topics.pin-toggle');
 
                         Route::get('posts/{postId}/reactions', [PostReactionController::class, 'index'])->name('posts.reactions.index');

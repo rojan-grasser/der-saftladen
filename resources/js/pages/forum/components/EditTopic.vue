@@ -31,25 +31,23 @@ const open = ref(false);
 const form = useForm({
     title: topic.title,
     description: topic.description,
-    files: [] as Array<string>,
 });
 
 const uploadedFiles = ref<Array<{ beId: string; appId: string }>>(
     topic.files.map((f) => ({ beId: f.id, appId: f.id })),
 );
 
-const usedFiles = ref<Array<string>>([]);
-
 const onFileChange = async (files: FileWithPreview[]) => {
-    usedFiles.value = await uploadFiles(
+    await uploadFiles(
         files,
         uploadedFiles.value,
         professionId,
+        topic.id,
+        open.value,
     );
 };
 
 const submit = () => {
-    form.files = usedFiles.value;
     form.put(topics.update({ topicId: topic.id, professionId }).url, {
         onSuccess: () => {
             form.defaults({ title: form.title, description: form.description });

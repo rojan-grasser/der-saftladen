@@ -4,11 +4,8 @@ namespace App\Http\Controllers\Forum;
 
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
-use App\Models\FileUpload;
-use App\Models\Instructor;
 use App\Models\Profession;
 use App\Models\Topic;
-use App\Models\TopicToFileUpload;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -29,6 +26,7 @@ class TopicController extends Controller
 
         $query = Topic::with('user')
             ->where('topics.profession_id', '=', $professionId)
+            ->where('topics.draft', false)
             ->orderBy('pinned', 'desc')
             ->orderBy('topics.created_at', 'desc');
 
@@ -63,50 +61,6 @@ class TopicController extends Controller
                 'query' => $validated['query'] ?? null,
             ]
         );
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request, string $professionId)
-    {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'min:1', 'max:255'],
-            'description' => ['required', 'string'],
-            'files' => ['sometimes', 'array'],
-            'files.*' => ['integer'],
-        ]);
-
-        if (
-            $request->user()->hasRole(Role::INSTRUCTOR) &&
-            !Instructor::find($request->user()->id)->hasAccess($professionId)
-        ) {
-            return back()->with('error', 'Du hast keinen zugriff auf den Berufsbereich.');
-        }
-
-        // Check existence
-        Profession::findOrFail($professionId);
-
-        $topic = Topic::create([
-            ...$validated,
-            'profession_id' => $professionId,
-            'user_id' => auth()->id(),
-        ]);
-
-        $fileUploads = FileUpload::findMany($validated['files']);
-
-        foreach ($fileUploads as $file) {
-            if ($file->user->id !== $request->user()->id) {
-                continue;
-            }
-
-            TopicToFileUpload::create([
-                'topic_id' => $topic->id,
-                'file_upload_id' => $file->id,
-            ]);
-        }
-
-        return redirect("/forum/profession/$professionId/topics/" . $topic->id);
     }
 
     /**
@@ -197,8 +151,6 @@ class TopicController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
-            'files' => ['sometimes', 'array'],
-            'files.*' => ['integer'],
         ]);
 
         $topic = Topic::findOrFail($id);
@@ -207,28 +159,10 @@ class TopicController extends Controller
             return back()->with('error', 'Du bist nicht der ersteller dieses Themas, daher darfst du es auch nicht bearbeiten.');
         }
 
-        try {
-            \DB::transaction(function () use ($validated, $request, $topic) {
-                $topic->update($validated);
-
-                TopicToFileUpload::where('topic_id', $topic->id)->delete();
-
-                $fileUploads = FileUpload::findMany($validated['files']);
-
-                foreach ($fileUploads as $file) {
-                    if ($file->user->id !== $request->user()->id) {
-                        continue;
-                    }
-
-                    TopicToFileUpload::create([
-                        'topic_id' => $topic->id,
-                        'file_upload_id' => $file->id,
-                    ]);
-                }
-            });
-        } catch (\Throwable) {
-            return back()->with('error', 'Es ist ein Fehler beim bearbeiten aufgetreten');
-        }
+        $topic->update([
+            ...$validated,
+            'draft' => false,
+        ]);
 
         return back()->with('success', 'Das Thema wurde bearbeitet');
     }
@@ -262,5 +196,19 @@ class TopicController extends Controller
         ]);
 
         return back()->with('success', 'Das Thema wurde ' . ($topic->pinned ? 'angeheftet' : 'abgeheftet'));
+    }
+
+    public function initialize(Request $request, string $professionId)
+    {
+        Profession::findOrFail($professionId);
+
+        $topic = Topic::create([
+            'title' => '',
+            'description' => '',
+            'profession_id' => $professionId,
+            'user_id' => auth()->id(),
+        ]);
+
+        return ['id' => $topic->id];
     }
 }

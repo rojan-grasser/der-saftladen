@@ -20,6 +20,7 @@ class Topic extends Model
         'profession_id',
         'user_id',
         'pinned',
+        'draft',
     ];
 
     public function posts()
