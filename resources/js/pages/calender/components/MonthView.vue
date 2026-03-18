@@ -163,7 +163,7 @@ const getWeekMinHeight = (week: WeekRow) => {
         ...week.eventSegments.map((segment) => segment.lane + 1),
         0,
     );
-    return Math.max(100, 28 + Math.min(maxVisibleLanes, laneCount) * 22 + 16);
+    return Math.max(140, 28 + Math.min(maxVisibleLanes, laneCount) * 22 + 16);
 };
 
 const getVisibleSegments = (segments: EventSegment[]) => {
@@ -257,18 +257,18 @@ const isPastAppointment = (appointment: Appointment): boolean => {
             </div>
         </div>
 
-        <div class="min-h-0 flex-1 overflow-y-auto">
+        <div class="flex min-h-0 flex-1 flex-col overflow-y-auto">
             <div
                 v-for="(week, weekIndex) in weeks"
                 :key="weekIndex"
-                class="relative grid grid-cols-7"
+                class="relative grid flex-1 grid-cols-7"
                 :style="{ minHeight: `${getWeekMinHeight(week)}px` }"
             >
                 <!-- Day cells -->
                 <div
                     v-for="(day, dayIndex) in week.days"
                     :key="day.key"
-                    class="group relative min-h-[100px] cursor-pointer border-b p-1 transition-colors hover:bg-muted/30"
+                    class="group relative cursor-pointer border-b p-1 transition-colors hover:bg-muted/30"
                     :class="[
                         dayIndex !== 6 ? 'border-r' : '',
                         !day.isCurrentMonth ? 'bg-muted/20' : '',
