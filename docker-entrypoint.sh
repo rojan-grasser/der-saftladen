@@ -32,8 +32,13 @@ function server-runmode() {
         php artisan app:feature-deployment-init
     fi
 
-    # Start Octane
-    php artisan octane:start --host=0.0.0.0 --port=$APP_PORT --server=roadrunner
+    WORKERS=${OCTANE_WORKERS:-6}
+
+    php artisan octane:start \
+        --host=0.0.0.0 \
+        --port=$APP_PORT \
+        --server=roadrunner \
+        --workers=$WORKERS
 }
 
 if [[ "$RUNMODE" == 'terraform' ]]; then
