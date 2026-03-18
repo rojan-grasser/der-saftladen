@@ -1,4 +1,4 @@
-FROM php:8.4-fpm-alpine
+FROM php:8.4-cli-alpine
 
 WORKDIR /var/www/html
 
@@ -6,7 +6,7 @@ WORKDIR /var/www/html
 RUN mkdir -p /terraform
 
 RUN apk add --no-cache bash libpng libpng-dev oniguruma-dev icu-dev libxml2-dev libpq-dev \
-    && docker-php-ext-install pdo_mysql mbstring intl xml opcache pdo_pgsql pcntl
+    && docker-php-ext-install pdo_mysql mbstring intl xml opcache pdo_pgsql pcntl sockets
 
 COPY . .
 
