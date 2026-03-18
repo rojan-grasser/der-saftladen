@@ -96,6 +96,10 @@ class TopicController extends Controller
         $fileUploads = FileUpload::findMany($validated['files']);
 
         foreach ($fileUploads as $file) {
+            if ($file->user->id !== $request->user()->id) {
+                continue;
+            }
+
             TopicToFileUpload::create([
                 'topic_id' => $topic->id,
                 'file_upload_id' => $file->id,
@@ -204,7 +208,7 @@ class TopicController extends Controller
         }
 
         try {
-            \DB::transaction(function () use ($validated, $topic) {
+            \DB::transaction(function () use ($validated, $request, $topic) {
                 $topic->update($validated);
 
                 TopicToFileUpload::where('topic_id', $topic->id)->delete();
@@ -212,6 +216,10 @@ class TopicController extends Controller
                 $fileUploads = FileUpload::findMany($validated['files']);
 
                 foreach ($fileUploads as $file) {
+                    if ($file->user->id !== $request->user()->id) {
+                        continue;
+                    }
+
                     TopicToFileUpload::create([
                         'topic_id' => $topic->id,
                         'file_upload_id' => $file->id,

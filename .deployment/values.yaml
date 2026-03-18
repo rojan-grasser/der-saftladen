@@ -160,7 +160,7 @@ virtualService:
               cookie:
                 regex: ".*feature={{ .BranchName }}.*"
             authority:
-              exact: "{{ .MinioHost }}.{{ .BaseDomain }}"
+              exact: "{{ .Host }}.{{ .BaseDomain }}"
         route:
           - destination:
               host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local
