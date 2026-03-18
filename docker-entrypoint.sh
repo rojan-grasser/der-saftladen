@@ -33,7 +33,7 @@ function server-runmode() {
     fi
 
     # Start Octane
-    php artisan octane:start --host=0.0.0.0 --port=$APP_PORT --server=roadrunner --workers=${OCTANE_WORKERS:-2} --max-requests=${OCTANE_MAX_REQUESTS:-500}
+    php artisan octane:start --host=0.0.0.0 --port=$APP_PORT --server=roadrunner
 }
 
 if [[ "$RUNMODE" == 'terraform' ]]; then
