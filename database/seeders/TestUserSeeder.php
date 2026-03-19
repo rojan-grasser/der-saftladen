@@ -37,9 +37,5 @@ class TestUserSeeder extends Seeder
         }
 
         $user->forceFill($attributes)->save();
-
-        if (Schema::hasTable('user_role')) {
-            $user->assignRole(Role::ADMIN);
-        }
     }
 }
