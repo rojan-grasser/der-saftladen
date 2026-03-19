@@ -15,7 +15,7 @@ class AppointmentSeeder extends Seeder
      */
     public function run(): void
     {
-        $owner = User::query()->where('email', 'test@test')->first();
+        $owner = User::query()->where('email', 'test@test.de')->first();
 
         if (! $owner) {
             return;
