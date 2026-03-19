@@ -27,6 +27,8 @@ yarn-error.log
 /.zed
 rr
 .rr.yaml
+/.claude/
+/.codex/
 /terraform/.terraform/
 /terraform/.terraform.lock.hcl
 /terraform/terraform.tfstate
