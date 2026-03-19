@@ -51,7 +51,7 @@ function close() {
             <AlertDialogHeader>
                 <AlertDialogTitle>Termin löschen?</AlertDialogTitle>
                 <AlertDialogDescription class="space-y-1">
-                    <p>Dieser Vorgang kann nicht rückgänig gemacht werden.</p>
+                    <p>Dieser Vorgang kann nicht rückgängig gemacht werden.</p>
 
                     <div class="flex flex-wrap items-baseline gap-x-1 gap-y-1">
                         <span class="shrink-0">Möchten Sie den Termin</span>
@@ -77,7 +77,7 @@ function close() {
                     class="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     @click="submit"
                 >
-                    L&ouml;schen
+                    Löschen
                 </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>
