@@ -11,9 +11,6 @@ use Illuminate\Support\Str;
 
 class TestUserSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         $user = User::query()->firstOrNew([
@@ -32,10 +29,8 @@ class TestUserSeeder extends Seeder
             'two_factor_confirmed_at' => null,
         ];
 
-        if (Schema::hasColumn('users', 'role')) {
-            $attributes['role'] = Role::ADMIN->value;
-        }
-
+        $attributes['role'] = Role::ADMIN->value;
         $user->forceFill($attributes)->save();
+        $user->assignRole(Role::ADMIN);
     }
 }
