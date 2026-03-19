@@ -24,7 +24,7 @@ class UserController extends Controller
             'role'     => ['sometimes', new Enum(Role::class)],
             'status'   => ['sometimes', new Enum(UserStatus::class)],
             'search'   => ['sometimes', 'string', 'max:255'],
-            'priority' => ['sometimes', 'in:firstname,lastname,email'],
+            'priority' => ['sometimes', 'in:firstname,lastname,email,company'],
         ]);
 
         $query = User::query()->with('roles');
@@ -52,6 +52,7 @@ class UserController extends Controller
                     'firstname' => 'first_name',
                     'lastname'  => 'last_name',
                     'email'     => 'email',
+                    'company'     => 'company',
                 };
 
                 if ($column === 'email') {
@@ -67,7 +68,7 @@ class UserController extends Controller
 
                     $appliedPrioritySort = true;
                 } else {
-                    // Vor-/Nachname: NULL-safe + ILIKE
+                    // Vor-/Nachname/Firma: NULL-safe + ILIKE
                     $query->whereRaw("COALESCE({$column}, '') ILIKE ?", ["%{$search}%"]);
 
                     $query->orderByRaw("
@@ -85,7 +86,8 @@ class UserController extends Controller
                 $query->where(function ($q) use ($search) {
                     $q->whereRaw("COALESCE(first_name, '') ILIKE ?", ["%{$search}%"])
                       ->orWhereRaw("COALESCE(last_name, '') ILIKE ?", ["%{$search}%"])
-                      ->orWhere('email', 'ilike', "%{$search}%");
+                      ->orWhere('email', 'ilike', "%{$search}%")
+                      ->orWhereRaw("COALESCE(company, '') ILIKE ?", ["%{$search}%"]);
                 });
             }
         }
@@ -142,7 +144,7 @@ class UserController extends Controller
             }
         });
 
-        return back()->with('success', 'User updated successfully');
+        return back()->with('success', 'Benutzer erfolgreich aktuallisiert');
     }
 
     /**
@@ -152,6 +154,6 @@ class UserController extends Controller
     {
         User::findOrFail($id)->delete();
 
-        return back()->with('success', 'Der benutzer wurde gelöscht');
+        return back()->with('success', 'Der Benutzer wurde gelöscht');
     }
 }
