@@ -8,9 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::hasTable('appointment_reminder_sent')) {
-            return;
-        }
 
         Schema::create('appointment_reminder_sent', function (Blueprint $table) {
             $table->id();
