@@ -34,6 +34,7 @@ const form = useForm({
 
 const uploadedFiles = ref<Array<{ beId: string; appId: string }>>([]);
 const topicId = ref<number>(0);
+const emptyFiles: Array<{ name: string; size: number; type: string; url: string; id: string }> = [];
 
 const setTopicId = async () => {
     const res = await axios.get(topics.initialize({ professionId }).url);
@@ -100,7 +101,7 @@ watch(open, () => {
                         />
                     </div>
                     <FileTable
-                        :initial-files="[]"
+                        :initial-files="emptyFiles"
                         :on-files-change="onFileChange"
                     />
                 </div>
