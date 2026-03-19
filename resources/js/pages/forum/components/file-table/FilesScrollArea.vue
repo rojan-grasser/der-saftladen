@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { LucideDownload, LucideTrash2 } from 'lucide-vue-next';
+import { LucideDownload, LucideLoader, LucideTrash2 } from 'lucide-vue-next';
 
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { FileWithPreview, formatBytes } from '@/composables/useFileUpload';
 import { getFileIcon } from '@/pages/forum/components/file-table/getFileIcon';
+import { uploadProgress } from '@/pages/forum/components/file-table/onFileChange';
 
 defineProps<{
     files: Array<FileWithPreview>;
@@ -37,7 +39,12 @@ const handleDownload = (url: string | undefined) => {
                     <TableCell class="max-w-48 py-2 font-medium">
                         <span class="flex items-center gap-2">
                             <span class="shrink-0">
+                                <LucideLoader
+                                    v-if="file.id in uploadProgress"
+                                    class="size-4 animate-spin opacity-60"
+                                />
                                 <component
+                                    v-else
                                     :is="getFileIcon(file)"
                                     class="size-4 opacity-60"
                                 />
@@ -54,7 +61,20 @@ const handleDownload = (url: string | undefined) => {
                         }}
                     </TableCell>
                     <TableCell class="py-2 text-left text-muted-foreground">
-                        {{ formatBytes(file.file.size) }}
+                        <template v-if="file.id in uploadProgress">
+                            <div class="flex items-center gap-2">
+                                <Progress
+                                    :model-value="uploadProgress[file.id]"
+                                    class="h-1.5"
+                                />
+                                <span class="text-xs tabular-nums">
+                                    {{ uploadProgress[file.id] }}%
+                                </span>
+                            </div>
+                        </template>
+                        <template v-else>
+                            {{ formatBytes(file.file.size) }}
+                        </template>
                     </TableCell>
                     <TableCell class="py-2 text-right whitespace-nowrap">
                         <Button
@@ -63,18 +83,20 @@ const handleDownload = (url: string | undefined) => {
                             variant="ghost"
                             class="size-8 text-muted-foreground/80 hover:bg-transparent hover:text-foreground"
                             aria-label="Download file"
+                            :disabled="file.id in uploadProgress"
                             @click="handleDownload(file.preview)"
                         >
                             <LucideDownload class="size-4" />
                         </Button>
                         <Button
+                            v-if="!readonly"
                             size="icon"
                             variant="ghost"
                             type="button"
                             class="size-8 text-muted-foreground/80 hover:bg-transparent hover:text-foreground"
                             aria-label="Remove file"
+                            :disabled="file.id in uploadProgress"
                             @click="removeFile(file.id)"
-                            v-if="!readonly"
                         >
                             <LucideTrash2 class="size-4" />
                         </Button>
