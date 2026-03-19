@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import EditTopic from '@/pages/forum/components/EditTopic.vue';
+import FileTableWithAccordion from '@/pages/forum/components/file-table/FileTableWithAccordion.vue';
 import PinTopic from '@/pages/forum/components/PinTopic.vue';
 import SubscribeTopic from '@/pages/forum/components/SubscribeTopic.vue';
 import TopicDescription from '@/pages/forum/components/TopicDescription.vue';
@@ -17,7 +18,7 @@ const {
 </script>
 
 <template>
-    <div :class="`mx-6 ${className} flex flex-col gap-4`">
+    <div :class="`mx-1 ${className} flex flex-col gap-4`">
         <div class="flex flex-col gap-5">
             <div class="flex justify-between">
                 <h2 class="text-2xl font-semibold">{{ topic.title }}</h2>
@@ -52,6 +53,12 @@ const {
             </div>
 
             <TopicDescription :description="topic.description" />
+
+            <FileTableWithAccordion
+                :initial-files="topic.files"
+                readonly
+                v-if="topic.files.length > 0"
+            />
         </div>
     </div>
 </template>

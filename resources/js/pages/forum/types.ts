@@ -4,6 +4,14 @@ export type User = {
     email: string;
 };
 
+export type FileUpload = {
+    name: string;
+    size: number;
+    type: string;
+    url: string;
+    id: string;
+};
+
 export type Post = {
     id: number;
     content: string;
@@ -26,6 +34,7 @@ export type Topic = {
     pinned: boolean;
     owner: User;
     posts: Array<Post>;
+    files: Array<FileUpload>;
     createdAt: string;
 };
 

@@ -12,6 +12,7 @@ class Topic extends Model
 {
     /** @use HasFactory<TopicFactory> */
     use HasFactory;
+
     protected $guarded = ['id'];
 
     protected $fillable = [
@@ -20,6 +21,7 @@ class Topic extends Model
         'profession_id',
         'user_id',
         'pinned',
+        'draft',
     ];
 
     public function posts()
@@ -42,5 +44,10 @@ class Topic extends Model
     public function instructor(): BelongsTo
     {
         return $this->belongsTo(Instructor::class, 'user_id');
+    }
+
+    public function fileUploads(): BelongsToMany
+    {
+        return $this->belongsToMany(FileUpload::class, 'topic_to_file_upload', 'topic_id', 'file_upload_id');
     }
 }

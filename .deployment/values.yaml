@@ -93,7 +93,7 @@ deployment:
             memory: "500Mi"
           limits:
             cpu: "500m"
-            memory: "1Gi"
+            memory: "1.5Gi"
       - name: postgres
         image: postgres:16-alpine
         imagePullPolicy: IfNotPresent
@@ -160,7 +160,7 @@ virtualService:
               cookie:
                 regex: ".*feature={{ .BranchName }}.*"
             authority:
-              exact: "{{ .MinioHost }}.{{ .BaseDomain }}"
+              exact: "{{ .Host }}.{{ .BaseDomain }}"
         route:
           - destination:
               host: {{ .Name }}.{{ .Namespace }}.svc.cluster.local

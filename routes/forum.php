@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Forum\FileController;
 use App\Http\Controllers\Forum\PostController;
 use App\Http\Controllers\Forum\PostReactionController;
 use App\Http\Controllers\Forum\ProfessionController as ForumProfessionController;
@@ -16,7 +17,7 @@ Route::middleware(['auth', 'verified', 'active'])
             ->prefix('profession/{professionId}')
             ->group(function () {
                 Route::get('', [TopicController::class, 'index'])->name('topics.index');
-                Route::post('/topics', [TopicController::class, 'store'])->name('topics.store');
+                Route::get('/topics/initialize', [TopicController::class, 'initialize'])->name('topics.initialize');
 
                 Route::get('/topics/{topicId}', [TopicController::class, 'show'])->name('topics.show');
                 Route::put('/topics/{topicId}', [TopicController::class, 'update'])->name('topics.update');
@@ -24,6 +25,12 @@ Route::middleware(['auth', 'verified', 'active'])
                 Route::middleware([])
                     ->prefix('topics/{topicId}')
                     ->group(function () {
+                        Route::prefix('files')
+                            ->group(function () {
+                                Route::post('/upload', [FileController::class, 'store'])->name('forum.files.store');
+                                Route::delete('/{fileId}/remove', [FileController::class, 'destroy'])->name('forum.files.remove');
+                            });
+
                         Route::put('pin', [TopicController::class, 'togglePin'])->name('topics.pin-toggle');
                         Route::post('subscribe', [TopicSubscriptionController::class, 'toggle'])->name('topics.subscribe.toggle');
 
