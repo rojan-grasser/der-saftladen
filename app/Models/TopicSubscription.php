@@ -2,15 +2,11 @@
 
 namespace App\Models;
 
-use Database\Factories\TopicSubscriptionFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class TopicSubscription extends Pivot
 {
-    /** @use HasFactory<TopicSubscriptionFactory> */
-    use HasFactory;
 
     protected $table = 'topic_subscriptions';
 
