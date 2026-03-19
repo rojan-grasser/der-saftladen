@@ -130,7 +130,7 @@ class AppointmentController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $appointments = Appointment::with('creator:id,first_name,last_name')
+        $appointments = Appointment::with(['creator:id,first_name,last_name', 'reminders'])
             ->get()
             ->map(function (Appointment $appointment) {
                 return [
@@ -138,6 +138,7 @@ class AppointmentController extends Controller
                     'color' => $appointment->color?->value ?? AppointmentColor::PEACOCK->value,
                     'start_time' => $appointment->start_time?->timestamp,
                     'end_time' => $appointment->end_time?->timestamp,
+                    'reminders' => $appointment->reminders->pluck('offset_minutes')->values()->toArray(),
                     'creator' => [
                         'id' => $appointment->creator?->id ?? 0,
                         'first_name' => $appointment->creator?->first_name ?? User::$deletedUserName,
@@ -164,10 +165,15 @@ class AppointmentController extends Controller
 
         $validated = $this->validateAppointment($request);
 
-        Appointment::create([
+        $reminders = $validated['reminders'] ?? [];
+        unset($validated['reminders']);
+
+        $appointment = Appointment::create([
             ...$validated,
             'user_id' => Auth::id(),
         ]);
+
+        $this->syncReminders($appointment, $reminders);
 
         return back()->with('success', 'Termin erfolgreich erstellt!');
     }
@@ -178,16 +184,36 @@ class AppointmentController extends Controller
 
         $validated = $this->validateAppointment($request);
 
+        $reminders = $validated['reminders'] ?? [];
+        unset($validated['reminders']);
+
+        $oldReminders = $appointment->reminders()->pluck('offset_minutes')->sort()->values()->toArray();
+
         $appointment->update($validated);
 
+        $this->syncReminders($appointment, $reminders);
+
+        $newReminders = collect($reminders)->sort()->values()->toArray();
+
         // Reset sent reminders if start_time or reminders changed
-        if ($appointment->wasChanged(['start_time', 'reminders'])) {
+        if ($appointment->wasChanged('start_time') || $oldReminders !== $newReminders) {
             \DB::table('appointment_reminder_sent')
                 ->where('appointment_id', $appointment->id)
                 ->delete();
         }
 
         return back()->with('success', 'Termin erfolgreich aktualisiert!');
+    }
+
+    private function syncReminders(Appointment $appointment, array $reminders): void
+    {
+        $appointment->reminders()->delete();
+
+        foreach ($reminders as $offsetMinutes) {
+            $appointment->reminders()->create([
+                'offset_minutes' => (int) $offsetMinutes,
+            ]);
+        }
     }
 
     public function destroy(Appointment $appointment)
