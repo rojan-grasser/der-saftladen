@@ -1,7 +1,7 @@
 import { computed, onMounted, ref } from 'vue';
 
 export type ResolvedAppearance = 'light' | 'dark';
-type Appearance = ResolvedAppearance | 'system';
+type Appearance = ResolvedAppearance | 'system' | 'oled';
 
 export function updateTheme(value: Appearance) {
     if (typeof window === 'undefined') {
@@ -18,8 +18,12 @@ export function updateTheme(value: Appearance) {
             'dark',
             systemTheme === 'dark',
         );
+        document.documentElement.classList.remove('oled');
+    } else if (value === 'oled') {
+        document.documentElement.classList.add('dark', 'oled');
     } else {
         document.documentElement.classList.toggle('dark', value === 'dark');
+        document.documentElement.classList.remove('oled');
     }
 }
 
@@ -92,6 +96,10 @@ export function useAppearance() {
     const resolvedAppearance = computed<ResolvedAppearance>(() => {
         if (appearance.value === 'system') {
             return prefersDark() ? 'dark' : 'light';
+        }
+
+        if (appearance.value === 'oled') {
+            return 'dark';
         }
 
         return appearance.value;

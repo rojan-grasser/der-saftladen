@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"  @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => in_array($appearance ?? 'system', ['dark', 'oled']), 'oled' => ($appearance ?? 'system') == 'oled'])>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,6 +15,8 @@
                     if (prefersDark) {
                         document.documentElement.classList.add('dark');
                     }
+                } else if (appearance === 'oled') {
+                    document.documentElement.classList.add('dark', 'oled');
                 }
             })();
         </script>
@@ -27,6 +29,10 @@
 
             html.dark {
                 background-color: oklch(0.145 0 0);
+            }
+
+            html.oled {
+                background-color: oklch(0 0 0);
             }
         </style>
 
