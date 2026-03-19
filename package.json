@@ -38,7 +38,6 @@
         "vue-tsc": "^2.2.4"
     },
     "dependencies": {
-        "@iconify/vue": "^5.0.0",
         "@inertiajs/vue3": "^2.3.7",
         "@vueuse/core": "^12.8.2",
         "class-variance-authority": "^0.7.1",
@@ -46,6 +45,7 @@
         "debounce": "^3.0.0",
         "laravel-vite-plugin": "^2.0.0",
         "lucide-vue-next": "^0.468.0",
+        "marked": "^15.0.12",
         "reka-ui": "^2.9.2",
         "tailwind-merge": "^3.2.0",
         "tailwindcss": "^4.1.1",

@@ -4,8 +4,18 @@ import { computed, ref, watch } from 'vue';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+} from '@/components/ui/command';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 
 type Item = {
     id: number;
@@ -22,6 +32,8 @@ const props = defineProps<{
 
     hasMore?: boolean;
     loadingMore?: boolean;
+
+    shouldFilter?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -105,7 +117,7 @@ function onListScroll(e: Event) {
             </PopoverTrigger>
 
             <PopoverContent class="w-[--radix-popover-trigger-width] p-0">
-                <Command>
+                <Command :should-filter="shouldFilter">
                     <div class="flex items-center gap-2 p-2">
                         <CommandInput
                             v-model="search"

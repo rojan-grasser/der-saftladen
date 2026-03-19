@@ -1,17 +1,38 @@
 export type ViewMode = 'month' | 'week' | 'day' | 'agenda';
+export type AppointmentColor =
+    | 'peacock'
+    | 'sage'
+    | 'grape'
+    | 'flamingo'
+    | 'banana'
+    | 'tangerine'
+    | 'lavender'
+    | 'graphite'
+    | 'blueberry'
+    | 'basil'
+    | 'tomato';
 
 export interface Appointment {
     id: number;
     title: string;
     description?: string | null;
     location?: string | null;
+    color?: AppointmentColor | null;
     start_time: number | string;
     end_time: number | string;
     user_id: number;
+    reminders?: number[] | null;
     creator?: {
         id: number;
         name: string;
     } | null;
+}
+
+export interface CalendarPermissions {
+    canCreate: boolean;
+    canEditOwn: boolean;
+    canEditAll: boolean;
+    canDeleteAll: boolean;
 }
 
 export interface CalendarDay {
@@ -29,10 +50,4 @@ export interface WeekDay {
     isToday: boolean;
     isSelected: boolean;
     appointments: Appointment[];
-}
-
-export interface AgendaGroup {
-    key: string;
-    date: Date;
-    items: Appointment[];
 }

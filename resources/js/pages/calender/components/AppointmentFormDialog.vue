@@ -1,7 +1,17 @@
 <script setup lang="ts">
+import {
+    Bell,
+    Calendar as CalendarIcon,
+    MapPin,
+    Palette,
+    Plus,
+    Trash2,
+    Type,
+} from 'lucide-vue-next';
 import { computed } from 'vue';
 
 import InputError from '@/components/InputError.vue';
+import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -15,7 +25,20 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+} from '@/components/ui/select';
 import { InputGroupTimePicker } from '@/components/ui/time-picker';
+
+import {
+    appointmentColorMap,
+    appointmentColorOptions,
+    defaultAppointmentColor,
+} from '../constants';
+import type { AppointmentColor } from '../types';
 
 const props = defineProps<{
     open: boolean;
@@ -24,8 +47,10 @@ const props = defineProps<{
         title: string;
         description: string;
         location: string;
+        color: AppointmentColor;
         start_time: string;
         end_time: string;
+        reminders: number[];
         errors: Record<string, string>;
         processing: boolean;
     };
@@ -85,116 +110,264 @@ const endTimeValue = computed({
     get: () => props.endTime,
     set: (value) => emit('update:endTime', value),
 });
+
+const selectedColorOption = computed(() => {
+    return (
+        appointmentColorMap[props.form.color] ??
+        appointmentColorMap[defaultAppointmentColor]
+    );
+});
+
+const reminderOptions = [
+    { label: '5 Minuten vorher', value: 5 },
+    { label: '10 Minuten vorher', value: 10 },
+    { label: '15 Minuten vorher', value: 15 },
+    { label: '30 Minuten vorher', value: 30 },
+    { label: '1 Stunde vorher', value: 60 },
+    { label: '2 Stunden vorher', value: 120 },
+    { label: '3 Stunde vorher', value: 180 },
+    { label: '1 Tag vorher', value: 1440 },
+    { label: '1 Woche vorher', value: 10080 },
+];
+
+const availableReminderOptions = computed(() =>
+    reminderOptions.filter((opt) => !props.form.reminders.includes(opt.value)),
+);
+
+const selectedNewReminder = computed({
+    get: () => '',
+    set: (val: string) => {
+        const num = Number(val);
+        if (num && !props.form.reminders.includes(num)) {
+            props.form.reminders = [...props.form.reminders, num].sort(
+                (a, b) => a - b,
+            );
+        }
+    },
+});
+
+const removeReminder = (offset: number) => {
+    props.form.reminders = props.form.reminders.filter((r) => r !== offset);
+};
+
+const formatReminderLabel = (minutes: number) => {
+    const opt = reminderOptions.find((o) => o.value === minutes);
+    if (opt) return opt.label;
+    if (minutes < 60) return `${minutes} Min. vorher`;
+    if (minutes < 1440) return `${minutes / 60} Std. vorher`;
+    return `${minutes / 1440} Tag(e) vorher`;
+};
 </script>
 
 <template>
     <Dialog :open="open" @update:open="emit('update:open', $event)">
-        <DialogContent class="sm:max-w-2xl">
+        <DialogContent class="max-h-[90vh] overflow-y-auto sm:max-w-lg">
             <DialogHeader>
-                <DialogTitle>
+                <DialogTitle class="text-xl">
                     {{ isEditMode ? 'Termin bearbeiten' : 'Neuer Termin' }}
                 </DialogTitle>
                 <DialogDescription>
                     {{
                         isEditMode
-                            ? 'Termin aktualisieren.'
-                            : 'Neuen Termin zum Kalender hinzufügen.'
+                            ? 'Aktualisieren Sie die Termindetails.'
+                            : 'Erstellen Sie einen neuen Termin.'
                     }}
                 </DialogDescription>
             </DialogHeader>
-            <form class="grid gap-4" @submit.prevent="emit('submit')">
-                <div class="grid gap-2">
-                    <Label for="title">Titel</Label>
+
+            <form class="space-y-5" @submit.prevent="emit('submit')">
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <Type class="h-4 w-4 text-muted-foreground" />
+                        <Label for="title">Titel</Label>
+                    </div>
                     <Input
                         id="title"
                         v-model="form.title"
-                        placeholder="Termintitel"
+                        placeholder="Termintitel eingeben"
+                        class="text-base"
                     />
                     <InputError :message="form.errors.title" />
                 </div>
-                <div class="grid gap-2">
-                    <Label for="description">Beschreibung</Label>
-                    <textarea
-                        id="description"
+
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <CalendarIcon class="h-4 w-4 text-muted-foreground" />
+                        <Label>Datum & Zeit</Label>
+                    </div>
+
+                    <div class="flex items-center gap-3 rounded-lg border p-3">
+                        <Checkbox id="all_day" v-model="isAllDayValue" />
+                        <Label for="all_day" class="cursor-pointer text-sm">
+                            Ganztägig
+                        </Label>
+                    </div>
+
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <div class="space-y-2">
+                            <Label class="text-xs text-muted-foreground">
+                                Beginn
+                            </Label>
+                            <div v-if="isAllDay">
+                                <DatePicker
+                                    v-model="allDayStartValue"
+                                    placeholder="Startdatum"
+                                />
+                            </div>
+                            <div v-else class="space-y-2">
+                                <DatePicker
+                                    v-model="startDateValue"
+                                    placeholder="Startdatum"
+                                />
+                                <InputGroupTimePicker
+                                    v-model="startTimeValue"
+                                    placeholder="Startzeit"
+                                />
+                            </div>
+                            <InputError :message="form.errors.start_time" />
+                        </div>
+
+                        <div class="space-y-2">
+                            <Label class="text-xs text-muted-foreground">
+                                Ende
+                            </Label>
+                            <div v-if="isAllDay">
+                                <DatePicker
+                                    v-model="allDayEndValue"
+                                    placeholder="Enddatum"
+                                />
+                            </div>
+                            <div v-else class="space-y-2">
+                                <DatePicker
+                                    v-model="endDateValue"
+                                    placeholder="Enddatum"
+                                />
+                                <InputGroupTimePicker
+                                    v-model="endTimeValue"
+                                    placeholder="Endzeit"
+                                />
+                            </div>
+                            <InputError :message="form.errors.end_time" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <MapPin class="h-4 w-4 text-muted-foreground" />
+                            <Label for="location">Ort</Label>
+                        </div>
+                        <Input
+                            id="location"
+                            v-model="form.location"
+                            placeholder="Ort oder Link"
+                        />
+                        <InputError :message="form.errors.location" />
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <Palette class="h-4 w-4 text-muted-foreground" />
+                            <Label for="color">Farbe</Label>
+                        </div>
+                        <Select v-model="form.color">
+                            <SelectTrigger id="color" class="w-full">
+                                <span class="flex items-center gap-2">
+                                    <span
+                                        class="h-3 w-3 rounded-full"
+                                        :class="selectedColorOption.swatchClass"
+                                    />
+                                    <span class="text-sm">
+                                        {{ selectedColorOption.label }}
+                                    </span>
+                                </span>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem
+                                    v-for="option in appointmentColorOptions"
+                                    :key="option.value"
+                                    :value="option.value"
+                                >
+                                    <span class="flex items-center gap-2">
+                                        <span
+                                            class="h-3 w-3 rounded-full"
+                                            :class="option.swatchClass"
+                                        />
+                                        <span>{{ option.label }}</span>
+                                    </span>
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <InputError :message="form.errors.color" />
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <Label>Beschreibung</Label>
+                    <MarkdownEditor
                         v-model="form.description"
-                        class="min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
-                        placeholder="Details oder Notizen hinzufügen"
-                    ></textarea>
+                        placeholder="Notizen oder Details hinzufügen..."
+                    />
                     <InputError :message="form.errors.description" />
                 </div>
-                <div class="grid gap-2">
-                    <Label for="location">Ort</Label>
-                    <Input
-                        id="location"
-                        v-model="form.location"
-                        placeholder="Ort oder Meeting-Link"
-                    />
-                    <InputError :message="form.errors.location" />
-                </div>
-                <div class="flex items-center gap-3">
-                    <Checkbox id="all_day" v-model="isAllDayValue" />
-                    <Label for="all_day">Ganztägig</Label>
-                </div>
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div class="grid gap-2">
-                        <Label :for="isAllDay ? 'start_date' : 'start_time'">
-                            Beginn
-                        </Label>
-                        <div v-if="isAllDay" class="grid gap-2">
-                            <DatePicker
-                                id="start_date"
-                                v-model="allDayStartValue"
-                                placeholder="Datum auswählen"
-                            />
-                        </div>
-                        <div v-else class="grid gap-2">
-                            <DatePicker
-                                id="start_time"
-                                v-model="startDateValue"
-                                placeholder="Datum auswählen"
-                            />
-                            <InputGroupTimePicker
-                                v-model="startTimeValue"
-                                placeholder="Zeit auswählen"
-                            />
-                        </div>
-                        <InputError :message="form.errors.start_time" />
+
+                <!-- Erinnerungen -->
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <Bell class="h-4 w-4 text-muted-foreground" />
+                        <Label>Erinnerungen</Label>
                     </div>
-                    <div class="grid gap-2">
-                        <Label :for="isAllDay ? 'end_date' : 'end_time'">
-                            Ende
-                        </Label>
-                        <div v-if="isAllDay" class="grid gap-2">
-                            <DatePicker
-                                id="end_date"
-                                v-model="allDayEndValue"
-                                placeholder="Datum auswählen"
-                            />
+
+                    <div v-if="form.reminders.length > 0" class="space-y-1">
+                        <div
+                            v-for="offset in form.reminders"
+                            :key="offset"
+                            class="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                        >
+                            <span>{{ formatReminderLabel(offset) }}</span>
+                            <button
+                                type="button"
+                                class="text-muted-foreground transition-colors hover:text-destructive"
+                                @click="removeReminder(offset)"
+                            >
+                                <Trash2 class="h-3.5 w-3.5" />
+                            </button>
                         </div>
-                        <div v-else class="grid gap-2">
-                            <DatePicker
-                                id="end_time"
-                                v-model="endDateValue"
-                                placeholder="Datum auswählen"
-                            />
-                            <InputGroupTimePicker
-                                v-model="endTimeValue"
-                                placeholder="Zeit auswählen"
-                            />
-                        </div>
-                        <InputError :message="form.errors.end_time" />
                     </div>
+
+                    <Select
+                        v-if="availableReminderOptions.length > 0"
+                        v-model="selectedNewReminder"
+                    >
+                        <SelectTrigger class="text-muted-foreground">
+                            <span class="flex items-center gap-2">
+                                <Plus class="h-3.5 w-3.5" />
+                                Erinnerung hinzufügen
+                            </span>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem
+                                v-for="opt in availableReminderOptions"
+                                :key="opt.value"
+                                :value="String(opt.value)"
+                            >
+                                {{ opt.label }}
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
-                <DialogFooter class="gap-2">
-                    <Button type="button" variant="outline" @click="emit('close')">
+
+                <DialogFooter class="gap-2 sm:gap-0">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        @click="emit('close')"
+                    >
                         Abbrechen
                     </Button>
                     <Button type="submit" :disabled="form.processing">
-                        {{
-                            isEditMode
-                                ? 'Änderungen speichern'
-                                : 'Termin speichern'
-                        }}
+                        {{ isEditMode ? 'Speichern' : 'Erstellen' }}
                     </Button>
                 </DialogFooter>
             </form>
