@@ -26,11 +26,11 @@ class PostController extends Controller
         ]);
 
         $topic = $post->topic;
-        $topicCreator = $topic->user;
-
-        if ($topicCreator && $topicCreator->id !== $post->user_id && $topicCreator->isNotificationEnabled(NotificationType::NEW_COMMENT)) {
-            $topicCreator->notify(new CommentAddedToTopic($post));
-        }
+        $topic->subscribers->each(function ($subscriber) use ($post) {
+            if ($subscriber->id !== $post->user_id && $subscriber->isNotificationEnabled(NotificationType::NEW_COMMENT)) {
+                $subscriber->notify(new CommentAddedToTopic($post));
+            }
+        });
 
         return back()->with('success', 'Der kommentar wurde erstellt');
     }

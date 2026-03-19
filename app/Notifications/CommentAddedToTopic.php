@@ -35,9 +35,15 @@ class CommentAddedToTopic extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $topic = $this->post->topic;
+        $isCreator = $notifiable->id === $topic->user_id;
+        $subject = $isCreator ? 'Neuer Kommentar zu Ihrem Thema: ' : 'Neuer Kommentar zum Thema: ';
+        $line = $isCreator
+            ? 'Es wurde ein neuer Kommentar zu Ihrem Thema "' . $topic->title . '" verfasst.'
+            : 'Es wurde ein neuer Kommentar zum Thema "' . $topic->title . '", das Sie abonniert haben, verfasst.';
+
         return (new MailMessage)
-            ->subject('Neuer Kommentar zu Ihrem Thema: ' . $topic->title)
-            ->line('Es wurde ein neuer Kommentar zu Ihrem Thema "' . $topic->title . '" verfasst.')
+            ->subject($subject . $topic->title)
+            ->line($line)
             ->line('Inhalt: ' . $this->post->content)
             ->action('Thema ansehen', route('topics.show', [
                 'professionId' => $topic->profession_id,

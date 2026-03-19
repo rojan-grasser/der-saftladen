@@ -2,6 +2,7 @@
 import EditTopic from '@/pages/forum/components/EditTopic.vue';
 import FileTableWithAccordion from '@/pages/forum/components/file-table/FileTableWithAccordion.vue';
 import PinTopic from '@/pages/forum/components/PinTopic.vue';
+import SubscribeTopic from '@/pages/forum/components/SubscribeTopic.vue';
 import TopicDescription from '@/pages/forum/components/TopicDescription.vue';
 import { Topic } from '@/pages/forum/types';
 
@@ -22,6 +23,12 @@ const {
             <div class="flex justify-between">
                 <h2 class="text-2xl font-semibold">{{ topic.title }}</h2>
                 <div class="flex gap-2">
+                    <SubscribeTopic
+                        :is-subscribed="topic.isSubscribed"
+                        :profession-id="professionId"
+                        :topic-id="topic.id"
+                        class="h-auto w-auto"
+                    />
                     <PinTopic
                         :profession-id="professionId"
                         :topic-id="topic.id"
