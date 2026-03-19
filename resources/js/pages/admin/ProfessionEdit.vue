@@ -5,13 +5,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import MultiCombobox from '@/components/MultiCombobox.vue';
 import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -240,6 +234,7 @@ const submit = () => {
                         :has-more="hasMoreInstructors"
                         :items="instructorItems"
                         :loading-more="loadingMoreInstructors"
+                        :should-filter="false"
                         placeholder="Ausbilder auswählen..."
                         search-placeholder="Name oder E-Mail..."
                         @loadMore="loadMore"
