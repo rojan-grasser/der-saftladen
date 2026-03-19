@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\NotificationType;
 use App\Enums\Role;
 use App\Enums\UserStatus;
 use Database\Factories\UserFactory;
@@ -34,6 +35,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'status',
+        'company',
     ];
 
     /**
@@ -155,6 +157,22 @@ class User extends Authenticatable implements MustVerifyEmail
     public function topics(): HasMany
     {
         return $this->hasMany(Topic::class);
+    }
+
+    public function notificationSettings(): HasMany
+    {
+        return $this->hasMany(UserNotificationSetting::class);
+    }
+
+    public function isNotificationEnabled(NotificationType $type): bool
+    {
+        $setting = $this->notificationSettings()->where('notification_type', $type->value)->first();
+
+        if ($setting) {
+            return $setting->is_enabled;
+        }
+
+        return false;
     }
 
     public function posts(): HasMany
