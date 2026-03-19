@@ -40,19 +40,20 @@ return new class extends Migration {
 
         if ($roles !== []) {
             DB::table('user_role')->insert($roles);
- }
+        }
 
         Schema::table('users', function (Blueprint $table) {
             $table->dropIndex('users_role_status_index');
             $table->dropColumn('role');
         });
-         }
+    }
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
-    {  Schema::table('users', function (Blueprint $table) {
+    {
+        Schema::table('users', function (Blueprint $table) {
             $table->enum('role', ['user', 'teacher', 'instructor', 'admin'])->default(Role::USER);
             $table->index(['role', 'status']);
         });
@@ -67,7 +68,7 @@ return new class extends Migration {
                 ->where('id', $role->user_id)
                 ->whereNull('role')
                 ->update(['role' => $role->role]);
-                 }
+        }
 
         Schema::dropIfExists('user_role');
     }

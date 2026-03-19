@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\NotificationType;
 use App\Enums\Role;
 use App\Enums\UserStatus;
 use Database\Factories\UserFactory;
@@ -34,6 +35,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'status',
+        'company',
     ];
 
     /**
@@ -86,31 +88,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Return role payloads that work with both legacy and current schemas.
-     *
-     * @return array<int, array{id:int,user_id:int,role:string}>
-     */
-    public function rolePayload(): array
-    {
-        if ($this->relationLoaded('roles')) {
-            return $this->roles->values()->toArray();
-        }
-
-        return $this->roles()->get()->toArray();
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function roleValues(): array
-    {
-        return array_values(array_unique(array_map(
-            fn(array $role) => $role['role'],
-            $this->rolePayload(),
-        )));
-    }
-
-    /**
      * Check if a user has at least one of the given roles.
      */
     public function hasRole(Role $role): bool
@@ -131,13 +108,14 @@ class User extends Authenticatable implements MustVerifyEmail
             $roles
         );
 
-        $assignedRoles = $this->roleValues();
+        $query = $this->roles()
+            ->whereIn('role', $roleValues);
 
         if ($requireAll) {
-            return count(array_diff($roleValues, $assignedRoles)) === 0;
+            return $query->count() === count($roleValues);
         }
 
-        return array_intersect($roleValues, $assignedRoles) !== [];
+        return $query->exists();
     }
 
     /**
@@ -179,6 +157,22 @@ class User extends Authenticatable implements MustVerifyEmail
     public function topics(): HasMany
     {
         return $this->hasMany(Topic::class);
+    }
+
+    public function notificationSettings(): HasMany
+    {
+        return $this->hasMany(UserNotificationSetting::class);
+    }
+
+    public function isNotificationEnabled(NotificationType $type): bool
+    {
+        $setting = $this->notificationSettings()->where('notification_type', $type->value)->first();
+
+        if ($setting) {
+            return $setting->is_enabled;
+        }
+
+        return false;
     }
 
     public function posts(): HasMany

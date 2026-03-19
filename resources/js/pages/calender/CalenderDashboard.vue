@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Head, router, usePage } from '@inertiajs/vue3';
-import appointments from '@/routes/appointments';
 import { ChevronLeft, ChevronRight, Keyboard, Plus, X } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
+import appointmentAPI from '@/routes/appointments';
 import { type AppPageProps, type BreadcrumbItem } from '@/types';
 
 import AgendaView from './components/AgendaView.vue';
@@ -16,17 +16,10 @@ import MiniCalendar from './components/MiniCalendar.vue';
 import MobileMonthView from './components/MobileMonthView.vue';
 import MonthView from './components/MonthView.vue';
 import WeekView from './components/WeekView.vue';
-import {
-    appointmentColorMap,
-    defaultAppointmentColor,
-} from './constants';
 import { useAppointmentForm } from './composables/useAppointmentForm';
 import { useCalendarAppointments } from './composables/useCalendarAppointments';
-import type {
-    Appointment,
-    CalendarPermissions,
-    ViewMode,
-} from './types';
+import { defaultAppointmentColor } from './constants';
+import type { Appointment, CalendarPermissions, ViewMode } from './types';
 import { parseDate } from './utils/date';
 
 const props = defineProps<{
@@ -81,7 +74,6 @@ const {
     filteredAppointments,
     selectedAppointments,
     selectedAppointment,
-    upcomingAppointments,
     selectDay,
     selectAppointment,
 } = useCalendarAppointments({
@@ -107,7 +99,8 @@ const canCreateAppointments = computed(() => props.permissions.canCreate);
 const canEditAppointment = (appointment: Appointment | null): boolean => {
     if (!appointment) return false;
     if (props.permissions.canEditAll) return true;
-    if (props.permissions.canEditOwn && appointment.user_id === userId.value) return true;
+    if (props.permissions.canEditOwn && appointment.user_id === userId.value)
+        return true;
     return false;
 };
 
@@ -116,8 +109,12 @@ const canDeleteAppointment = (appointment: Appointment | null) => {
     return props.permissions.canDeleteAll;
 };
 
-const canEditSelectedAppointment = computed(() => canEditAppointment(selectedAppointment.value));
-const canDeleteSelectedAppointment = computed(() => canDeleteAppointment(selectedAppointment.value));
+const canEditSelectedAppointment = computed(() =>
+    canEditAppointment(selectedAppointment.value),
+);
+const canDeleteSelectedAppointment = computed(() =>
+    canDeleteAppointment(selectedAppointment.value),
+);
 
 const formatTime = (value: string | number) => {
     const date = parseDate(value);
@@ -303,7 +300,7 @@ const handleMoveAppointment = ({
     if (!canEditAppointment(appointment)) return;
 
     router.put(
-        appointments.update(appointment.id).url,
+        appointmentAPI.update(appointment.id).url,
         {
             title: appointment.title,
             description: appointment.description ?? '',
@@ -395,7 +392,9 @@ const getEventBgClass = (appointment: Appointment) => {
 
                 <!-- Termine am ausgewählten Tag -->
                 <div v-if="selectedAppointments.length > 0" class="space-y-2">
-                    <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <h3
+                        class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                    >
                         Termine am {{ formatDate(selectedDate) }}
                     </h3>
                     <div class="space-y-1">
@@ -403,7 +402,11 @@ const getEventBgClass = (appointment: Appointment) => {
                             v-for="apt in selectedAppointments.slice(0, 5)"
                             :key="apt.id"
                             class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-sm transition-colors hover:bg-muted/50"
-                            :class="isPastAppointment(apt) ? 'opacity-50 hover:opacity-70' : ''"
+                            :class="
+                                isPastAppointment(apt)
+                                    ? 'opacity-50 hover:opacity-70'
+                                    : ''
+                            "
                             @click="openDetails(apt)"
                         >
                             <div
@@ -426,9 +429,13 @@ const getEventBgClass = (appointment: Appointment) => {
             </aside>
 
             <!-- Hauptbereich -->
-            <div class="flex flex-1 flex-col overflow-hidden rounded-xl border bg-card">
+            <div
+                class="flex flex-1 flex-col overflow-hidden rounded-xl border bg-card"
+            >
                 <!-- Toolbar -->
-                <div class="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2 md:px-4 md:py-3">
+                <div
+                    class="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2 md:px-4 md:py-3"
+                >
                     <div class="flex items-center gap-1.5">
                         <Button
                             variant="outline"
@@ -462,9 +469,13 @@ const getEventBgClass = (appointment: Appointment) => {
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <div class="flex items-center gap-0.5 rounded-lg border p-1">
+                        <div
+                            class="flex items-center gap-0.5 rounded-lg border p-1"
+                        >
                             <Button
-                                :variant="viewMode === 'day' ? 'secondary' : 'ghost'"
+                                :variant="
+                                    viewMode === 'day' ? 'secondary' : 'ghost'
+                                "
                                 size="sm"
                                 class="rounded-md px-2 md:px-3"
                                 title="Tag (D)"
@@ -473,7 +484,9 @@ const getEventBgClass = (appointment: Appointment) => {
                                 Tag
                             </Button>
                             <Button
-                                :variant="viewMode === 'week' ? 'secondary' : 'ghost'"
+                                :variant="
+                                    viewMode === 'week' ? 'secondary' : 'ghost'
+                                "
                                 size="sm"
                                 class="hidden rounded-md px-2 sm:inline-flex md:px-3"
                                 title="Woche (W)"
@@ -482,7 +495,9 @@ const getEventBgClass = (appointment: Appointment) => {
                                 Woche
                             </Button>
                             <Button
-                                :variant="viewMode === 'month' ? 'secondary' : 'ghost'"
+                                :variant="
+                                    viewMode === 'month' ? 'secondary' : 'ghost'
+                                "
                                 size="sm"
                                 class="rounded-md px-2 md:px-3"
                                 title="Monat (M)"
@@ -491,7 +506,11 @@ const getEventBgClass = (appointment: Appointment) => {
                                 Monat
                             </Button>
                             <Button
-                                :variant="viewMode === 'agenda' ? 'secondary' : 'ghost'"
+                                :variant="
+                                    viewMode === 'agenda'
+                                        ? 'secondary'
+                                        : 'ghost'
+                                "
                                 size="sm"
                                 class="rounded-md px-2 md:px-3"
                                 title="Agenda (A)"
@@ -524,7 +543,12 @@ const getEventBgClass = (appointment: Appointment) => {
                         :calendar-days="calendarDays"
                         :selected-date="selectedDate"
                         :get-event-bg-class="getEventBgClass"
-                        @select-day="(date) => { handleSelectDay(date); viewMode = 'day'; }"
+                        @select-day="
+                            (date) => {
+                                handleSelectDay(date);
+                                viewMode = 'day';
+                            }
+                        "
                         @open-details="openDetails"
                     />
                     <!-- Desktop: volle Monatsansicht -->
@@ -602,10 +626,14 @@ const getEventBgClass = (appointment: Appointment) => {
                 v-if="showShortcutsHelp"
                 class="fixed right-4 bottom-4 z-50 w-72 origin-bottom-right overflow-hidden rounded-xl border bg-popover shadow-xl"
             >
-                <div class="flex items-center justify-between border-b px-4 py-3">
+                <div
+                    class="flex items-center justify-between border-b px-4 py-3"
+                >
                     <div class="flex items-center gap-2">
                         <Keyboard class="h-4 w-4 text-muted-foreground" />
-                        <span class="text-sm font-semibold">Tastaturkürzel</span>
+                        <span class="text-sm font-semibold"
+                            >Tastaturkürzel</span
+                        >
                     </div>
                     <Button
                         variant="ghost"
@@ -617,47 +645,89 @@ const getEventBgClass = (appointment: Appointment) => {
                     </Button>
                 </div>
                 <div class="space-y-0.5 p-3">
-                    <p class="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Navigation</p>
-                    <div v-for="shortcut in [
-                        { keys: ['T'], label: 'Heute' },
-                        { keys: ['←'], label: 'Zurück (Tag / Woche / Monat)' },
-                        { keys: ['→'], label: 'Vor (Tag / Woche / Monat)' },
-                    ]" :key="shortcut.label" class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50">
-                        <span class="text-xs text-muted-foreground">{{ shortcut.label }}</span>
+                    <p
+                        class="mb-2 text-[11px] font-medium tracking-wider text-muted-foreground uppercase"
+                    >
+                        Navigation
+                    </p>
+                    <div
+                        v-for="shortcut in [
+                            { keys: ['T'], label: 'Heute' },
+                            {
+                                keys: ['←'],
+                                label: 'Zurück (Tag / Woche / Monat)',
+                            },
+                            { keys: ['→'], label: 'Vor (Tag / Woche / Monat)' },
+                        ]"
+                        :key="shortcut.label"
+                        class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50"
+                    >
+                        <span class="text-xs text-muted-foreground">{{
+                            shortcut.label
+                        }}</span>
                         <div class="flex gap-1">
-                            <kbd v-for="k in shortcut.keys" :key="k"
-                                class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium shadow-sm">
+                            <kbd
+                                v-for="k in shortcut.keys"
+                                :key="k"
+                                class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium shadow-sm"
+                            >
                                 {{ k }}
                             </kbd>
                         </div>
                     </div>
 
-                    <p class="mb-2 mt-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Ansichten</p>
-                    <div v-for="shortcut in [
-                        { keys: ['D'], label: 'Tagesansicht' },
-                        { keys: ['W'], label: 'Wochenansicht' },
-                        { keys: ['M'], label: 'Monatsansicht' },
-                        { keys: ['A'], label: 'Agenda' },
-                    ]" :key="shortcut.label" class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50">
-                        <span class="text-xs text-muted-foreground">{{ shortcut.label }}</span>
+                    <p
+                        class="mt-3 mb-2 text-[11px] font-medium tracking-wider text-muted-foreground uppercase"
+                    >
+                        Ansichten
+                    </p>
+                    <div
+                        v-for="shortcut in [
+                            { keys: ['D'], label: 'Tagesansicht' },
+                            { keys: ['W'], label: 'Wochenansicht' },
+                            { keys: ['M'], label: 'Monatsansicht' },
+                            { keys: ['A'], label: 'Agenda' },
+                        ]"
+                        :key="shortcut.label"
+                        class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50"
+                    >
+                        <span class="text-xs text-muted-foreground">{{
+                            shortcut.label
+                        }}</span>
                         <div class="flex gap-1">
-                            <kbd v-for="k in shortcut.keys" :key="k"
-                                class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium shadow-sm">
+                            <kbd
+                                v-for="k in shortcut.keys"
+                                :key="k"
+                                class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium shadow-sm"
+                            >
                                 {{ k }}
                             </kbd>
                         </div>
                     </div>
 
-                    <p class="mb-2 mt-3 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Aktionen</p>
-                    <div v-for="shortcut in [
-                        { keys: ['N'], label: 'Neuer Termin' },
-                        { keys: ['?'], label: 'Shortcuts anzeigen' },
-                        { keys: ['Esc'], label: 'Schließen' },
-                    ]" :key="shortcut.label" class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50">
-                        <span class="text-xs text-muted-foreground">{{ shortcut.label }}</span>
+                    <p
+                        class="mt-3 mb-2 text-[11px] font-medium tracking-wider text-muted-foreground uppercase"
+                    >
+                        Aktionen
+                    </p>
+                    <div
+                        v-for="shortcut in [
+                            { keys: ['N'], label: 'Neuer Termin' },
+                            { keys: ['?'], label: 'Shortcuts anzeigen' },
+                            { keys: ['Esc'], label: 'Schließen' },
+                        ]"
+                        :key="shortcut.label"
+                        class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50"
+                    >
+                        <span class="text-xs text-muted-foreground">{{
+                            shortcut.label
+                        }}</span>
                         <div class="flex gap-1">
-                            <kbd v-for="k in shortcut.keys" :key="k"
-                                class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium shadow-sm">
+                            <kbd
+                                v-for="k in shortcut.keys"
+                                :key="k"
+                                class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium shadow-sm"
+                            >
                                 {{ k }}
                             </kbd>
                         </div>

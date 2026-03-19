@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from 'vue';
 
-import MarkdownContent from '@/components/MarkdownContent.vue';
 import { Button } from '@/components/ui/button';
 
 const props = defineProps<{ description: string }>();
@@ -26,18 +25,20 @@ watch(splitDesc, () => {
 </script>
 
 <template>
-    <div v-if="splitDesc.length === 1">
-        <MarkdownContent :content="splitDesc[0]" />
+        <div v-if="splitDesc.length === 1" class="whitespace-pre-wrap">
+        {{ splitDesc[0] }}
     </div>
     <div v-if="splitDesc.length > 1">
-        <MarkdownContent
-            :content="Array.from({ length: currentShowAllIdx })
-                .map((_, index) => splitDesc[index])
-                .join('')"
-        />
-        <span v-if="currentShowAllIdx !== splitDesc.length" class="text-foreground/50">
-            ...
-        </span>
+        <div class="whitespace-pre-wrap">
+            {{
+                Array.from({ length: currentShowAllIdx })
+                    .map((_, index) => splitDesc[index])
+                    .join('')
+            }}
+            <span class="text-foreground/50">
+                {{ currentShowAllIdx !== splitDesc.length ? '...' : '' }}
+            </span>
+        </div>
 
         <Button
             v-if="currentShowAllIdx !== splitDesc.length"
