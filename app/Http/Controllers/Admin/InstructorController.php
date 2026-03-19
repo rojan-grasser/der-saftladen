@@ -28,9 +28,9 @@ class InstructorController extends Controller
 
         if ($queryString !== '') {
             $query->where(function ($q) use ($queryString) {
-                $q->where('first_name', 'like', $queryString . '%')
-                    ->orWhere('last_name', 'like', $queryString . '%')
-                    ->orWhere('email', 'like', $queryString . '%');
+                $q->where('first_name', 'ilike', $queryString . '%')
+                    ->orWhere('last_name', 'ilike', $queryString . '%')
+                    ->orWhere('email', 'ilike', $queryString . '%');
             });
         }
 
