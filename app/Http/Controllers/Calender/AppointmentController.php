@@ -44,21 +44,21 @@ class AppointmentController extends Controller
 
     private function abortIfCannotCreate(?User $user): void
     {
-        if (! $user || ! $this->canCreateAppointment($user)) {
+        if (!$user || !$this->canCreateAppointment($user)) {
             abort(403, 'Sie dürfen keine Termine erstellen.');
         }
     }
 
     private function abortIfCannotUpdate(?User $user, Appointment $appointment): void
     {
-        if (! $user || ! $this->canUpdateAppointment($user, $appointment)) {
+        if (!$user || !$this->canUpdateAppointment($user, $appointment)) {
             abort(403, 'Sie dürfen diesen Termin nicht bearbeiten.');
         }
     }
 
     private function abortIfCannotDelete(?User $user, Appointment $appointment): void
     {
-        if (! $user || ! $this->canDeleteAppointment($user, $appointment)) {
+        if (!$user || !$this->canDeleteAppointment($user, $appointment)) {
             abort(403, 'Sie dürfen diesen Termin nicht löschen.');
         }
     }
@@ -104,11 +104,11 @@ class AppointmentController extends Controller
 
         $errors = [];
 
-        if (! $start) {
+        if (!$start) {
             $errors['start_time'] = 'Ungültiges Startdatum.';
         }
 
-        if (! $end) {
+        if (!$end) {
             $errors['end_time'] = 'Ungültiges Enddatum.';
         }
 
@@ -131,7 +131,6 @@ class AppointmentController extends Controller
     {
         $user = Auth::user();
         $appointments = Appointment::with('creator:id,first_name,last_name')
-          
             ->get()
             ->map(function (Appointment $appointment) {
                 return [
@@ -144,16 +143,16 @@ class AppointmentController extends Controller
                         'first_name' => $appointment->creator?->first_name ?? User::$deletedUserName,
                         'last_name' => $appointment->creator?->last_name ?? '',
                         'name' => $appointment->creator?->name ?? User::$deletedUserName,
-                    ]
+                    ],
                 ];
             });
 
         return Inertia::render('calender/CalenderDashboard', [
             'appointments' => $appointments,
             'permissions' => [
-                'canCreate'    => $user ? $this->canCreateAppointment($user) : false,
-                'canEditOwn'   => $user ? ($user->hasRole(Role::TEACHER) || $user->hasRole(Role::ADMIN)) : false,
-                'canEditAll'   => $user ? $user->hasRole(Role::ADMIN) : false,
+                'canCreate' => $user ? $this->canCreateAppointment($user) : false,
+                'canEditOwn' => $user ? ($user->hasRole(Role::TEACHER) || $user->hasRole(Role::ADMIN)) : false,
+                'canEditAll' => $user ? $user->hasRole(Role::ADMIN) : false,
                 'canDeleteAll' => $user ? $user->hasRole(Role::ADMIN) : false,
             ],
         ]);
