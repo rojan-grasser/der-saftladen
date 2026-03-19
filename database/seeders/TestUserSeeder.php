@@ -12,14 +12,15 @@ class TestUserSeeder extends Seeder
     public function run(): void
     {
 
-        $attributes = [
-            'first_name' => 'Louis',
-            'email' => 'test@test.de',
-            'email_verified_at' => now(),
-            'password' => 'Passwort1234',
-            'status' => UserStatus::ACTIVE,
-        ];
-        $user = User::create($attributes);
+        $user = User::firstOrCreate(
+            ['email' => 'test@test.de'],
+            [
+                'first_name' => 'Louis',
+                'email_verified_at' => now(),
+                'password' => 'Passwort1234',
+                'status' => UserStatus::ACTIVE,
+            ],
+        );
         $user->assignRole(Role::ADMIN);
     }
 }

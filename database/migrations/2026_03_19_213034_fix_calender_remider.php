@@ -53,7 +53,7 @@ return new class extends Migration
 
         // Migrate data back to JSON column
         $reminders = DB::table('appointment_reminders')
-            ->select('appointment_id', DB::raw('GROUP_CONCAT(offset_minutes) as offsets'))
+            ->select('appointment_id', DB::raw("STRING_AGG(offset_minutes::text, ',') as offsets"))
             ->groupBy('appointment_id')
             ->get();
 
