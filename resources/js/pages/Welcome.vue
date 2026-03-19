@@ -43,8 +43,8 @@ onMounted(() => {
         </div>
 
         <!-- Header -->
-        <header class="relative top-0 left-0 w-full z-50 pt-6 pb-4 px-4 sm:px-6 md:px-12 transition-all duration-300 backdrop-blur-sm">
-            <div class="max-w-7xl mx-auto flex items-center justify-between min-w-[320px]">
+        <header class="relative top-0 left-0 w-full z-50 pt-6 pb-4 px-3 transition-all duration-300 backdrop-blur-sm">
+            <div class="w-full flex items-center justify-between min-w-[320px]">
                 <div class="flex items-center gap-3">
                     <AppLogo></AppLogo>
                 </div>
@@ -69,7 +69,7 @@ onMounted(() => {
         <!-- Main Content -->
         <main class="relative z-10 flex flex-col min-w-[320px]">
             <!-- Hero Section -->
-            <section class="flex flex-col items-center justify-center px-4 sm:px-6 text-center pt-40">
+            <section class="flex flex-col items-center justify-center px-4 sm:px-6 text-center min-h-[calc(100vh-80px)]">
                 <div class="max-w-5xl mx-auto flex flex-col items-center gap-10">
                     <div class="space-y-6">
                         <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-foreground leading-tight break-words">

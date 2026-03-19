@@ -39,12 +39,13 @@ class TopicController extends Controller
         return Inertia::render(
             'forum/Topics',
             [
-                'topics' => $query->paginate($limit)->withQueryString()->through(function ($topic) {
+                'topics' => $query->paginate($limit)->withQueryString()->through(function ($topic) use ($request) {
                     return [
                         'id' => $topic->id,
                         'title' => $topic->title,
                         'description' => $topic->description,
                         'pinned' => $topic->pinned,
+                        'isSubscribed' => $request->user()->subscribedTopics()->where('topic_id', $topic->id)->exists(),
                         'created_at' => $topic->created_at,
                         'user' => [
                             'id' => $topic->user?->id ?? 0,
@@ -100,6 +101,7 @@ class TopicController extends Controller
                 'title' => $topic->title,
                 'description' => $topic->description,
                 'isOwnPost' => $topic->user_id === $request->user()->id,
+                'isSubscribed' => $request->user()->subscribedTopics()->where('topic_id', $topic->id)->exists(),
                 'pinned' => $topic->pinned,
                 'files' => $topic->fileUploads->map(function ($upload) {
                     return [
