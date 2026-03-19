@@ -80,9 +80,21 @@ const roles = ref<string[]>([]);
                 </div>
 
                 <div class="grid gap-2">
+                    <Label for="company">Unternehmen (optional)</Label>
+                    <Input
+                        id="company"
+                        type="text"
+                        :tabindex="4"
+                        name="company"
+                        placeholder="Unternehmen"
+                    />
+                    <InputError :message="errors.company" />
+                </div>
+
+                <div class="grid gap-2">
                     <Label for="roles">Rollen</Label>
                     <Select v-model="roles" multiple>
-                        <SelectTrigger id="roles" :tabindex="4" class="w-full">
+                        <SelectTrigger id="roles" :tabindex="5" class="w-full">
                             <SelectValue placeholder="Wählen Sie Rollen aus" />
                         </SelectTrigger>
                         <SelectContent>
@@ -108,7 +120,7 @@ const roles = ref<string[]>([]);
                     <PasswordInput
                         id="password"
                         required
-                        :tabindex="5"
+                        :tabindex="6"
                         name="password"
                         placeholder="Passwort"
                     />
@@ -122,7 +134,7 @@ const roles = ref<string[]>([]);
                     <PasswordInput
                         id="password_confirmation"
                         required
-                        :tabindex="6"
+                        :tabindex="7"
                         name="password_confirmation"
                         placeholder="Passwort bestätigen"
                     />
@@ -132,7 +144,7 @@ const roles = ref<string[]>([]);
                 <Button
                     type="submit"
                     class="mt-2 w-full"
-                    tabindex="7"
+                    tabindex="8"
                     :disabled="processing"
                 >
                     <Spinner v-if="processing" />
@@ -145,7 +157,7 @@ const roles = ref<string[]>([]);
                 <TextLink
                     :href="login()"
                     class="underline underline-offset-4"
-                    :tabindex="6"
+                    :tabindex="9"
                     >Anmelden</TextLink
                 >
             </div>

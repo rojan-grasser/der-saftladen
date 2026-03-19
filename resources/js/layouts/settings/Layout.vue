@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { useActiveUrl } from '@/composables/useActiveUrl';
 import { toUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
+import { edit as editNotifications } from '@/routes/notifications';
 import { edit as editProfile } from '@/routes/profile';
 import { show } from '@/routes/two-factor';
 import { edit as editPassword } from '@/routes/user-password';
@@ -24,6 +25,10 @@ const sidebarNavItems: NavItem[] = [
     {
         title: '2 FA',
         href: show(),
+    },
+    {
+        title: 'Benachrichtigungen',
+        href: editNotifications().url,
     },
     {
         title: 'Darstellung',

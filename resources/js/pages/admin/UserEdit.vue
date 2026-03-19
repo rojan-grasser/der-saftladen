@@ -30,6 +30,7 @@ const form = useForm({
     first_name: props.user.first_name,
     last_name: props.user.last_name,
     email: props.user.email,
+    company: props.user.company ?? '',
     roles: props.user.roles?.map((r) => r.role) ?? [],
     status: props.user.status,
 });
@@ -58,6 +59,7 @@ watch(
         form.first_name = u.first_name;
         form.last_name = u.last_name;
         form.email = u.email;
+        form.company = u.company ?? '';
         form.roles = u.roles?.map((r) => r.role) ?? [];
         form.status = u.status;
         form.clearErrors();
@@ -88,8 +90,7 @@ const submit = () => {
             <DialogHeader>
                 <DialogTitle>Benutzer bearbeiten</DialogTitle>
                 <DialogDescription>
-                    Hier können Sie die Benutzerinformationen und Berechtigungen
-                    aktualisieren.
+                    Hier können Sie die Benutzerinformationen und Berechtigungen aktualisieren.
                 </DialogDescription>
             </DialogHeader>
 
@@ -116,6 +117,14 @@ const submit = () => {
                     <Input id="email" v-model="form.email" type="email" />
                     <div v-if="form.errors.email" class="text-sm text-red-600">
                         {{ form.errors.email }}
+                    </div>
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="company">Unternehmen</Label>
+                    <Input id="company" v-model="form.company" placeholder="Unternehmen (optional)" />
+                    <div v-if="form.errors.company" class="text-sm text-red-600">
+                        {{ form.errors.company }}
                     </div>
                 </div>
 
