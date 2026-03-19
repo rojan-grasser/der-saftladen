@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { LucideDownload, LucideLoader, LucideTrash2 } from 'lucide-vue-next';
+import { LucideDownload, LucideLoader } from 'lucide-vue-next';
 
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { FileWithPreview, formatBytes } from '@/composables/useFileUpload';
+import FileDeleteButton from '@/pages/forum/components/file-table/FileDeleteButton.vue';
 import { getFileIcon } from '@/pages/forum/components/file-table/getFileIcon';
 import { uploadProgress } from '@/pages/forum/components/file-table/onFileChange';
 
@@ -88,18 +89,11 @@ const handleDownload = (url: string | undefined) => {
                         >
                             <LucideDownload class="size-4" />
                         </Button>
-                        <Button
-                            v-if="!readonly"
-                            size="icon"
-                            variant="ghost"
-                            type="button"
-                            class="size-8 text-muted-foreground/80 hover:bg-transparent hover:text-foreground"
-                            aria-label="Remove file"
-                            :disabled="file.id in uploadProgress"
-                            @click="removeFile(file.id)"
-                        >
-                            <LucideTrash2 class="size-4" />
-                        </Button>
+                        <FileDeleteButton
+                            :readonly="readonly"
+                            :file="file"
+                            :remove-file="removeFile"
+                        />
                     </TableCell>
                 </TableRow>
             </TableBody>

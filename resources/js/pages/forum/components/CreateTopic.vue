@@ -19,7 +19,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { FileWithPreview } from '@/composables/useFileUpload';
 import FileTable from '@/pages/forum/components/file-table/FileTable.vue';
-import { uploadFiles } from '@/pages/forum/components/file-table/onFileChange';
+import {
+    onFileRemoved,
+    uploadFiles,
+} from '@/pages/forum/components/file-table/onFileChange';
 import topics from '@/routes/topics';
 
 const { professionId } = defineProps<{ professionId: number }>();
@@ -34,29 +37,37 @@ const form = useForm({
 
 const uploadedFiles = ref<Array<{ beId: string; appId: string }>>([]);
 const topicId = ref<number>(0);
-const emptyFiles: Array<{ name: string; size: number; type: string; url: string; id: string }> = [];
+const emptyFiles: Array<{
+    name: string;
+    size: number;
+    type: string;
+    url: string;
+    id: string;
+}> = [];
 
 const setTopicId = async () => {
     const res = await axios.get(topics.initialize({ professionId }).url);
     topicId.value = res.data.id;
 };
 
-const onFileChange = async (files: FileWithPreview[]) => {
-    await uploadFiles(
-        files,
-        uploadedFiles.value,
-        professionId,
-        topicId.value,
-        open.value,
-    );
+const onFileAdded = async (files: FileWithPreview[]) => {
+    await uploadFiles(files, uploadedFiles.value, professionId, topicId.value);
+};
+
+const removeFile = async (id: string) => {
+    await onFileRemoved(id, uploadedFiles.value, professionId, topicId.value);
 };
 
 const submit = () => {
-    form.put(topics.update({ professionId: professionId, topicId: topicId.value }).url, {
-        onSuccess: () => {
-            open.value = false;
+    form.put(
+        topics.update({ professionId: professionId, topicId: topicId.value })
+            .url,
+        {
+            onSuccess: () => {
+                open.value = false;
+            },
         },
-    });
+    );
 };
 
 watch(open, () => {
@@ -102,7 +113,8 @@ watch(open, () => {
                     </div>
                     <FileTable
                         :initial-files="emptyFiles"
-                        :on-files-change="onFileChange"
+                        :on-files-added="onFileAdded"
+                        :on-file-removed="removeFile"
                     />
                 </div>
                 <DialogFooter>

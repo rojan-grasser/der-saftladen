@@ -3,7 +3,6 @@ import { reactive } from 'vue';
 
 import { FileWithPreview } from '@/composables/useFileUpload';
 import { FileUpload } from '@/pages/forum/types';
-
 import forumFiles from '@/routes/forum/files';
 
 /**
@@ -17,33 +16,7 @@ export const uploadFiles = async (
     uploadedFiles: Array<{ beId: string; appId: string }>,
     professionId: number,
     topicId: number,
-    open: boolean,
 ) => {
-    if (!open) {
-        return;
-    }
-
-    const removedFiles = uploadedFiles.filter(
-        (f) => !files.find((fi) => fi.id === f.appId),
-    );
-
-    await Promise.all(
-        removedFiles.map(async (file) =>
-            axios.delete(
-                forumFiles.remove({
-                    fileId: file.beId,
-                    topicId,
-                    professionId,
-                }).url,
-            ),
-        ),
-    );
-
-    removedFiles.forEach((file) => {
-        const index = uploadedFiles.findIndex((f) => f.appId === file.appId);
-        if (index !== -1) uploadedFiles.splice(index, 1);
-    });
-
     await Promise.all(
         files
             .filter((file) => !uploadedFiles.find((f) => file.id === f.appId))
@@ -80,4 +53,22 @@ export const uploadFiles = async (
                 }
             }),
     );
+};
+
+export const onFileRemoved = async (
+    id: string,
+    uploadedFiles: Array<{ beId: string; appId: string }>,
+    professionId: number,
+    topicId: number,
+) => {
+    await axios.delete(
+        forumFiles.remove({
+            fileId: uploadedFiles.find((f) => f.appId === id)!.beId,
+            topicId,
+            professionId,
+        }).url,
+    );
+
+    const index = uploadedFiles.findIndex((f) => f.appId === id);
+    if (index !== -1) uploadedFiles.splice(index, 1);
 };

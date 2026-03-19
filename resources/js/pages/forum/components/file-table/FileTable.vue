@@ -9,12 +9,14 @@ import FileTableHeader from '@/pages/forum/components/file-table/FileTableHeader
 import UploadDropArea from '@/pages/forum/components/file-table/UploadDropArea.vue';
 import { FileUpload } from '@/pages/forum/types';
 
-const { initialFiles, onFilesAdded, onFilesChange } = defineProps<{
-    initialFiles: Array<FileUpload>;
-    readonly?: boolean;
-    onFilesAdded?: (files: FileWithPreview[]) => void;
-    onFilesChange?: (files: FileWithPreview[]) => void;
-}>();
+const { initialFiles, onFilesAdded, onFilesChange, onFileRemoved } =
+    defineProps<{
+        initialFiles: Array<FileUpload>;
+        readonly?: boolean;
+        onFilesAdded?: (files: FileWithPreview[]) => void;
+        onFilesChange?: (files: FileWithPreview[]) => void;
+        onFileRemoved?: (id: string) => void;
+    }>();
 
 const maxSize = 100 * 1024 * 1024; // 100 MB -> Cloudflare doesnt allow requests go go above this with default plan
 
@@ -32,6 +34,7 @@ const {
     initialFiles: () => initialFiles,
     onFilesAdded,
     onFilesChange,
+    onFileRemoved,
 });
 
 const uploadDropAreaRef =

@@ -17,7 +17,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { FileWithPreview } from '@/composables/useFileUpload';
 import FileTable from '@/pages/forum/components/file-table/FileTable.vue';
-import { uploadFiles } from '@/pages/forum/components/file-table/onFileChange';
+import {
+    onFileRemoved,
+    uploadFiles,
+} from '@/pages/forum/components/file-table/onFileChange';
 import { Topic } from '@/pages/forum/types';
 import topics from '@/routes/topics';
 
@@ -37,14 +40,12 @@ const uploadedFiles = ref<Array<{ beId: string; appId: string }>>(
     topic.files.map((f) => ({ beId: f.id, appId: f.id })),
 );
 
-const onFileChange = async (files: FileWithPreview[]) => {
-    await uploadFiles(
-        files,
-        uploadedFiles.value,
-        professionId,
-        topic.id,
-        open.value,
-    );
+const onFileAdded = async (files: FileWithPreview[]) => {
+    await uploadFiles(files, uploadedFiles.value, professionId, topic.id);
+};
+
+const removeFile = async (id: string) => {
+    await onFileRemoved(id, uploadedFiles.value, professionId, topic.id);
 };
 
 const submit = () => {
@@ -60,6 +61,10 @@ const submit = () => {
 watch(open, () => {
     if (!open.value) {
         form.reset();
+        uploadedFiles.value = topic.files.map((f) => ({
+            beId: f.id,
+            appId: f.id,
+        }));
     }
 });
 </script>
@@ -100,7 +105,8 @@ watch(open, () => {
                     </div>
                     <FileTable
                         :initial-files="topic.files"
-                        :on-files-change="onFileChange"
+                        :on-files-added="onFileAdded"
+                        :on-file-removed="removeFile"
                     />
                 </div>
                 <DialogFooter>
