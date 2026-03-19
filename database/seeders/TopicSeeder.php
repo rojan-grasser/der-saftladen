@@ -14,12 +14,12 @@ class TopicSeeder extends Seeder
         $professions = Profession::factory(5)->create();
 
         foreach ($professions as $profession) {
-            $topics = Topic::factory(100)->create([
+            $topics = Topic::factory(5)->create([
                 'profession_id' => $profession->id,
             ]);
 
             foreach ($topics as $topic) {
-                ForumPost::factory(100)->create([
+                ForumPost::factory(5)->create([
                     'topic_id' => $topic->id,
                 ]);
             }
