@@ -9,6 +9,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import PinTopic from '@/pages/forum/components/PinTopic.vue';
+import SubscribeTopic from '@/pages/forum/components/SubscribeTopic.vue';
 import { MinimalTopic, Profession } from '@/pages/forum/types';
 import topicsApi, { show } from '@/routes/topics';
 import { PaginatedResponse } from '@/types';
@@ -40,13 +41,19 @@ const handlePageChange = (page: number) => {
         :key="`topic-${topic.id}`"
         class="relative"
     >
-        <PinTopic
-            :profession-id="profession.id"
-            :topic-id="topic.id"
-            :pinned="topic.pinned"
-            show-pinned-icon
-            class="absolute top-4 right-4"
-        />
+        <div class="absolute top-4 right-4 flex items-center gap-2">
+            <SubscribeTopic
+                :is-subscribed="topic.isSubscribed"
+                :profession-id="profession.id"
+                :topic-id="topic.id"
+            />
+            <PinTopic
+                :pinned="topic.pinned"
+                :profession-id="profession.id"
+                :topic-id="topic.id"
+                show-pinned-icon
+            />
+        </div>
         <Link
             :href="show.url({ topicId: topic.id, professionId: profession.id })"
             class="block"

@@ -22,6 +22,7 @@ export type Topic = {
     title: string;
     description: string;
     isOwnPost: boolean;
+    isSubscribed: boolean;
     pinned: boolean;
     owner: User;
     posts: Array<Post>;
@@ -33,11 +34,12 @@ export type MinimalTopic = {
     title: string;
     description: string;
     pinned: boolean;
+    isSubscribed: boolean;
     user: {
         id: number;
         name: string;
         email: string;
-    }
+    };
 };
 
 export type Profession = {
