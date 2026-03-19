@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { ChevronLeft, ChevronRight, Keyboard, Plus, X } from 'lucide-vue-next';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
-import appointmentAPI from '@/routes/appointments';
 import { type AppPageProps, type BreadcrumbItem } from '@/types';
 
 import AgendaView from './components/AgendaView.vue';
@@ -17,8 +16,12 @@ import MobileMonthView from './components/MobileMonthView.vue';
 import MonthView from './components/MonthView.vue';
 import WeekView from './components/WeekView.vue';
 import { useAppointmentForm } from './composables/useAppointmentForm';
+import { useCalendarActions } from './composables/useCalendarActions';
 import { useCalendarAppointments } from './composables/useCalendarAppointments';
-import { defaultAppointmentColor } from './constants';
+import { useCalendarFormatting } from './composables/useCalendarFormatting';
+import { useCalendarKeyboard } from './composables/useCalendarKeyboard';
+import { useCalendarNavigation } from './composables/useCalendarNavigation';
+import { useCalendarPermissions } from './composables/useCalendarPermissions';
 import type { Appointment, CalendarPermissions, ViewMode } from './types';
 import { parseDate } from './utils/date';
 
@@ -88,273 +91,50 @@ const {
     selectedAppointmentId,
 });
 
-const getOwnerName = (appointment: Appointment) => {
-    if (!appointment.creator) return 'Unbekannt';
-    const { first_name, last_name } = appointment.creator;
-    return `${first_name} ${last_name}`.trim() || 'Unbekannt';
-};
+const { formatTime, formatDate, formatFullDate, getOwnerName, isPastAppointment, getEventBgClass } =
+    useCalendarFormatting();
 
-const canCreateAppointments = computed(() => props.permissions.canCreate);
-
-const canEditAppointment = (appointment: Appointment | null): boolean => {
-    if (!appointment) return false;
-    if (props.permissions.canEditAll) return true;
-    if (props.permissions.canEditOwn && appointment.user_id === userId.value)
-        return true;
-    return false;
-};
-
-const canDeleteAppointment = (appointment: Appointment | null) => {
-    if (!appointment) return false;
-    return props.permissions.canDeleteAll;
-};
-
-const canEditSelectedAppointment = computed(() =>
-    canEditAppointment(selectedAppointment.value),
-);
-const canDeleteSelectedAppointment = computed(() =>
-    canDeleteAppointment(selectedAppointment.value),
-);
-
-const formatTime = (value: string | number) => {
-    const date = parseDate(value);
-    if (!date) return '';
-    return new Intl.DateTimeFormat('de-DE', {
-        hour: '2-digit',
-        minute: '2-digit',
-    }).format(date);
-};
-
-const formatDate = (value: Date) => {
-    return new Intl.DateTimeFormat('de-DE', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-    }).format(value);
-};
-
-const formatFullDate = (value: Date) => {
-    return new Intl.DateTimeFormat('de-DE', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    }).format(value);
-};
-
-const syncCurrentMonth = (date: Date) => {
-    currentMonth.value = new Date(date.getFullYear(), date.getMonth(), 1);
-};
-
-const goPrevMonth = () => {
-    currentMonth.value = new Date(
-        currentMonth.value.getFullYear(),
-        currentMonth.value.getMonth() - 1,
-        1,
-    );
-};
-
-const goNextMonth = () => {
-    currentMonth.value = new Date(
-        currentMonth.value.getFullYear(),
-        currentMonth.value.getMonth() + 1,
-        1,
-    );
-};
-
-const goToday = () => {
-    handleSelectDay(new Date());
-};
-
-const handleSelectDay = (date: Date) => {
-    syncCurrentMonth(date);
-    selectDay(date);
-};
-
-onMounted(() => {
-    document.addEventListener('keydown', handleKeyDown);
+const {
+    canCreateAppointments,
+    canEditAppointment,
+    canEditSelectedAppointment,
+    canDeleteSelectedAppointment,
+} = useCalendarPermissions({
+    permissions: computed(() => props.permissions),
+    userId,
+    selectedAppointment,
 });
 
-onUnmounted(() => {
-    document.removeEventListener('keydown', handleKeyDown);
+const { syncCurrentMonth, goPrevMonth, goNextMonth, handleSelectDay, goToday, goPrev, goNext } =
+    useCalendarNavigation({
+        currentMonth,
+        selectedDate,
+        viewMode,
+        selectDay,
+    });
+
+const { startCreate, startEdit, openDetails, handleAppointmentDeleted, handleMoveAppointment } =
+    useCalendarActions({
+        canCreateAppointments,
+        canEditAppointment,
+        detailsOpen,
+        selectedAppointmentId,
+        selectedDate,
+        openEdit,
+        openCreate,
+        selectAppointment,
+        syncCurrentMonth,
+    });
+
+const { showShortcutsHelp } = useCalendarKeyboard({
+    isCreateOpen,
+    detailsOpen,
+    viewMode,
+    goToday,
+    startCreate,
+    goPrev,
+    goNext,
 });
-
-const startCreate = () => {
-    if (!canCreateAppointments.value) return;
-    openCreate(new Date(selectedDate.value));
-};
-
-// ── Kontextsensitive Navigation (←/→ je nach Ansicht) ────────────────────────
-const goPrev = () => {
-    if (viewMode.value === 'day') {
-        const d = new Date(selectedDate.value);
-        d.setDate(d.getDate() - 1);
-        handleSelectDay(d);
-    } else if (viewMode.value === 'week') {
-        const d = new Date(selectedDate.value);
-        d.setDate(d.getDate() - 7);
-        handleSelectDay(d);
-    } else {
-        goPrevMonth();
-    }
-};
-
-const goNext = () => {
-    if (viewMode.value === 'day') {
-        const d = new Date(selectedDate.value);
-        d.setDate(d.getDate() + 1);
-        handleSelectDay(d);
-    } else if (viewMode.value === 'week') {
-        const d = new Date(selectedDate.value);
-        d.setDate(d.getDate() + 7);
-        handleSelectDay(d);
-    } else {
-        goNextMonth();
-    }
-};
-
-// ── Tastatur-Shortcuts ────────────────────────────────────────────────────────
-const showShortcutsHelp = ref(false);
-
-const handleKeyDown = (e: KeyboardEvent) => {
-    // Nicht auslösen beim Tippen in Eingabefeldern oder mit Modifier-Tasten
-    const target = e.target as HTMLElement;
-    if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable ||
-        e.ctrlKey ||
-        e.metaKey ||
-        e.altKey
-    )
-        return;
-
-    // Escape schließt immer das Hilfe-Panel
-    if (e.key === 'Escape') {
-        if (showShortcutsHelp.value) {
-            e.preventDefault();
-            showShortcutsHelp.value = false;
-        }
-        return;
-    }
-
-    // Keine weiteren Shortcuts wenn Dialog/Sheet offen
-    if (isCreateOpen.value || detailsOpen.value) return;
-
-    switch (e.key) {
-        case 't':
-        case 'T':
-            e.preventDefault();
-            goToday();
-            break;
-        case 'd':
-        case 'D':
-            e.preventDefault();
-            viewMode.value = 'day';
-            break;
-        case 'w':
-        case 'W':
-            e.preventDefault();
-            viewMode.value = 'week';
-            break;
-        case 'm':
-        case 'M':
-            e.preventDefault();
-            viewMode.value = 'month';
-            break;
-        case 'a':
-        case 'A':
-            e.preventDefault();
-            viewMode.value = 'agenda';
-            break;
-        case 'n':
-        case 'N':
-            e.preventDefault();
-            startCreate();
-            break;
-        case 'ArrowLeft':
-            e.preventDefault();
-            goPrev();
-            break;
-        case 'ArrowRight':
-            e.preventDefault();
-            goNext();
-            break;
-        case '?':
-            e.preventDefault();
-            showShortcutsHelp.value = !showShortcutsHelp.value;
-            break;
-    }
-};
-
-// ── Drag & Drop: Termin per API verschieben ───────────────────────────────────
-const handleMoveAppointment = ({
-    appointment,
-    newStart,
-    newEnd,
-}: {
-    appointment: Appointment;
-    newStart: Date;
-    newEnd: Date;
-}) => {
-    if (!canEditAppointment(appointment)) return;
-
-    router.put(
-        appointmentAPI.update(appointment.id).url,
-        {
-            title: appointment.title,
-            description: appointment.description ?? '',
-            location: appointment.location ?? '',
-            color: appointment.color ?? 'peacock',
-            reminders: appointment.reminders ?? [],
-            start_time: Math.floor(newStart.getTime() / 1000),
-            end_time: Math.floor(newEnd.getTime() / 1000),
-        },
-        { preserveScroll: true },
-    );
-};
-
-const startEdit = (appointment: Appointment) => {
-    if (!canEditAppointment(appointment)) return;
-    detailsOpen.value = false;
-    openEdit(appointment);
-};
-
-const openDetails = (appointment: Appointment) => {
-    const appointmentDate = parseDate(appointment.start_time);
-    if (appointmentDate) syncCurrentMonth(appointmentDate);
-    selectAppointment(appointment);
-    detailsOpen.value = true;
-};
-
-const handleAppointmentDeleted = () => {
-    selectedAppointmentId.value = null;
-    detailsOpen.value = false;
-};
-
-const now = new Date();
-const isPastAppointment = (appointment: Appointment): boolean => {
-    const end = parseDate(appointment.end_time);
-    return end !== null && end < now;
-};
-
-const getEventBgClass = (appointment: Appointment) => {
-    const color = appointment.color ?? defaultAppointmentColor;
-    const colorMap: Record<string, string> = {
-        peacock: 'bg-sky-500',
-        sage: 'bg-emerald-500',
-        grape: 'bg-fuchsia-500',
-        flamingo: 'bg-pink-500',
-        banana: 'bg-yellow-500',
-        tangerine: 'bg-orange-500',
-        lavender: 'bg-violet-500',
-        graphite: 'bg-slate-500',
-        blueberry: 'bg-blue-500',
-        basil: 'bg-lime-500',
-        tomato: 'bg-red-500',
-    };
-    return colorMap[color] ?? colorMap[defaultAppointmentColor];
-};
 </script>
 
 <template>
