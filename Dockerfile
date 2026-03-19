@@ -8,6 +8,8 @@ RUN mkdir -p /terraform
 RUN apk add --no-cache bash libpng libpng-dev oniguruma-dev icu-dev libxml2-dev libpq-dev \
     && docker-php-ext-install pdo_mysql mbstring intl xml opcache pdo_pgsql pcntl
 
+COPY docker/php/uploads.ini $PHP_INI_DIR/conf.d/uploads.ini
+
 COPY . .
 
 RUN chown -R www-data:www-data /var/www/html \
