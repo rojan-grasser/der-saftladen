@@ -71,9 +71,9 @@ export const useFileUpload = (options: FileUploadOptions = {}) => {
 
     const ariaLabel = computed(() => {
         if (files.value.length > 0) {
-            return multiple ? 'Change files' : 'Change file';
+            return multiple ? 'Dateien ändern' : 'Datei ändern';
         }
-        return multiple ? 'Upload files' : 'Upload file';
+        return multiple ? 'Dateien hochladen' : 'Datei hochladen';
     });
 
     const inputRef = shallowRef<HTMLInputElement | null>(null);
@@ -116,11 +116,11 @@ export const useFileUpload = (options: FileUploadOptions = {}) => {
     const validateFile = (file: File | FileMetadata): string | null => {
         if (file instanceof File) {
             if (file.size > maxSize) {
-                return `File "${file.name}" exceeds the maximum size of ${formatBytes(maxSize)}.`;
+                return `File "${file.name}" überschreitet die maximale größe von ${formatBytes(maxSize)}.`;
             }
         } else {
             if (file.size > maxSize) {
-                return `File "${file.name}" exceeds the maximum size of ${formatBytes(maxSize)}.`;
+                return `File "${file.name}" überschreitet die maximale größe von ${formatBytes(maxSize)}.`;
             }
         }
 
@@ -141,7 +141,7 @@ export const useFileUpload = (options: FileUploadOptions = {}) => {
             });
 
             if (!isAccepted) {
-                return `File "${file instanceof File ? file.name : file.name}" is not an accepted file type.`;
+                return `File "${file instanceof File ? file.name : file.name}" ist kein akzeptierter dateityp.`;
             }
         }
 
@@ -219,7 +219,7 @@ export const useFileUpload = (options: FileUploadOptions = {}) => {
             files.value.length + newFilesArray.length > maxFiles
         ) {
             newErrors.push(
-                `You can only upload a maximum of ${maxFiles} files.`,
+                `Du kannst nur ${maxFiles} dateien hochladen.`,
             );
             errors.value = newErrors;
             return;

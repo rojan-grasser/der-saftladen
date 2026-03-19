@@ -23,7 +23,7 @@ defineProps<{
                     class="-ms-0.5 size-3.5 opacity-60"
                     aria-hidden="true"
                 />
-                Add files
+                Dateien hinzufügen
             </Button>
             <Button
                 size="sm"
@@ -35,7 +35,7 @@ defineProps<{
                     class="-ms-0.5 size-3.5 opacity-60"
                     aria-hidden="true"
                 />
-                Remove all
+                Alle entfernen
             </Button>
         </div>
     </div>
