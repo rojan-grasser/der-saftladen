@@ -38,9 +38,4 @@ class PostReaction extends Model
     {
         return PostReaction::baseFindByUserAndPost($userId, $postId)->first();
     }
-
-    public static function findOrFailByUserAndPost(string $userId, string $postId): PostReaction
-    {
-        return PostReaction::baseFindByUserAndPost($userId, $postId)->firstOrFail();
-    }
 }
