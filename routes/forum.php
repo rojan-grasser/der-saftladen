@@ -4,6 +4,7 @@ use App\Http\Controllers\Forum\PostController;
 use App\Http\Controllers\Forum\PostReactionController;
 use App\Http\Controllers\Forum\ProfessionController as ForumProfessionController;
 use App\Http\Controllers\Forum\TopicController;
+use App\Http\Controllers\Forum\TopicSubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'active'])
@@ -24,6 +25,7 @@ Route::middleware(['auth', 'verified', 'active'])
                     ->prefix('topics/{topicId}')
                     ->group(function () {
                         Route::put('pin', [TopicController::class, 'togglePin'])->name('topics.pin-toggle');
+                        Route::post('subscribe', [TopicSubscriptionController::class, 'toggle'])->name('topics.subscribe.toggle');
 
                         Route::get('posts/{postId}/reactions', [PostReactionController::class, 'index'])->name('posts.reactions.index');
                         Route::post('posts/{postId}/reactions', [PostReactionController::class, 'store'])->name('posts.reactions.store');

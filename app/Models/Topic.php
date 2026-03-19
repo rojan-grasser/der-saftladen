@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use Database\Factories\TopicFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Topic extends Model
 {
-    /** @use HasFactory<\Database\Factories\TopicFactory> */
+    /** @use HasFactory<TopicFactory> */
     use HasFactory;
     protected $guarded = ['id'];
 
@@ -28,6 +30,13 @@ class Topic extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function subscribers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'topic_subscriptions')
+            ->using(TopicSubscription::class)
+            ->withTimestamps();
     }
 
     public function instructor(): BelongsTo
