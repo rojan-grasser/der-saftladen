@@ -19,7 +19,7 @@ const { filterState, allItems, allGroups } = useCommand()
 const groupContext = useCommandGroup()
 
 const isRender = computed(() => {
-  if (!filterState.search) {
+  if (!filterState.search || !allItems.value.has(id)) {
     return true
   }
   else {
@@ -64,7 +64,7 @@ onUnmounted(() => {
     v-if="isRender"
     :id="id"
     ref="itemRef"
-    :class="cn('data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg:not([class*=\'text-\'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=\'size-\'])]:size-4', props.class)"
+    :class="cn('hover:bg-accent hover:text-accent-foreground data-highlighted:bg-accent data-highlighted:text-accent-foreground [&_svg:not([class*=\'text-\'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=\'size-\'])]:size-4', props.class)"
     data-slot="command-item"
     v-bind="forwarded"
     @select="() => {
