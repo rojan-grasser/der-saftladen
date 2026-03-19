@@ -179,4 +179,10 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(ForumPost::class);
     }
+    public function getAvatarUrlAttribute(): string
+    {
+    $base = app()->isProduction() ? "/assets":"http://localhost:9000";
+    $path = "users/{$this->id}/avatar.png";
+    return "{$base}/{$path}";
+    }
 }

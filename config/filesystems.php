@@ -72,6 +72,17 @@ return [
             'throw' => true,
             'report' => false,
         ],
+     
+        'avatars' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+            'bucket' => env('AWS_USERS_BUCKET', 'users'),
+            'endpoint' => env('AWS_ENDPOINT', 'http://localhost:9000'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
+            'url' => rtrim(env('AWS_ENDPOINT', 'http://localhost:9000'), '/') . '/' . env('AWS_USERS_BUCKET', 'users'),
+        ],
     ],
 
     /*
