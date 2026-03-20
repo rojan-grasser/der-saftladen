@@ -24,9 +24,9 @@ const {
                 <h2 class="text-2xl font-semibold">{{ topic.title }}</h2>
                 <div class="flex gap-2">
                     <SubscribeTopic
-                        :is-subscribed="topic.isSubscribed"
                         :profession-id="professionId"
                         :topic-id="topic.id"
+                        :is-subscribed="topic.isSubscribed"
                         class="h-auto w-auto"
                     />
                     <PinTopic

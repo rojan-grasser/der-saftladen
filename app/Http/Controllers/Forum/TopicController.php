@@ -148,14 +148,14 @@ class TopicController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $professionId, string $id)
+    public function update(Request $request, string $professionId, string $topicId)
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
         ]);
 
-        $topic = Topic::findOrFail($id);
+        $topic = Topic::findOrFail($topicId);
 
         if ($topic->user_id !== auth()->id()) {
             return back()->with('error', 'Du bist nicht der ersteller dieses Themas, daher darfst du es auch nicht bearbeiten.');
@@ -167,7 +167,7 @@ class TopicController extends Controller
                 'draft' => false,
             ]);
 
-            return redirect("/forum/profession/$professionId/topics/$id")->with('success', 'Das Thema wurde erstellt');
+            return redirect("/forum/profession/$professionId/topics/$topicId")->with('success', 'Das Thema wurde erstellt');
         }
 
         return back()->with('success', 'Das Thema wurde bearbeitet');
@@ -176,9 +176,9 @@ class TopicController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $topicID, string $id)
+    public function destroy(Request $request, string $professionId, string $topicId)
     {
-        $topic = Topic::findOrFail($id);
+        $topic = Topic::findOrFail($topicId);
 
         if ($topic->user_id !== auth()->id()) {
             return back()->with('error', 'Du bist nicht der ersteller dieses Themas, daher darfst du es auch nicht löschen.');
@@ -189,13 +189,13 @@ class TopicController extends Controller
         return redirect('/forum/professions');
     }
 
-    public function togglePin(Request $request, string $professionId, string $id)
+    public function togglePin(Request $request, string $professionId, string $topicId)
     {
         if (!$request->user()->hasRole(Role::ADMIN)) {
             return back()->with('error', 'Du darfst keine Themen anheften!');
         }
 
-        $topic = Topic::findOrFail($id);
+        $topic = Topic::findOrFail($topicId);
 
         $topic->update([
             'pinned' => !$topic->pinned,
