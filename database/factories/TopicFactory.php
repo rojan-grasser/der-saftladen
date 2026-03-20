@@ -23,6 +23,7 @@ class TopicFactory extends Factory
             'description' => fake()->paragraph(3),
             'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
             'profession_id' => Profession::inRandomOrder()->first()?->id ?? Profession::factory(),
+            'draft' => false,
         ];
     }
 }
