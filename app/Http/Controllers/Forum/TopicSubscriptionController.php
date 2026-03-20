@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class TopicSubscriptionController extends Controller
 {
-    public function toggle(Request $request, string $topicId)
+    public function toggle(Request $request, string $professionId, string $topicId)
     {
         $topic = Topic::findOrFail($topicId);
         $user = $request->user();

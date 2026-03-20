@@ -43,14 +43,14 @@ const handlePageChange = (page: number) => {
     >
         <div class="absolute top-4 right-4 flex items-center gap-2">
             <SubscribeTopic
-                :is-subscribed="topic.isSubscribed"
                 :profession-id="profession.id"
                 :topic-id="topic.id"
+                :is-subscribed="topic.isSubscribed"
             />
             <PinTopic
-                :pinned="topic.pinned"
                 :profession-id="profession.id"
                 :topic-id="topic.id"
+                :pinned="topic.pinned"
                 show-pinned-icon
             />
         </div>

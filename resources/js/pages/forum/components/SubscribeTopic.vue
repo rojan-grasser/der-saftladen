@@ -4,26 +4,22 @@ import { Bell, BellOff } from 'lucide-vue-next';
 import { ref } from 'vue';
 
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import topics from '@/routes/topics';
 
-const {
-    topicId,
-    professionId,
-    isSubscribed: defaultIsSubscribed,
-    class: className,
-} = defineProps<{
+const props = defineProps<{
     professionId: number;
     topicId: number;
     isSubscribed: boolean;
-    class?: string;
 }>();
 
-const isSubscribed = ref(defaultIsSubscribed);
+const isSubscribed = ref(props.isSubscribed);
 
 const onClick = () => {
     router.post(
-        topics.subscribe.toggle({ professionId, topicId }).url,
+        topics.subscribe.toggle({
+            professionId: props.professionId,
+            topicId: props.topicId,
+        }).url,
         {},
         {
             preserveScroll: true,
@@ -37,7 +33,7 @@ const onClick = () => {
 
 <template>
     <Button
-        :class="cn('h-8 w-8', className)"
+        :class="'h-8 w-8'"
         :title="isSubscribed ? 'Abonnement beenden' : 'Thema abonnieren'"
         variant="ghost"
         @click="onClick"
