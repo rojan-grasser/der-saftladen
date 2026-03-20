@@ -148,7 +148,7 @@ class TopicController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $topicID, string $id)
+    public function update(Request $request, string $professionId, string $id)
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -161,10 +161,14 @@ class TopicController extends Controller
             return back()->with('error', 'Du bist nicht der ersteller dieses Themas, daher darfst du es auch nicht bearbeiten.');
         }
 
-        $topic->update([
-            ...$validated,
-            'draft' => false,
-        ]);
+        if ($topic->draft) {
+            $topic->update([
+                ...$validated,
+                'draft' => false,
+            ]);
+
+            return redirect("/forum/profession/$professionId/topics/$id")->with('success', 'Das Thema wurde erstellt');
+        }
 
         return back()->with('success', 'Das Thema wurde bearbeitet');
     }
