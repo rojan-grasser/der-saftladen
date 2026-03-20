@@ -32,11 +32,13 @@ Route::middleware(['request-logging', 'auth', 'verified'])->group(function () {
 
     Route::get('settings/notifications', [NotificationController::class, 'edit'])->name('notifications.edit');
     Route::put('settings/notifications', [NotificationController::class, 'update'])->name('notifications.update');
-    
+
     Route::middleware(['request-logging', 'auth', 'verified', 'active'])->group(function () {
         Route::post('/profile/avatar/presign', [ProfileAvatarController::class, 'presign'])
             ->name('profile.avatar.presign');
     });
+
+    Route::post('/profile/avatar', [ProfileAvatarController::class, 'store'])->name('profile.avatar.store');
 
     Route::delete('/profile/avatar', [ProfileAvatarController::class, 'destroy'])
         ->name('profile.avatar.destroy');

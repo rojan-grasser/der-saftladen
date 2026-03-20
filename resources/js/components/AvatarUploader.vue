@@ -4,8 +4,9 @@ import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { usePage } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { getAvatarUrl, getPresignedPutUrl, uploadToPresignedUrl, deleteAvatar } from '@/composables/avatar';
+import avatar from '@/routes/profile/avatar';
 
 const props = defineProps<{
     folder: string | number;
@@ -37,10 +38,14 @@ async function onFileChange(e: Event) {
     errorMsg.value = null;
 
     try {
-        const presign = await getPresignedPutUrl(file.type as any);
-        await uploadToPresignedUrl(presign.url, file);
-        avatarSrc.value = `${presign.publicUrl}?t=${Date.now()}`;
-        page.props.auth.user.updated_at = presign.updated_at;
+        // const presign = await getPresignedPutUrl(file.type as any);
+        // await uploadToPresignedUrl(presign.url, file);
+        // avatarSrc.value = `${presign.publicUrl}?t=${Date.now()}`;
+        // page.props.auth.user.updated_at = presign.updated_at;
+
+        router.post(avatar.store().url, { file }, {
+            forceFormData: true,
+        })
     } catch (err: any) {
         errorMsg.value = err.message ?? 'Upload fehlgeschlagen';
     }
