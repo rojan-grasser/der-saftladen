@@ -4,7 +4,6 @@ import { computed } from 'vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/composables/useInitials';
 import type { User } from '@/types';
-import { usePage } from '@inertiajs/vue3';
 
 interface Props {
     user: User;
@@ -21,13 +20,17 @@ const { getInitials } = useInitials();
 const showAvatar = computed(
     () => props.user.avatar && props.user.avatar !== '',
 );
-
-const page=usePage();
+console.log(props.user.avatar);
 </script>
 
 <template>
     <Avatar class="h-8 w-8 overflow-hidden rounded-lg">
-        <AvatarImage class="object-cover" v-if="showAvatar" :src="page.props.auth.user.avatar!" :alt="user.name" />
+        <AvatarImage
+            class="object-cover"
+            v-if="showAvatar"
+            :src="user.avatar!"
+            :alt="user.name"
+        />
         <AvatarFallback class="rounded-lg text-black dark:text-white">
             {{ getInitials(user.name) }}
         </AvatarFallback>

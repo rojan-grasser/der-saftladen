@@ -42,6 +42,9 @@ class ProfileAvatarController
         ]);
         $signed = $s3->createPresignedRequest($cmd, '+5 minutes');
         $publicUrl = "{$endpoint}/{$bucket}/{$key}";
+
+        $request->user()->update(['has_pfp' => true]);
+
         $user->touch();
         return response()->json([
             'url' => (string)$signed->getUri(),
