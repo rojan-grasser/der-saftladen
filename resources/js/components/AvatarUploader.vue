@@ -77,7 +77,7 @@ async function onDelete() {
         </div>
 
         <div class="mt-3 flex items-center gap-4">
-            <UserAvatar :user="page.props.auth.user" />
+            <UserAvatar :user="page.props.auth.user" class="h-20 w-20 rounded-full" />
         </div>
 
         <p v-if="errorMsg" class="text-sm text-red-600">{{ errorMsg }}</p>
