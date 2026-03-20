@@ -7,13 +7,17 @@ import { reactiveOmit } from '@vueuse/core';
 import { cn } from '@/lib/utils';
 import { provideCommandContext } from '.';
 
-const props = withDefaults(defineProps<ListboxRootProps & { class?: HTMLAttributes["class"] }>(), {
+const props = withDefaults(defineProps<ListboxRootProps & {
+  class?: HTMLAttributes["class"]
+  shouldFilter?: boolean
+}>(), {
   modelValue: "",
+  shouldFilter: true,
 })
 
 const emits = defineEmits<ListboxRootEmits>()
 
-const delegatedProps = reactiveOmit(props, "class")
+const delegatedProps = reactiveOmit(props, "class", "shouldFilter")
 
 const forwarded = useForwardPropsEmits(delegatedProps, emits)
 
@@ -34,9 +38,14 @@ const filterState = reactive({
 })
 
 function filterItems() {
-  if (!filterState.search) {
+  if (!props.shouldFilter || !filterState.search) {
     filterState.filtered.count = allItems.value.size
-    // Do nothing, each item will know to show itself because search is empty
+    // If not filtering, we still need to populate groups so they are visible
+    if (!props.shouldFilter) {
+      filterState.filtered.groups = new Set(allGroups.value.keys())
+    }
+    // Also need to clear items, or they might stay from a previous filter session
+    filterState.filtered.items.clear()
     return
   }
 
@@ -68,6 +77,10 @@ function filterItems() {
 watch(() => filterState.search, () => {
   filterItems()
 })
+
+watch(allItems, () => {
+  filterItems()
+}, { deep: true })
 
 provideCommandContext({
   allItems,

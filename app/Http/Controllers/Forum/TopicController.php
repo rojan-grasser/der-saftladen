@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Forum;
 
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
-use App\Models\Instructor;
 use App\Models\Profession;
 use App\Models\Topic;
 use App\Models\User;
@@ -27,6 +26,7 @@ class TopicController extends Controller
 
         $query = Topic::with('user')
             ->where('topics.profession_id', '=', $professionId)
+            ->where('topics.draft', false)
             ->orderBy('pinned', 'desc')
             ->orderBy('topics.created_at', 'desc');
 
@@ -39,12 +39,13 @@ class TopicController extends Controller
         return Inertia::render(
             'forum/Topics',
             [
-                'topics' => $query->paginate($limit)->withQueryString()->through(function ($topic) {
+                'topics' => $query->paginate($limit)->withQueryString()->through(function ($topic) use ($request) {
                     return [
                         'id' => $topic->id,
                         'title' => $topic->title,
                         'description' => $topic->description,
                         'pinned' => $topic->pinned,
+                        'isSubscribed' => $request->user()->subscribedTopics()->where('topic_id', $topic->id)->exists(),
                         'created_at' => $topic->created_at,
                         'user' => [
                             'id' => $topic->user?->id ?? 0,
@@ -61,35 +62,6 @@ class TopicController extends Controller
                 'query' => $validated['query'] ?? null,
             ]
         );
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request, string $professionId)
-    {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'min:1', 'max:255'],
-            'description' => ['required', 'string'],
-        ]);
-
-        if (
-            $request->user()->hasRole(Role::INSTRUCTOR) &&
-            !Instructor::find($request->user()->id)->hasAccess($professionId)
-        ) {
-            return back()->with('error', 'Du hast keinen zugriff auf den Berufsbereich.');
-        }
-
-        // Check existence
-        Profession::findOrFail($professionId);
-
-        $topic = Topic::create([
-            ...$validated,
-            'profession_id' => $professionId,
-            'user_id' => auth()->id(),
-        ]);
-
-        return redirect("/forum/profession/$professionId/topics/" . $topic->id);
     }
 
     /**
@@ -129,7 +101,17 @@ class TopicController extends Controller
                 'title' => $topic->title,
                 'description' => $topic->description,
                 'isOwnPost' => $topic->user_id === $request->user()->id,
+                'isSubscribed' => $request->user()->subscribedTopics()->where('topic_id', $topic->id)->exists(),
                 'pinned' => $topic->pinned,
+                'files' => $topic->fileUploads->map(function ($upload) {
+                    return [
+                        'name' => $upload->filename(),
+                        'size' => $upload->size,
+                        'type' => $upload->type(),
+                        'url' => $upload->url(),
+                        'id' => $upload->id,
+                    ];
+                }),
                 'owner' => [
                     'id' => $owner?->id ?? 0,
                     'name' => $owner?->name ?? User::$deletedUserName,
@@ -145,7 +127,7 @@ class TopicController extends Controller
                         'likesCount' => $post->likes_count,
                         'dislikesCount' => $post->dislikes_count,
                         'isOwnPost' => ($post->creator?->id ?? 0) === $request->user()->id,
-                        'edited' => (bool) $post->edited,
+                        'edited' => (bool)$post->edited,
                         'user' => [
                             'id' => $post->creator?->id ?? 0,
                             'name' => $post->creator?->name ?? User::$deletedUserName,
@@ -179,7 +161,10 @@ class TopicController extends Controller
             return back()->with('error', 'Du bist nicht der ersteller dieses Themas, daher darfst du es auch nicht bearbeiten.');
         }
 
-        $topic->update($validated);
+        $topic->update([
+            ...$validated,
+            'draft' => false,
+        ]);
 
         return back()->with('success', 'Das Thema wurde bearbeitet');
     }
@@ -213,5 +198,19 @@ class TopicController extends Controller
         ]);
 
         return back()->with('success', 'Das Thema wurde ' . ($topic->pinned ? 'angeheftet' : 'abgeheftet'));
+    }
+
+    public function initialize(Request $request, string $professionId)
+    {
+        Profession::findOrFail($professionId);
+
+        $topic = Topic::create([
+            'title' => '',
+            'description' => '',
+            'profession_id' => $professionId,
+            'user_id' => auth()->id(),
+        ]);
+
+        return ['id' => $topic->id];
     }
 }

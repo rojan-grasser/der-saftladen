@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
+import axios from 'axios';
 import { PlusIcon } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
 
@@ -16,6 +17,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { FileWithPreview } from '@/composables/useFileUpload';
+import FileTable from '@/pages/forum/components/file-table/FileTable.vue';
+import {
+    onFileRemoved,
+    uploadFiles,
+} from '@/pages/forum/components/file-table/onFileChange';
 import topics from '@/routes/topics';
 
 const { professionId } = defineProps<{ professionId: number }>();
@@ -25,14 +32,42 @@ const open = ref(false);
 const form = useForm({
     title: '',
     description: '',
+    files: [] as string[],
 });
 
+const uploadedFiles = ref<Array<{ beId: string; appId: string }>>([]);
+const topicId = ref<number>(0);
+const emptyFiles: Array<{
+    name: string;
+    size: number;
+    type: string;
+    url: string;
+    id: string;
+}> = [];
+
+const setTopicId = async () => {
+    const res = await axios.get(topics.initialize({ professionId }).url);
+    topicId.value = res.data.id;
+};
+
+const onFileAdded = async (files: FileWithPreview[]) => {
+    await uploadFiles(files, uploadedFiles.value, professionId, topicId.value);
+};
+
+const removeFile = async (id: string) => {
+    await onFileRemoved(id, uploadedFiles.value, professionId, topicId.value);
+};
+
 const submit = () => {
-    form.post(topics.store({ professionId: professionId }).url, {
-        onSuccess: () => {
-            open.value = false;
+    form.put(
+        topics.update({ professionId: professionId, topicId: topicId.value })
+            .url,
+        {
+            onSuccess: () => {
+                open.value = false;
+            },
         },
-    });
+    );
 };
 
 watch(open, () => {
@@ -44,7 +79,7 @@ watch(open, () => {
 
 <template>
     <Dialog :open="open" @update:open="(o) => (open = o)">
-        <DialogTrigger as-child>
+        <DialogTrigger as-child :onclick="setTopicId">
             <Button><PlusIcon /> Erstellen</Button>
         </DialogTrigger>
         <DialogContent class="sm:max-w-2xl">
@@ -76,6 +111,11 @@ watch(open, () => {
                             class="max-h-[70vh] resize-y overflow-auto"
                         />
                     </div>
+                    <FileTable
+                        :initial-files="emptyFiles"
+                        :on-files-added="onFileAdded"
+                        :on-file-removed="removeFile"
+                    />
                 </div>
                 <DialogFooter>
                     <Button

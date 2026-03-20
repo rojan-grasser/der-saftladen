@@ -1,27 +1,34 @@
 <script setup lang="ts">
-import { Head, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import { ChevronLeft, ChevronRight, Keyboard, Plus, X } from 'lucide-vue-next';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
+import appointmentAPI from '@/routes/appointments';
 import { type AppPageProps, type BreadcrumbItem } from '@/types';
 
-import AppointmentDetailsDialog from './components/AppointmentDetailsDialog.vue';
+import AgendaView from './components/AgendaView.vue';
+import AppointmentDetailsSheet from './components/AppointmentDetailsSheet.vue';
 import AppointmentFormDialog from './components/AppointmentFormDialog.vue';
-import CalendarToolbar from './components/CalendarToolbar.vue';
-import CalendarViews from './components/CalendarViews.vue';
-import DetailsSidebar from './components/DetailsSidebar.vue';
-import MiniCalendarCard from './components/MiniCalendarCard.vue';
+import DayView from './components/DayView.vue';
+import MiniCalendar from './components/MiniCalendar.vue';
+import MobileMonthView from './components/MobileMonthView.vue';
+import MonthView from './components/MonthView.vue';
+import WeekView from './components/WeekView.vue';
 import { useAppointmentForm } from './composables/useAppointmentForm';
 import { useCalendarAppointments } from './composables/useCalendarAppointments';
-import type { Appointment, ViewMode } from './types';
+import { defaultAppointmentColor } from './constants';
+import type { Appointment, CalendarPermissions, ViewMode } from './types';
 import { parseDate } from './utils/date';
 
 const props = defineProps<{
     appointments: Appointment[];
+    permissions: CalendarPermissions;
 }>();
 
 const page = usePage<AppPageProps>();
-const userId = computed(() => page.props.auth?.user?.id);
+const userId = computed(() => page.props.auth?.user?.id ?? null);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -30,7 +37,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const viewMode = ref<ViewMode>('agenda');
+const viewMode = ref<ViewMode>('month');
 const searchQuery = ref('');
 const showMine = ref(true);
 const showTeam = ref(true);
@@ -39,8 +46,7 @@ const includePast = ref(true);
 const currentMonth = ref(new Date());
 const selectedDate = ref(new Date());
 const selectedAppointmentId = ref<number | null>(null);
-
-const isDetailsOpen = ref(false);
+const detailsOpen = ref(false);
 
 const {
     form,
@@ -63,13 +69,11 @@ const {
 const {
     monthLabel,
     dayLabels,
-    sortedAppointments,
     calendarDays,
     weekDays,
+    filteredAppointments,
     selectedAppointments,
     selectedAppointment,
-    upcomingAppointments,
-    agendaGroups,
     selectDay,
     selectAppointment,
 } = useCalendarAppointments({
@@ -86,26 +90,35 @@ const {
 
 const getOwnerName = (appointment: Appointment) => {
     if (!appointment.creator) return 'Unbekannt';
-    return appointment.creator.name || 'Unbekannt';
+    const { first_name, last_name } = appointment.creator;
+    return `${first_name} ${last_name}`.trim() || 'Unbekannt';
 };
 
-const truncateWords = (value: string, maxWords = 100) => {
-    const trimmed = value.trim();
-    if (!trimmed) {
-        return '';
-    }
-    const words = trimmed.split(/\s+/);
-    if (words.length <= maxWords) {
-        return trimmed;
-    }
-    return `${words.slice(0, maxWords).join(' ')}...`;
+const canCreateAppointments = computed(() => props.permissions.canCreate);
+
+const canEditAppointment = (appointment: Appointment | null): boolean => {
+    if (!appointment) return false;
+    if (props.permissions.canEditAll) return true;
+    if (props.permissions.canEditOwn && appointment.user_id === userId.value)
+        return true;
+    return false;
 };
+
+const canDeleteAppointment = (appointment: Appointment | null) => {
+    if (!appointment) return false;
+    return props.permissions.canDeleteAll;
+};
+
+const canEditSelectedAppointment = computed(() =>
+    canEditAppointment(selectedAppointment.value),
+);
+const canDeleteSelectedAppointment = computed(() =>
+    canDeleteAppointment(selectedAppointment.value),
+);
 
 const formatTime = (value: string | number) => {
     const date = parseDate(value);
-    if (!date) {
-        return '';
-    }
+    if (!date) return '';
     return new Intl.DateTimeFormat('de-DE', {
         hour: '2-digit',
         minute: '2-digit',
@@ -118,6 +131,19 @@ const formatDate = (value: Date) => {
         month: 'short',
         day: 'numeric',
     }).format(value);
+};
+
+const formatFullDate = (value: Date) => {
+    return new Intl.DateTimeFormat('de-DE', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    }).format(value);
+};
+
+const syncCurrentMonth = (date: Date) => {
+    currentMonth.value = new Date(date.getFullYear(), date.getMonth(), 1);
 };
 
 const goPrevMonth = () => {
@@ -137,43 +163,197 @@ const goNextMonth = () => {
 };
 
 const goToday = () => {
-    const now = new Date();
-    currentMonth.value = new Date(now.getFullYear(), now.getMonth(), 1);
-    selectedDate.value = now;
+    handleSelectDay(new Date());
 };
 
-const setViewMode = (mode: ViewMode) => {
-    viewMode.value = mode;
+const handleSelectDay = (date: Date) => {
+    syncCurrentMonth(date);
+    selectDay(date);
+};
+
+onMounted(() => {
+    document.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('keydown', handleKeyDown);
+});
+
+const startCreate = () => {
+    if (!canCreateAppointments.value) return;
+    openCreate(new Date(selectedDate.value));
+};
+
+// ── Kontextsensitive Navigation (←/→ je nach Ansicht) ────────────────────────
+const goPrev = () => {
+    if (viewMode.value === 'day') {
+        const d = new Date(selectedDate.value);
+        d.setDate(d.getDate() - 1);
+        handleSelectDay(d);
+    } else if (viewMode.value === 'week') {
+        const d = new Date(selectedDate.value);
+        d.setDate(d.getDate() - 7);
+        handleSelectDay(d);
+    } else {
+        goPrevMonth();
+    }
+};
+
+const goNext = () => {
+    if (viewMode.value === 'day') {
+        const d = new Date(selectedDate.value);
+        d.setDate(d.getDate() + 1);
+        handleSelectDay(d);
+    } else if (viewMode.value === 'week') {
+        const d = new Date(selectedDate.value);
+        d.setDate(d.getDate() + 7);
+        handleSelectDay(d);
+    } else {
+        goNextMonth();
+    }
+};
+
+// ── Tastatur-Shortcuts ────────────────────────────────────────────────────────
+const showShortcutsHelp = ref(false);
+
+const handleKeyDown = (e: KeyboardEvent) => {
+    // Nicht auslösen beim Tippen in Eingabefeldern oder mit Modifier-Tasten
+    const target = e.target as HTMLElement;
+    if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey
+    )
+        return;
+
+    // Escape schließt immer das Hilfe-Panel
+    if (e.key === 'Escape') {
+        if (showShortcutsHelp.value) {
+            e.preventDefault();
+            showShortcutsHelp.value = false;
+        }
+        return;
+    }
+
+    // Keine weiteren Shortcuts wenn Dialog/Sheet offen
+    if (isCreateOpen.value || detailsOpen.value) return;
+
+    switch (e.key) {
+        case 't':
+        case 'T':
+            e.preventDefault();
+            goToday();
+            break;
+        case 'd':
+        case 'D':
+            e.preventDefault();
+            viewMode.value = 'day';
+            break;
+        case 'w':
+        case 'W':
+            e.preventDefault();
+            viewMode.value = 'week';
+            break;
+        case 'm':
+        case 'M':
+            e.preventDefault();
+            viewMode.value = 'month';
+            break;
+        case 'a':
+        case 'A':
+            e.preventDefault();
+            viewMode.value = 'agenda';
+            break;
+        case 'n':
+        case 'N':
+            e.preventDefault();
+            startCreate();
+            break;
+        case 'ArrowLeft':
+            e.preventDefault();
+            goPrev();
+            break;
+        case 'ArrowRight':
+            e.preventDefault();
+            goNext();
+            break;
+        case '?':
+            e.preventDefault();
+            showShortcutsHelp.value = !showShortcutsHelp.value;
+            break;
+    }
+};
+
+// ── Drag & Drop: Termin per API verschieben ───────────────────────────────────
+const handleMoveAppointment = ({
+    appointment,
+    newStart,
+    newEnd,
+}: {
+    appointment: Appointment;
+    newStart: Date;
+    newEnd: Date;
+}) => {
+    if (!canEditAppointment(appointment)) return;
+
+    router.put(
+        appointmentAPI.update(appointment.id).url,
+        {
+            title: appointment.title,
+            description: appointment.description ?? '',
+            location: appointment.location ?? '',
+            color: appointment.color ?? 'peacock',
+            reminders: appointment.reminders ?? [],
+            start_time: Math.floor(newStart.getTime() / 1000),
+            end_time: Math.floor(newEnd.getTime() / 1000),
+        },
+        { preserveScroll: true },
+    );
+};
+
+const startEdit = (appointment: Appointment) => {
+    if (!canEditAppointment(appointment)) return;
+    detailsOpen.value = false;
+    openEdit(appointment);
 };
 
 const openDetails = (appointment: Appointment) => {
+    const appointmentDate = parseDate(appointment.start_time);
+    if (appointmentDate) syncCurrentMonth(appointmentDate);
     selectAppointment(appointment);
-    isDetailsOpen.value = true;
-};
-
-const openEditFromDetails = () => {
-    if (!selectedAppointment.value) {
-        return;
-    }
-    isDetailsOpen.value = false;
-    openEdit(selectedAppointment.value);
+    detailsOpen.value = true;
 };
 
 const handleAppointmentDeleted = () => {
     selectedAppointmentId.value = null;
-    isDetailsOpen.value = false;
+    detailsOpen.value = false;
 };
 
-const eventColorClasses = [
-    'bg-sky-500/10 text-sky-700 border-sky-200 dark:border-sky-500/40 dark:text-sky-300',
-    'bg-emerald-500/10 text-emerald-700 border-emerald-200 dark:border-emerald-500/40 dark:text-emerald-300',
-    'bg-amber-500/10 text-amber-700 border-amber-200 dark:border-amber-500/40 dark:text-amber-300',
-    'bg-rose-500/10 text-rose-700 border-rose-200 dark:border-rose-500/40 dark:text-rose-300',
-];
+const now = new Date();
+const isPastAppointment = (appointment: Appointment): boolean => {
+    const end = parseDate(appointment.end_time);
+    return end !== null && end < now;
+};
 
-const getEventClass = (appointment: Appointment) => {
-    const index = appointment.id % eventColorClasses.length;
-    return eventColorClasses[index];
+const getEventBgClass = (appointment: Appointment) => {
+    const color = appointment.color ?? defaultAppointmentColor;
+    const colorMap: Record<string, string> = {
+        peacock: 'bg-sky-500',
+        sage: 'bg-emerald-500',
+        grape: 'bg-fuchsia-500',
+        flamingo: 'bg-pink-500',
+        banana: 'bg-yellow-500',
+        tangerine: 'bg-orange-500',
+        lavender: 'bg-violet-500',
+        graphite: 'bg-slate-500',
+        blueberry: 'bg-blue-500',
+        basil: 'bg-lime-500',
+        tomato: 'bg-red-500',
+    };
+    return colorMap[color] ?? colorMap[defaultAppointmentColor];
 };
 </script>
 
@@ -181,74 +361,385 @@ const getEventClass = (appointment: Appointment) => {
     <Head title="Kalender" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex flex-col gap-6 p-6">
-            <CalendarToolbar
-                v-model:searchQuery="searchQuery"
-                v-model:viewMode="viewMode"
-                :month-label="monthLabel"
-                @today="goToday"
-                @prev-month="goPrevMonth"
-                @next-month="goNextMonth"
-                @create="openCreate"
-            />
-            <div class="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)_320px]">
-                <aside class="flex flex-col gap-6">
-                    <MiniCalendarCard
-                        :month-label="monthLabel"
+        <div class="flex h-[calc(100vh-8rem)] gap-2 p-2 md:gap-4 md:p-4">
+            <!-- Linke Sidebar mit Mini-Kalender -->
+            <aside class="hidden w-64 flex-shrink-0 space-y-4 lg:block">
+                <Button
+                    v-if="canCreateAppointments"
+                    class="w-full gap-2 rounded-full shadow-md"
+                    size="lg"
+                    @click="startCreate"
+                >
+                    <Plus class="h-5 w-5" />
+                    Erstellen
+                </Button>
+
+                <div
+                    v-else
+                    class="flex h-10 items-center justify-center rounded-full border border-dashed text-sm text-muted-foreground"
+                >
+                    Nur Lesemodus
+                </div>
+
+                <MiniCalendar
+                    :current-month="currentMonth"
+                    :selected-date="selectedDate"
+                    :calendar-days="calendarDays"
+                    @select-day="handleSelectDay"
+                    @prev-month="goPrevMonth"
+                    @next-month="goNextMonth"
+                />
+
+                <!-- Termine am ausgewählten Tag -->
+                <div v-if="selectedAppointments.length > 0" class="space-y-2">
+                    <h3
+                        class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                    >
+                        Termine am {{ formatDate(selectedDate) }}
+                    </h3>
+                    <div class="space-y-1">
+                        <button
+                            v-for="apt in selectedAppointments.slice(0, 5)"
+                            :key="apt.id"
+                            class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-sm transition-colors hover:bg-muted/50"
+                            :class="
+                                isPastAppointment(apt)
+                                    ? 'opacity-50 hover:opacity-70'
+                                    : ''
+                            "
+                            @click="openDetails(apt)"
+                        >
+                            <div
+                                class="h-2 w-2 rounded-full"
+                                :class="getEventBgClass(apt)"
+                            />
+                            <span class="truncate">{{ apt.title }}</span>
+                            <span class="ml-auto text-xs text-muted-foreground">
+                                {{ formatTime(apt.start_time) }}
+                            </span>
+                        </button>
+                        <p
+                            v-if="selectedAppointments.length > 5"
+                            class="pl-4 text-xs text-muted-foreground"
+                        >
+                            +{{ selectedAppointments.length - 5 }} weitere
+                        </p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Hauptbereich -->
+            <div
+                class="flex flex-1 flex-col overflow-hidden rounded-xl border bg-card"
+            >
+                <!-- Toolbar -->
+                <div
+                    class="flex flex-wrap items-center justify-between gap-2 border-b px-3 py-2 md:px-4 md:py-3"
+                >
+                    <div class="flex items-center gap-1.5">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            class="rounded-full"
+                            @click="goToday"
+                        >
+                            Heute
+                        </Button>
+                        <div class="flex items-center">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                class="h-8 w-8"
+                                @click="goPrev"
+                            >
+                                <ChevronLeft class="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                class="h-8 w-8"
+                                @click="goNext"
+                            >
+                                <ChevronRight class="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <h2 class="text-base font-semibold md:text-lg">
+                            {{ monthLabel }}
+                        </h2>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <div
+                            class="flex items-center gap-0.5 rounded-lg border p-1"
+                        >
+                            <Button
+                                :variant="
+                                    viewMode === 'day' ? 'secondary' : 'ghost'
+                                "
+                                size="sm"
+                                class="rounded-md px-2 md:px-3"
+                                title="Tag (D)"
+                                @click="viewMode = 'day'"
+                            >
+                                Tag
+                            </Button>
+                            <Button
+                                :variant="
+                                    viewMode === 'week' ? 'secondary' : 'ghost'
+                                "
+                                size="sm"
+                                class="hidden rounded-md px-2 sm:inline-flex md:px-3"
+                                title="Woche (W)"
+                                @click="viewMode = 'week'"
+                            >
+                                Woche
+                            </Button>
+                            <Button
+                                :variant="
+                                    viewMode === 'month' ? 'secondary' : 'ghost'
+                                "
+                                size="sm"
+                                class="rounded-md px-2 md:px-3"
+                                title="Monat (M)"
+                                @click="viewMode = 'month'"
+                            >
+                                Monat
+                            </Button>
+                            <Button
+                                :variant="
+                                    viewMode === 'agenda'
+                                        ? 'secondary'
+                                        : 'ghost'
+                                "
+                                size="sm"
+                                class="rounded-md px-2 md:px-3"
+                                title="Agenda (A)"
+                                @click="viewMode = 'agenda'"
+                            >
+                                Agenda
+                            </Button>
+                        </div>
+
+                        <!-- Shortcuts-Hilfe (nur Desktop) -->
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            class="hidden h-8 w-8 text-muted-foreground md:flex"
+                            title="Tastaturkürzel anzeigen (?)"
+                            @click="showShortcutsHelp = !showShortcutsHelp"
+                        >
+                            <Keyboard class="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
+
+                <!-- Kalenderansicht -->
+                <div class="flex-1 overflow-auto">
+                    <!-- Mobile: kompakte Monatsansicht mit Dot-Indikatoren -->
+                    <MobileMonthView
+                        v-if="viewMode === 'month'"
+                        class="md:hidden"
                         :day-labels="dayLabels"
                         :calendar-days="calendarDays"
-                        @select-day="selectDay"
-                        @prev-month="goPrevMonth"
-                        @next-month="goNextMonth"
+                        :selected-date="selectedDate"
+                        :get-event-bg-class="getEventBgClass"
+                        @select-day="
+                            (date) => {
+                                handleSelectDay(date);
+                                viewMode = 'day';
+                            }
+                        "
+                        @open-details="openDetails"
                     />
-                </aside>
-                <section class="flex flex-col gap-4">
-                    <CalendarViews
-                        :view-mode="viewMode"
+                    <!-- Desktop: volle Monatsansicht -->
+                    <MonthView
+                        v-if="viewMode === 'month'"
+                        class="hidden md:flex"
                         :day-labels="dayLabels"
                         :calendar-days="calendarDays"
+                        :format-time="formatTime"
+                        :get-event-bg-class="getEventBgClass"
+                        :can-edit-appointment="canEditAppointment"
+                        @select-day="handleSelectDay"
+                        @open-details="openDetails"
+                        @move-appointment="handleMoveAppointment"
+                    />
+                    <WeekView
+                        v-else-if="viewMode === 'week'"
                         :week-days="weekDays"
+                        :day-labels="dayLabels"
+                        :format-time="formatTime"
+                        :get-event-bg-class="getEventBgClass"
+                        :can-edit-appointment="canEditAppointment"
+                        @select-day="handleSelectDay"
+                        @open-details="openDetails"
+                        @move-appointment="handleMoveAppointment"
+                    />
+                    <DayView
+                        v-else-if="viewMode === 'day'"
                         :selected-date="selectedDate"
                         :selected-appointments="selectedAppointments"
-                        :agenda-groups="agendaGroups"
-                        :sorted-appointments-count="sortedAppointments.length"
-                        :format-date="formatDate"
                         :format-time="formatTime"
-                        :get-event-class="getEventClass"
-                        @select-day="selectDay"
+                        :format-full-date="formatFullDate"
+                        :get-event-bg-class="getEventBgClass"
+                        :can-edit-appointment="canEditAppointment"
                         @open-details="openDetails"
-                        @open-create="openCreate"
+                        @move-appointment="handleMoveAppointment"
                     />
-                </section>
-                <DetailsSidebar
-                    :selected-date="selectedDate"
-                    :selected-appointments="selectedAppointments"
-                    :selected-appointment="selectedAppointment"
-                    :upcoming-appointments="upcomingAppointments"
-                    :format-date="formatDate"
-                    :format-time="formatTime"
-                    :parse-date="parseDate"
-                    :get-event-class="getEventClass"
-                    :truncate-words="truncateWords"
-                    :get-owner-name="getOwnerName"
-                    @open-create="openCreate"
-                    @open-edit="openEdit"
-                    @open-details="openDetails"
-                    @set-view-mode="setViewMode"
-                />
+                    <AgendaView
+                        v-else
+                        :appointments="filteredAppointments"
+                        :format-time="formatTime"
+                        :get-event-bg-class="getEventBgClass"
+                        :get-owner-name="getOwnerName"
+                        @open-details="openDetails"
+                    />
+                </div>
             </div>
         </div>
-        <AppointmentDetailsDialog
-            :open="isDetailsOpen"
+
+        <!-- Termindetails Sheet -->
+        <AppointmentDetailsSheet
+            v-model:open="detailsOpen"
             :appointment="selectedAppointment"
-            :format-date="formatDate"
+            :can-edit="canEditSelectedAppointment"
+            :can-delete="canDeleteSelectedAppointment"
             :format-time="formatTime"
+            :format-date="formatDate"
             :parse-date="parseDate"
             :get-owner-name="getOwnerName"
-            @update:open="isDetailsOpen = $event"
-            @edit="openEditFromDetails"
+            :get-event-bg-class="getEventBgClass"
+            @edit="startEdit"
             @deleted="handleAppointmentDeleted"
         />
+
+        <!-- Tastaturkürzel-Hilfe-Panel -->
+        <Transition
+            enter-active-class="transition ease-out duration-150"
+            enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100"
+            leave-active-class="transition ease-in duration-100"
+            leave-from-class="opacity-100 scale-100"
+            leave-to-class="opacity-0 scale-95"
+        >
+            <div
+                v-if="showShortcutsHelp"
+                class="fixed right-4 bottom-4 z-50 w-72 origin-bottom-right overflow-hidden rounded-xl border bg-popover shadow-xl"
+            >
+                <div
+                    class="flex items-center justify-between border-b px-4 py-3"
+                >
+                    <div class="flex items-center gap-2">
+                        <Keyboard class="h-4 w-4 text-muted-foreground" />
+                        <span class="text-sm font-semibold"
+                            >Tastaturkürzel</span
+                        >
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        class="h-6 w-6"
+                        @click="showShortcutsHelp = false"
+                    >
+                        <X class="h-3.5 w-3.5" />
+                    </Button>
+                </div>
+                <div class="space-y-0.5 p-3">
+                    <p
+                        class="mb-2 text-[11px] font-medium tracking-wider text-muted-foreground uppercase"
+                    >
+                        Navigation
+                    </p>
+                    <div
+                        v-for="shortcut in [
+                            { keys: ['T'], label: 'Heute' },
+                            {
+                                keys: ['←'],
+                                label: 'Zurück (Tag / Woche / Monat)',
+                            },
+                            { keys: ['→'], label: 'Vor (Tag / Woche / Monat)' },
+                        ]"
+                        :key="shortcut.label"
+                        class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50"
+                    >
+                        <span class="text-xs text-muted-foreground">{{
+                            shortcut.label
+                        }}</span>
+                        <div class="flex gap-1">
+                            <kbd
+                                v-for="k in shortcut.keys"
+                                :key="k"
+                                class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium shadow-sm"
+                            >
+                                {{ k }}
+                            </kbd>
+                        </div>
+                    </div>
+
+                    <p
+                        class="mt-3 mb-2 text-[11px] font-medium tracking-wider text-muted-foreground uppercase"
+                    >
+                        Ansichten
+                    </p>
+                    <div
+                        v-for="shortcut in [
+                            { keys: ['D'], label: 'Tagesansicht' },
+                            { keys: ['W'], label: 'Wochenansicht' },
+                            { keys: ['M'], label: 'Monatsansicht' },
+                            { keys: ['A'], label: 'Agenda' },
+                        ]"
+                        :key="shortcut.label"
+                        class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50"
+                    >
+                        <span class="text-xs text-muted-foreground">{{
+                            shortcut.label
+                        }}</span>
+                        <div class="flex gap-1">
+                            <kbd
+                                v-for="k in shortcut.keys"
+                                :key="k"
+                                class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium shadow-sm"
+                            >
+                                {{ k }}
+                            </kbd>
+                        </div>
+                    </div>
+
+                    <p
+                        class="mt-3 mb-2 text-[11px] font-medium tracking-wider text-muted-foreground uppercase"
+                    >
+                        Aktionen
+                    </p>
+                    <div
+                        v-for="shortcut in [
+                            { keys: ['N'], label: 'Neuer Termin' },
+                            { keys: ['?'], label: 'Shortcuts anzeigen' },
+                            { keys: ['Esc'], label: 'Schließen' },
+                        ]"
+                        :key="shortcut.label"
+                        class="flex items-center justify-between rounded px-2 py-1 hover:bg-muted/50"
+                    >
+                        <span class="text-xs text-muted-foreground">{{
+                            shortcut.label
+                        }}</span>
+                        <div class="flex gap-1">
+                            <kbd
+                                v-for="k in shortcut.keys"
+                                :key="k"
+                                class="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded border bg-muted px-1.5 font-mono text-[10px] font-medium shadow-sm"
+                            >
+                                {{ k }}
+                            </kbd>
+                        </div>
+                    </div>
+                </div>
+                <p class="border-t px-4 py-2 text-[10px] text-muted-foreground">
+                    Shortcuts sind deaktiviert wenn ein Dialog offen ist.
+                </p>
+            </div>
+        </Transition>
+
+        <!-- Termin erstellen/bearbeiten Dialog -->
         <AppointmentFormDialog
             :open="isCreateOpen"
             :is-edit-mode="isEditMode"

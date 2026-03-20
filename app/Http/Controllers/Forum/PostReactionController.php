@@ -40,11 +40,14 @@ class PostReactionController extends Controller
         $postReaction = PostReaction::findByUserAndPost($request->user()->id, $postId);
 
         if (!$postReaction) {
-            PostReaction::create([
-                'user_id' => $request->user()->id,
-                'forum_post_id' => $postId,
-                'type' => $validated['type'],
-            ]);
+            try {
+                PostReaction::create([
+                    'user_id' => $request->user()->id,
+                    'forum_post_id' => $postId,
+                    'type' => $validated['type'],
+                ]);
+            } catch (\Throwable) {
+            }
 
             return;
         }
@@ -59,7 +62,7 @@ class PostReactionController extends Controller
      */
     public function destroy(Request $request, string $professionId, string $topicId, string $postId)
     {
-        PostReaction::findOrFailByUserAndPost($request->user()->id, $postId)->delete();
+        PostReaction::findByUserAndPost($request->user()->id, $postId)->delete();
 
         return back();
     }

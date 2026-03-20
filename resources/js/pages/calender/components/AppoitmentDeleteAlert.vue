@@ -12,6 +12,7 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import appointments from '@/routes/appointments';
+
 import type { Appointment } from '../types';
 
 const open = defineModel<boolean>('open', { required: true });
@@ -44,7 +45,7 @@ function close() {
 <template>
     <AlertDialog
         :open="open"
-        @update:open="(v) => (v ? (open = true) : close())"
+        @update:open="(value) => (value ? (open = true) : close())"
     >
         <AlertDialogContent>
             <AlertDialogHeader>

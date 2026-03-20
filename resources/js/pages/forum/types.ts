@@ -4,6 +4,14 @@ export type User = {
     email: string;
 };
 
+export type FileUpload = {
+    name: string;
+    size: number;
+    type: string;
+    url: string;
+    id: string;
+};
+
 export type Post = {
     id: number;
     content: string;
@@ -22,9 +30,11 @@ export type Topic = {
     title: string;
     description: string;
     isOwnPost: boolean;
+    isSubscribed: boolean;
     pinned: boolean;
     owner: User;
     posts: Array<Post>;
+    files: Array<FileUpload>;
     createdAt: string;
 };
 
@@ -33,11 +43,12 @@ export type MinimalTopic = {
     title: string;
     description: string;
     pinned: boolean;
+    isSubscribed: boolean;
     user: {
         id: number;
         name: string;
         email: string;
-    }
+    };
 };
 
 export type Profession = {
