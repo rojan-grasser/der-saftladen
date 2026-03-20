@@ -70,6 +70,7 @@ class ProfileAvatarController
         ]);
 
         $request->user()->update(['has_pfp' => true]);
+        $request->user()->touch();
 
         return back()->with('success', 'Profilbild wurde hinterlegt');
     }

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
+import AvatarUploader from '@/components/AvatarUploader.vue';
 import DeleteUser from '@/components/DeleteUser.vue';
 import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
@@ -12,7 +14,6 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
-import AvatarUploader from '@/components/AvatarUploader.vue';
 import { type BreadcrumbItem } from '@/types';
 
 interface Props {
@@ -30,7 +31,7 @@ const breadcrumbItems: BreadcrumbItem[] = [
 ];
 
 const page = usePage();
-const user = page.props.auth.user;
+const user = computed(() => page.props.auth.user);
 </script>
 
 <template>
@@ -53,8 +54,9 @@ const user = page.props.auth.user;
                 >
                     <AvatarUploader
                         :folder="user.id"
-                        :initials="user.initials"   
-                        :updatedAt="user.updated_at"  
+                        :initials="user.initials"
+                        :updatedAt="user.updated_at"
+                        :avatarUrl="user.avatar"
                     />
 
                     <div class="grid gap-2">

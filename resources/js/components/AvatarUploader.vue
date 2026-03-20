@@ -1,33 +1,19 @@
 <!-- resources/js/components/profile/AvatarUploader.vue -->
 <script setup lang="ts">
+import { router, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { router, usePage } from '@inertiajs/vue3';
-import { getAvatarUrl, getPresignedPutUrl, uploadToPresignedUrl, deleteAvatar } from '@/composables/avatar';
+import UserAvatar from '@/components/UserAvatar.vue';
+import { deleteAvatar } from '@/composables/avatar';
 import avatar from '@/routes/profile/avatar';
-
-const props = defineProps<{
-    folder: string | number;
-    initials?: string;
-    updatedAt?: string | null;
-}>();
 
 const avatarSrc = ref<string | null>(null);
 const uploading = ref(false);
 const removing = ref(false);
 const errorMsg = ref<string | null>(null);
-
-// Initial setzen
-function refresh() {
-    const base = getAvatarUrl(props.folder);
-    avatarSrc.value = props.updatedAt
-        ? `${base}?t=${new Date(props.updatedAt).getTime()}`
-        : base;
-}
-
-refresh();
 
 async function onFileChange(e: Event) {
     const input = e.target as HTMLInputElement;
@@ -38,14 +24,13 @@ async function onFileChange(e: Event) {
     errorMsg.value = null;
 
     try {
-        // const presign = await getPresignedPutUrl(file.type as any);
-        // await uploadToPresignedUrl(presign.url, file);
-        // avatarSrc.value = `${presign.publicUrl}?t=${Date.now()}`;
-        // page.props.auth.user.updated_at = presign.updated_at;
-
-        router.post(avatar.store().url, { file }, {
-            forceFormData: true,
-        })
+        router.post(
+            avatar.store().url,
+            { file },
+            {
+                forceFormData: true,
+            },
+        );
     } catch (err: any) {
         errorMsg.value = err.message ?? 'Upload fehlgeschlagen';
     }
@@ -65,7 +50,8 @@ async function onDelete() {
         const res = await deleteAvatar();
         avatarSrc.value = null;
         page.props.auth.user.updated_at = res.updated_at;
-
+        page.props.auth.user.avatar = undefined;
+        router.reload({ only: ['auth'] });
     } catch (err: any) {
         errorMsg.value = err.message ?? 'Löschen fehlgeschlagen';
     }
@@ -85,32 +71,13 @@ async function onDelete() {
                 accept="image/png,image/jpeg,image/webp"
                 @change="onFileChange"
             />
-            <!--Button :disabled="uploading">
-                {{ uploading ? 'Lädt…' : 'Hochladen' }}
-            </Button-->
             <Button variant="secondary" :disabled="removing" @click="onDelete">
                 {{ removing ? 'Entfernt…' : 'Entfernen' }}
             </Button>
         </div>
 
         <div class="mt-3 flex items-center gap-4">
-            <div class="relative h-16 w-16 rounded-full border bg-muted flex items-center justify-center overflow-hidden">
-
-                <img
-                    v-if="avatarSrc"
-                    :src="avatarSrc"
-                    alt="Avatar"
-                    class="h-full w-full object-cover"
-                    @error="avatarSrc = null"
-                />
-
-                <span
-                    v-else
-                    class="text-xl font-semibold text-muted-foreground select-none"
-                >
-                    {{ initials }}
-                </span>
-            </div>
+            <UserAvatar :user="page.props.auth.user" />
         </div>
 
         <p v-if="errorMsg" class="text-sm text-red-600">{{ errorMsg }}</p>
