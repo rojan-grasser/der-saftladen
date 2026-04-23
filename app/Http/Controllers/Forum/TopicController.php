@@ -161,12 +161,12 @@ class TopicController extends Controller
             return back()->with('error', 'Du bist nicht der ersteller dieses Themas, daher darfst du es auch nicht bearbeiten.');
         }
 
-        if ($topic->draft) {
-            $topic->update([
-                ...$validated,
-                'draft' => false,
-            ]);
+        $topic->update([
+            ...$validated,
+            'draft' => false,
+        ]);
 
+        if ($topic->draft) {
             return redirect("/forum/profession/$professionId/topics/$topicId")->with('success', 'Das Thema wurde erstellt');
         }
 
