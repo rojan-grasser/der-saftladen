@@ -50,6 +50,12 @@ const props = withDefaults(defineProps<Props>(), {
 
 const page = usePage();
 const auth = computed(() => page.props.auth);
+const avatarSrc = computed(() => {
+    const user = auth.value.user;
+    if (!user?.avatar) return null;
+    const t = user.updated_at ? new Date(user.updated_at).getTime() : Date.now();
+    return `${user.avatar}?t=${t}`;
+});
 const { urlIsActive } = useActiveUrl();
 
 function activeItemStyles(url: NonNullable<InertiaLinkProps['href']>) {
@@ -244,10 +250,11 @@ const rightNavItems: NavItem[] = [
                             >
                                 <Avatar
                                     class="size-8 overflow-hidden rounded-full"
+                                    :key="avatarSrc ?? 'null'"
                                 >
                                     <AvatarImage
-                                        v-if="auth.user.avatar"
-                                        :src="auth.user.avatar"
+                                        v-if="avatarSrc"
+                                        :src="avatarSrc"
                                         :alt="auth.user.name"
                                     />
                                     <AvatarFallback
