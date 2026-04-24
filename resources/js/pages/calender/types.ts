@@ -24,7 +24,8 @@ export interface Appointment {
     reminders?: number[] | null;
     creator?: {
         id: number;
-        name: string;
+        first_name: string;
+        last_name: string;
     } | null;
 }
 
